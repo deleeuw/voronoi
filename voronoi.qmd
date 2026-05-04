@@ -1,0 +1,202 @@
+---
+title: Voronoi Homogeneity Analysis of Categorical Data
+author: 
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+   html:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.css
+    keep-md: true
+    number-sections: true
+toc: true
+toc-depth: 3
+editor: source
+papersize: letter
+graphics: true
+link-citations: true
+mainfont: Times New Roman
+abstract: TBD
+---
+
+```{r loadpackages, echo = FALSE}
+suppressPackageStartupMessages(library(knitr, quietly = TRUE))
+suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
+```
+
+\sectionbreak 
+
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+<https://github.com/deleeuw/voronoi> 
+
+\sectionbreak
+
+# Introduction
+
+# Homogeneity Analysis
+
+\sectionbreak
+
+# Voronoi Analysis
+
+$$
+\sigma(X,Y,\Delta)=\sum_{i=1}^n\sum_{j=1}^m\|\delta _{ij}-d_{ij}(X,Y)\|^2
+$$
+
+If $g_{i\ell}^j=1$ then $\{\delta_{ij}\}_\ell\leq\{\delta_{ij}\}_\nu$
+for all $\nu=1,\cdots,k_j$.
+
+$$
+\delta_{ij}'J\delta_{ij}=1
+$$
+# Majorization
+
+
+$$
+A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}
+$$
+$$
+Z:=\begin{bmatrix}
+X\\Y
+\end{bmatrix}
+$$
+
+$$
+d_{ij}(X,Y)=\text{tr}\ Z'A_{ij}Z
+$$
+$$
+V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}
+$$
+```{r check1, echo = FALSE, eval = FALSE}
+m <- 3
+n <- 5
+library(MASS)
+v <- matrix(0, n + m, n + m)
+v[1:n, 1:n] <- m * diag(n)
+v[n + (1:m), n + (1:m)] <- n * diag(m)
+v[1:n, n + (1:m)] <- -1
+v[n + (1:m), 1:n] <- -1
+v1 <- matrix(0, n + m, n + m)
+v1[1:n, 1:n] <- (m / n)
+v1[n + (1:m), n + (1:m)] <- (n / m)
+v1[1:n, n + (1:m)] <- -1
+v1[n + (1:m), 1:n] <- -1
+v1 <- v1 / (n + m)
+v2 <- matrix(0, n + m, n + m)
+v2[1:n, 1:n] <- diag(n) - (1 / n)
+v3 <- matrix(0, n + m, n + m)
+v3[n + (1:m), n + (1:m)] <- diag(m) - (1 / m)
+vv <- (n + m) * v1 + m * v2 + n * v3
+print(max(abs(v - vv)))
+vin <- ginv(v)
+viv <- v1 / (n + m) + v2 / m + v3 / n
+print(max(abs(vin - viv)))
+```
+If we define
+\begin{align}
+V_1&:=(n+m)^{-1}\begin{bmatrix}\frac{m}{n}E&-E\\-E&\frac{n}{m}E\end{bmatrix},\\
+V_2&:=\begin{bmatrix}J_n&0\\0&0\end{bmatrix},\\
+V_3&:=\begin{bmatrix}0&0\\0&J_m\end{bmatrix},
+\end{align}
+then
+$$
+V=(n+m)V_1+mV_2+nV_3
+$$
+Matrices $V_1,V_2,$ and $V_3$ are symmetric projectors on orthogonal
+subspaces. It follows that $V^+$, the Moore-Penrose inverse3 of $V$,
+is
+$$
+V^+=\frac{1}{n+m}V_1+\frac{1}{m}V_2+\frac{1}{n}V_3
+$$
+$$
+B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmatrix}
+$$
+Now $V_1B(X,Y)=0$ and thus $$V^+B(X,Y)=\frac{1}{m}V_2B(X,Y)+\frac{1}{n}V_3B(X,Y)$$
+
+# The Cone
+
+Consider the cone of all vectors $x$ in $\mathbb{R}^n$ for which
+$x_i\leq x_1$ for all $i\neq 1$ and $e'x=0$. The extreme rays of the
+cone will be the $n-1$ vectors of the form $\alpha e_i+\beta(e-e_i)$ with
+$i\neq 1$. Thus element $i$ is equal to $\alpha$ and all other elements
+(including $x_1$) are equal to beta. Thus we must have $\alpha>\beta$.
+The sum of the elements is $\alpha+(n-1)\beta$, which must be zero. 
+Thus $\alpha=-(n-1)\beta$, which implies $\beta<0$ and $\alpha>0$.
+The extreme rays are positive multiples of the vectors $e_i-n^{-1}e$ with $i\neq 1$ and the cone is the set of all weighted sums with non-negative weights of these $n-1$ vectors. Here is a small example.
+```{r}
+a <- -cbind(1, -diag(4))
+b <- (diag(5)-(1 / 5))[, -1]
+print(a)
+print(b)
+print(a %*% b)
+```
+For later reference the sum of squares of the vectors $e_i-n^{-1}e$ is
+$(n-1)/n$, so the vectors $\sqrt{n/(n-1)}(e_i-n^{-1}e)$ are the
+vectors of length 1 on the extreme rays. The average of the
+extreme rays is 
+
+
+# Normalized Monotone Regression
+
+Suppose $y$ is a vector with $n$ elements. The problem we study is 
+to minimixe the sum of squares $\sigma(x):=\|x-y\|^2$ over
+$x\in K$ and $x'Jx=1$. Here 
+
+* $K$ is the cone of vectors with $\smash{x_1\leq x_2\leq\cdots\leq x_n}$,
+* $J$ is the centering matrix $\smash{J:=I-n^{-1}ee'}$, where
+* $e$ is the vector with all $n$ elements equal to one.
+
+Change variables to $\tilde x=Jx$. Then $x'Jx=\tilde x'\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also $\tilde x = Jx$
+if and only if $x=\tilde x+\beta e$. So the transformed problem is
+to minimize
+$\|\tilde x+\beta e-y\|^2$ over $\beta$ and $\tilde x\in K$, with
+$e'\tilde x=0$ and $\tilde x'\tilde x=1$. The minimizer for $\beta$ is $\overline{y}:=n^{-1}e'y$,
+and thus the problem becomes minimizing
+$\|\tilde x- Jy\|^2$ over $\tilde x\in K$, $\tilde x'\tilde x=1$, and $e'\tilde x=0$. 
+
+Forget about the constraint $e'\tilde x=0$. If $M$ is the monotone regression operator 
+it follows
+that the solution for $\tilde x$ is $M(Jy)/\|M(Jy)\|$, which automatically
+satisfies $e'\tilde x=0$. Thus the solution of our original problem is 
+$$
+\hat x=\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}.
+$$
+$M(y-\overline{y})=M(y)-\overline{y}$
+and thus $\|M(y-\overline y)\|^2=\|M(y)\|^2+n\overline{y}^2-2\overline{y}e'M(y)$
+nor $e'M(y)=e'y=n\overline{y}$.
+Thus $\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2$
+$$
+\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
+\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
+$$
+
+
+
+\sectionbreak
+
+# References
