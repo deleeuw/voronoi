@@ -136,6 +136,39 @@
 \makeatother
 
 
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 
 
@@ -236,7 +269,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
-  pdftitle={Voronoi Homogeneity Analysis of Categorical Data},
+  pdftitle={Vomals -- Voronoi Analysis of Categorical Data},
   pdfauthor={Jan de Leeuw},
   colorlinks=true,
   linkcolor={blue},
@@ -246,9 +279,9 @@
   pdfcreator={LaTeX via pandoc}}
 
 
-\title{Voronoi Homogeneity Analysis of Categorical Data}
+\title{Vomals -- Voronoi Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{May 3, 2026}
+\date{May 4, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -274,6 +307,75 @@ can be found at \url{https://github.com/deleeuw/voronoi}
 \section{Introduction}\label{introduction}
 
 \section{Homogeneity Analysis}\label{homogeneity-analysis}
+
+\emph{Homogeneity analysis}, a.k.a. \emph{Multiple Correspondence
+Analysis}, can be introduced in many different ways. We refer to Guttman
+(\citeproc{ref-guttman_41}{1941}), Tenenhaus and Young
+(\citeproc{ref-tenenhaus_young_85}{1985}), Bekker and De Leeuw
+(\citeproc{ref-bekker_deleeuw_C_88}{1988}), Gifi
+(\citeproc{ref-gifi_B_90}{1990}), Greenacre
+(\citeproc{ref-greenacre_91}{1991}), Le Roux and Rouanet
+(\citeproc{ref-leroux_rouanet_10}{2010}), De Leeuw
+(\citeproc{ref-deleeuw_C_23}{2023}) for a bouquet of discussions and
+interpretations of the equations and algorithms defining the technique.
+
+For our purposes a geometric interpretation using \emph{star plots}
+seems the most natural one. We have \(n\) objects measured by \(m\)
+categorical variables. Variable \(j\) has \(k_j\) categories, which are
+the different values the variable can assumes for the \(n\) objects.
+Suppose the objects are mapped into \(n\) points of Euclidean space
+\(\mathbb{R}^p\). For each variable we can construct an additional
+\(k_j\) points in the same space by computing for each category the
+centroids of all object-points in that category. Thus each variable
+defines its own plot. We then draw lines from the \(n\) object points to
+``their'' category point and we obtain \(k_j\) ``stars''. Homogeneity
+analysis maps the objects into space in such a way that the stars are as
+small as possible, where the size of the star is measured as the sum of
+squares of the distances between each category points and ``its'' object
+points (summed over categories and over variables). In order to avoid
+the trivial solution in which all objects are mapped into the same point
+homogeneity requires that the \emph{configuration} of object points (an
+\(n\times p\) matrix) is column-centered and orthonormal.
+
+There are a huge number of variations possible on the same theme.
+Instead of the centroids we could use the Weber points to define our
+stars. Instead of Euclidean distance we could use any other distance on
+\(\mathbb{R}^p\). Instead of the stars we could use the convex hulls or
+the minimum spanning trees, or any other way to visualize and quantify
+the compactness of the point clouds of each category. Any one of these
+choices defines a technique that could be called homogeneity analysis,
+but in this paper we mean the classical choice that uses stars, squared
+Euclidean distance, and orthonormal object points.
+
+The key mathematical object in homogeneity analysis is the
+\emph{indicator matrix}, which is a classical way to code categorical
+data. For a variable \(j\) with \(k_j\) categories it is an
+\(n\times k_j\) binary matrix \(G_j\) in which each row \(i\) contains a
+single element equal to one, indicating into which category the object
+\(i\) maps for variable \(j\). The cross product \(D_j:=G_j'G_j\) is
+diagonal, with the \emph{marginal frequencies} of the categories on the
+diagonal. For two different variables the crossproduct
+\(C_{j\ell}=G_j'G_\ell\) is the \(k_j\times k_\ell\) \emph{cross table}
+or \emph{contingency table} of the two variables.
+
+The \(G_j\) can be used as weights in the traditional ``stress''
+multidimensional scaling loss function, defined as \[
+\sigma(X;Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2.
+\] Here the dissimilarity \(\delta_{i\ell}^j=0\) if \(g_{i\ell}^j=1\).
+If \(g_{i\ell}^j=0\) the dissimilarity is arbitrary, because that
+particular triple \((i,j,\ell)\) does not contribute to the loss
+function. Since \(\delta_{i\ell}^jg_{i\ell}^j=0\) for all \((i,j,\ell)\)
+we have \[
+\sigma(X;Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j\{d(x_i,y_\ell^j)\}^2.
+\] Define \[
+\sigma_\star(X):=\min_{Y_1,\cdots,Y_m}\sigma(X;Y_1,\cdots,Y_m).
+\] The minimum over the \(Y_j\) is attained at the centroids
+\(\hat Y_j:=D_j^{-1}G_j'X\), and if we substitute these optimal
+\(\hat Y_j\) in \ldots{} we see that \(\sigma_\star(X)\) is indeed equal
+to our measure of the total size of all stars. Minimizing
+\(\sigma_\star(X)\) over \(X'X=I\) is homogeneity analysis, and
+computing the solution turns out to be a straightforward
+eigenvalue-eigenvector problem.
 
 \sectionbreak
 
@@ -426,7 +528,48 @@ nor \(e'M(y)=e'y=n\overline{y}\). Thus
 
 \sectionbreak
 
-\section{References}\label{references}
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\protect\phantomsection\label{refs}
+\begin{CSLReferences}{1}{1}
+\bibitem[\citeproctext]{ref-bekker_deleeuw_C_88}
+Bekker, P., and J. De Leeuw. 1988. {``Relation Between Variants of
+Nonlinear Principal Component Analysis.''} Chap. 1 in \emph{Component
+and Correspondence Analysis}, edited by J. L. A. Van Rijckevorsel and J.
+De Leeuw. Wiley Series in Probability and Mathematcal Statistics. Wiley.
+
+\bibitem[\citeproctext]{ref-deleeuw_C_23}
+De Leeuw, J. 2023. {``Deconstructing Multiple Correspondence
+Analysis.''} Chap. 22 in \emph{Analysis of Categorical Data from
+Historical Perspectives. Essays in Honour of Shizuhiko Nishisato.},
+edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel. Springer.
+
+\bibitem[\citeproctext]{ref-gifi_B_90}
+Gifi, A. 1990. \emph{Nonlinear Multivariate Analysis}. Wiley.
+
+\bibitem[\citeproctext]{ref-greenacre_91}
+Greenacre, M. J. 1991. {``Interpreting Multiple Correspondence
+Analysis.''} \emph{Applied Stochastic Models and Data Analysis} 7:
+195--210.
+
+\bibitem[\citeproctext]{ref-guttman_41}
+Guttman, L. 1941. {``{The Quantification of a Class of Attributes: A
+Theory and Method of Scale Construction}.''} In \emph{The Prediction of
+Personal Adjustment}, edited by P. Horst. Social Science Research
+Council.
+
+\bibitem[\citeproctext]{ref-leroux_rouanet_10}
+Le Roux, B., and H. Rouanet. 2010. \emph{Multiple Correspondence
+Analysis}. Sage.
+
+\bibitem[\citeproctext]{ref-tenenhaus_young_85}
+Tenenhaus, M., and F. W. Young. 1985. {``{An Analysis and Synthesis of
+Multiple Correspondence Analysis, Optimal Scaling, Dual Scaling,
+Homogeneity Analysis and Other Methods for Quantifying Categorical
+Multivariate Data}.''} \emph{Psychometrika} 50: 91--119.
+
+\end{CSLReferences}
 
 
 

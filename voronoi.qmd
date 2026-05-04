@@ -1,5 +1,5 @@
 ---
-title: Voronoi Homogeneity Analysis of Categorical Data
+title: Vomals -- Voronoi Analysis of Categorical Data
 author: 
     - name: Jan de Leeuw
       orcid: 0000-0003-1420-1797
@@ -59,6 +59,69 @@ appreciated, but is not required. The files can be found at
 # Introduction
 
 # Homogeneity Analysis
+
+*Homogeneity analysis*, a.k.a. *Multiple Correspondence
+Analysis*, can be introduced in many different ways. We refer to
+@guttman_41, @tenenhaus_young_85, @bekker_deleeuw_C_88, @gifi_B_90, @greenacre_91, @leroux_rouanet_10, @deleeuw_C_23 for a bouquet of
+discussions and interpretations of the equations and algorithms
+defining the technique.
+
+For our purposes a geometric interpretation using *star plots* seems
+the most natural one. We have $n$ objects measured by $m$ 
+categorical variables. Variable $j$ has $k_j$ categories, which
+are the different values the variable can assumes for the $n$ objects.
+Suppose the objects are mapped into $n$ points of Euclidean space
+$\mathbb{R}^p$. For each variable we can construct an additional
+$k_j$ points in the same space by computing for each category
+the centroids of all object-points in that category. Thus each
+variable defines its own plot. We then draw lines from the $n$ 
+object points to "their" category point and we obtain $k_j$ 
+"stars". Homogeneity analysis maps the objects
+into space in such a way that the stars are as small as possible,
+where the size of the star is measured as the sum of squares
+of the distances between each category points and "its" object
+points (summed over categories and over variables). In order
+to avoid the trivial solution in which all objects are mapped
+into the same point homogeneity requires that the *configuration*
+of object points (an $n\times p$ matrix) is column-centered and
+orthonormal.
+
+There are a huge number of variations possible on the same theme.
+Instead of the centroids we could use the Weber points to define
+our stars. Instead of Euclidean distance we could use any other
+distance on $\mathbb{R}^p$. Instead of the stars we could use the 
+convex hulls or the minimum spanning trees, or any other way 
+to visualize and quantify the compactness of the point clouds of each category. Any one of these choices defines a technique that could be called homogeneity analysis, but in this paper we mean the classical
+choice that uses stars, squared Euclidean distance, and orthonormal
+object points.
+
+The key mathematical object in homogeneity analysis is the
+*indicator matrix*, which is a classical way to code categorical data.
+For a variable $j$ with $k_j$ categories it is an $n\times k_j$ binary
+matrix $G_j$ in which each row $i$ contains a single element equal to one,
+indicating into which category the object $i$ maps for variable $j$.
+The cross product $D_j:=G_j'G_j$ is diagonal, with the *marginal
+frequencies* of the categories on the diagonal. For two different variables the crossproduct $C_{j\ell}=G_j'G_\ell$ is the $k_j\times k_\ell$ *cross table* or *contingency table* of the two variables.
+
+The $G_j$ can be used as weights in the traditional "stress" multidimensional scaling loss function, defined as
+$$
+\sigma(X;Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2.
+$$
+Here the dissimilarity $\delta_{i\ell}^j=0$ if $g_{i\ell}^j=1$. If
+$g_{i\ell}^j=0$ the dissimilarity is arbitrary, because that
+particular triple $(i,j,\ell)$ does not contribute to the loss 
+function. Since $\delta_{i\ell}^jg_{i\ell}^j=0$ for all $(i,j,\ell)$ we
+have
+$$
+\sigma(X;Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j\{d(x_i,y_\ell^j)\}^2.
+$$
+Define 
+$$
+\sigma_\star(X):=\min_{Y_1,\cdots,Y_m}\sigma(X;Y_1,\cdots,Y_m).
+$$
+The minimum over the $Y_j$ is attained at the centroids $\hat Y_j:=D_j^{-1}G_j'X$, and if we substitute these optimal $\hat Y_j$
+in ... we see that $\sigma_\star(X)$ is indeed equal to our measure of the total size of all stars. Minimizing $\sigma_\star(X)$ over $X'X=I$
+is homogeneity analysis, and computing the solution turns out to be a straightforward eigenvalue-eigenvector problem.
 
 \sectionbreak
 
