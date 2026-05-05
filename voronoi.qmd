@@ -1,5 +1,5 @@
 ---
-title: Vomals -- Voronoi Analysis of Categorical Data
+title: Voronoi Analysis of Categorical Data
 author: 
     - name: Jan de Leeuw
       orcid: 0000-0003-1420-1797
@@ -58,7 +58,7 @@ appreciated, but is not required. The files can be found at
 
 # Introduction
 
-# Homogeneity Analysis
+## Homogeneity Analysis
 
 *Homogeneity analysis*, a.k.a. *Multiple Correspondence
 Analysis*, can be introduced in many different ways. We refer to
@@ -103,29 +103,87 @@ indicating into which category the object $i$ maps for variable $j$.
 The cross product $D_j:=G_j'G_j$ is diagonal, with the *marginal
 frequencies* of the categories on the diagonal. For two different variables the crossproduct $C_{j\ell}=G_j'G_\ell$ is the $k_j\times k_\ell$ *cross table* or *contingency table* of the two variables.
 
-The $G_j$ can be used as weights in the traditional "stress" multidimensional scaling loss function, defined as
-$$
-\sigma(X;Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2.
-$$
+The $G_j$ can be used as weights in the traditional "stress" multidimensional scaling loss function (@kruskal_64a, @kruskal_64b), defined as
+\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2.\label{eq-loss1}
+\end{equation}
 Here the dissimilarity $\delta_{i\ell}^j=0$ if $g_{i\ell}^j=1$. If
 $g_{i\ell}^j=0$ the dissimilarity is arbitrary, because that
 particular triple $(i,j,\ell)$ does not contribute to the loss 
 function. Since $\delta_{i\ell}^jg_{i\ell}^j=0$ for all $(i,j,\ell)$ we
 have
-$$
-\sigma(X;Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j\{d(x_i,y_\ell^j)\}^2.
-$$
+\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j\{d(x_i,y_\ell^j)\}^2.\label{eq-loss2}
+\end{equation}
 Define 
-$$
-\sigma_\star(X):=\min_{Y_1,\cdots,Y_m}\sigma(X;Y_1,\cdots,Y_m).
-$$
+\begin{equation}
+\sigma_\star(X):=\min_{Y_1,\cdots,Y_m}\sigma(X;Y_1,\cdots,Y_m).\label{eq-los3}
+\end{equation}
 The minimum over the $Y_j$ is attained at the centroids $\hat Y_j:=D_j^{-1}G_j'X$, and if we substitute these optimal $\hat Y_j$
 in ... we see that $\sigma_\star(X)$ is indeed equal to our measure of the total size of all stars. Minimizing $\sigma_\star(X)$ over $X'X=I$
-is homogeneity analysis, and computing the solution turns out to be a straightforward eigenvalue-eigenvector problem.
+is homogeneity analysis, and computing the solution turns out to be a straightforward eigenvalue-eigenvector problem. The details are in
+the publications we mentioned before.
 
-\sectionbreak
+## Voronoi Analysis
 
-# Voronoi Analysis
+Although using loss function \eqref{eq-loss1} makes homogeneity analysis a form of (metric) multidimensional scaling there are some important differences. There are no local minima in homogeneity analysis because it is a symmetric eigenvalue problem. Also, and most importantly, we do not
+really expect the minimum loss function value to be zero, or even close
+to zero. Zero loss would imply all object points coincide with 
+all category points they map into, which is clearly unrealistic. It
+can only be realized if all object and category points map into a
+single point, which is prohibited by the constraint $X'X=I$. Thus
+we get a perfectly determinate and stable solution, but at the cost of imposing unrealistic constraints and an arbitrary normalization.
+
+This makes it interesting to generalize loss function \eqref{eq-loss1}
+to
+\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,...,\Delta_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2\label{eq-loss4}
+\end{equation}
+with fixed non-negative weights, and with the constraints that
+if $g_{i\ell}^j=1$ then $\delta_{i\ell}\leq\delta_{i\nu}$ for all
+$\nu=1,cdots,k_j$. Thus if object $i$ is in category $\ell$ of 
+variable $j$ we do not require the object point to coincide
+with the categiry point, but we merely require that the object
+point is at least as close to category point $\ell$ as to any of the
+other $k_j-1$ category points of that variable.
+
+The geometry corresponding with loss function \eqref{eq-loss4} is
+different. As in homogeneity analysis there is a plot for each variable $j$ with both $n$ object points and $k_j$ category points. The $k_j$
+category points define $k_j$ *voronoi regions* that partition the
+space. Voronoi region $\smash{\mathcal{V}^j_\ell}$ is the region of space
+where the points are at least as close to category point $\smash{y_\ell^j}$ as to any of the other category points. And loss \eqref{eq-loss4} is
+zero (for a variable) if all object points are in the "correct"
+Voronoi region, i.e. in the Voronoi region of the category
+point corresponding with the category they are in. 
+
+One (very inefficient but conceptually easy) way of constructing
+Voronoi regions is to draw the perpendicular bisectors of 
+the lines connecting all pairs of category points of a variable.
+The literature on properties and computation on Voronoi regions 
+is large, and we refer to the textbooks of @okabe_boots_sugihara_chiu_00
+and @lee_klein_lee_13.
+
+Since the category point itself is obviously in its own Voronoi
+region and since Voronoi regions are convex it follows that
+if we make stars by connecting category points with objects
+points as in homogeneity analysis then we actually require
+each star to be in its Voronoi region. Of course stars are
+no longer directly related to the value of the loss function.
+
+Voronoi analysis of categorical data, as defined here, minimizes
+loss function \eqref{eq-loss4} over $X$ and over the $Y_j$ and
+over the $\Delta_j$ satisfying the ordinal constraints. It is consequently
+a form of non-metric (ordinal) multidimensional scaling. The
+constraint $X'X=I$ from homogeneity analysis is no longer
+needed, but some form of normalization is still necessary.
+We still need to exclude the trivial solution in which all
+points and regions collapse into a single point and all
+$\Delta_j$ are zero. But, more urgently, we have to deal
+with the trivial solutions familiar from multidimensional
+unfolding (@heiser_81, @deleeuw_R_83, @busing_10).
+
+
+# Algorithm
 
 $$
 \sigma(X,Y,\Delta)=\sum_{i=1}^n\sum_{j=1}^m\|\delta _{ij}-d_{ij}(X,Y)\|^2
