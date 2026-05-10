@@ -1,5 +1,4 @@
 mca <- function(indi, ndim) {
-  nobj <- nrow(indi[[1]])
   marg <- colSums(indi)
   pmat <- makePmat(indi)
   eigs <- eigs_sym(pmat, ndim + 1)

@@ -5,17 +5,6 @@ source("paraplu.R")
 source("majorization.R")
 source("auxiliaries.R")
 
-set.seed(12345)
-
-xx <- matrix(c(
-  sample(1:3, 20, replace = TRUE),
-  sample(1:5, 20, replace = TRUE),
-  sample(1:2, 20, replace = TRUE)
-), 20, 3)
-gx <- as.list(1:3)
-gx[[1]] <- makeIndicator(xx[, 1])
-gx[[2]] <- makeIndicator(xx[, 2])
-gx[[3]] <- makeIndicator(xx[, 3])
 
 mdshom <- function(x,
                    ndim = 2,
@@ -27,7 +16,6 @@ mdshom <- function(x,
                    verbose = TRUE) {
   nobj <- nrow(x)
   nvar <- ncol(x)
-  indi <- sapply(1:nvar, list)
   ncat <- rep(0, nvar)
   indi <- NULL
   for (j in 1:nvar) {
