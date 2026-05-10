@@ -41,29 +41,12 @@ mdshom <- function(x,
   xold <- haux$xold
   yold <- haux$yold
   dold <- makeDmat(xold, yold)
-  dhat <- makeDhat(indi, ncat, norm)
+  dhat <- monotone(dhat, dold, ncat, indi)
   sold <- sum((dhat - dold)^2)
   repeat {
     haux <- majorizationStep(dold, dhat, xold, yold, vinv, inmax, ips) 
     imtc <- 0L
     sold <- 0.0
-    for (i in 1:nobj) {
-      ksum <- 0L
-      for (j in 1:nvar) {
-        kimj <- ncat[j]
-        targ <- dold[i, ksum + 1:kimj]
-        marg <- mean(targ)
-        kind <- which.max(indi[[j]][i, ])
-        if (which.min(targ) == kind) {
-          imtc <- imtc + 1
-          ehat <- targ
-        } else {
-          ehat <- paraplu(targ, kind)
-        }
-        dhat[i, ksum + 1:kimj] <- ehat
-        ksum <- ksum + kimj
-      }
-    }
     sold <- sum((dhat - dold)^2)
     mold <- imtc / (nvar * nobj)
     print(c(mold, sold))

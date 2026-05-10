@@ -281,7 +281,7 @@
 
 \title{Voronoi Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{May 4, 2026}
+\date{May 10, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -308,21 +308,26 @@ can be found at \url{https://github.com/deleeuw/voronoi}
 
 \subsection{Homogeneity Analysis}\label{homogeneity-analysis}
 
-\emph{Homogeneity analysis}, a.k.a. \emph{Multiple Correspondence
+\emph{Homogeneity Analysis}, a.k.a. \emph{Multiple Correspondence
 Analysis}, can be introduced in many different ways. We refer to Guttman
 (\citeproc{ref-guttman_41}{1941}), Tenenhaus and Young
 (\citeproc{ref-tenenhaus_young_85}{1985}), Bekker and De Leeuw
 (\citeproc{ref-bekker_deleeuw_C_88}{1988}), Gifi
-(\citeproc{ref-gifi_B_90}{1990}), Greenacre
-(\citeproc{ref-greenacre_91}{1991}), Le Roux and Rouanet
-(\citeproc{ref-leroux_rouanet_10}{2010}), De Leeuw
+(\citeproc{ref-gifi_B_90}{1990}), Greenacre and Blasius
+(\citeproc{ref-greenacre_blasius_06}{2006}), Le Roux and Rouanet
+(\citeproc{ref-leroux_rouanet_10}{2010}), and De Leeuw
 (\citeproc{ref-deleeuw_C_23}{2023}) for a bouquet of discussions and
 interpretations of the equations and algorithms defining the technique.
 
-For our purposes a geometric interpretation using \emph{star plots}
-seems the most natural one. We have \(n\) objects measured by \(m\)
-categorical variables. Variable \(j\) has \(k_j\) categories, which are
-the different values the variable can assumes for the \(n\) objects.
+For our purposes it is most relevant to introduce Homogeneity Analysis
+(HA) as a particular case of non-metric multidimensional scaling (MDS),
+more precisely a number of linked non-metric multidimensional unfolding
+(MDU) prblems.
+
+The data are measurements of \(n\) objects on \(m\) categorical
+variables. Variable \(j\) has \(k_j\) \emph{categories}, which are the
+different unique values the variable assumes for the \(n\) objects.
+
 Suppose the objects are mapped into \(n\) points of Euclidean space
 \(\mathbb{R}^p\). For each variable we can construct an additional
 \(k_j\) points in the same space by computing for each category the
@@ -358,33 +363,37 @@ diagonal. For two different variables the crossproduct
 \(C_{j\ell}=G_j'G_\ell\) is the \(k_j\times k_\ell\) \emph{cross table}
 or \emph{contingency table} of the two variables.
 
-The \(G_j\) can be used as weights in the traditional ``stress''
-multidimensional scaling loss function (Kruskal
+We can also define homogeneity analysis in the traditional non-metric
+multidimensional scaling framework, using the loss function (Kruskal
 (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
-(\citeproc{ref-kruskal_64b}{1964b})), defined as \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2.\label{eq-loss1}
-\end{equation} Here the dissimilarity \(\delta_{i\ell}^j=0\) if
-\(g_{i\ell}^j=1\). If \(g_{i\ell}^j=0\) the dissimilarity is arbitrary,
-because that particular triple \((i,j,\ell)\) does not contribute to the
-loss function. Since \(\delta_{i\ell}^jg_{i\ell}^j=0\) for all
-\((i,j,\ell)\) we have \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^j\{d(x_i,y_\ell^j)\}^2.\label{eq-loss2}
-\end{equation} Define \begin{equation}
-\sigma_\star(X):=\min_{Y_1,\cdots,Y_m}\sigma(X;Y_1,\cdots,Y_m).\label{eq-los3}
+(\citeproc{ref-kruskal_64b}{1964b})). Define \begin{equation}
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2.\label{eq-loss1}
+\end{equation} Homogeneity analysis minimizes this loss over all
+configurations \(X\) with \(X'X=I\), over the \(Y_j\), and over all
+\(\Delta_j\) that satisfy \(\delta_{i\ell}^j=0\) whenever
+\(g_{i\ell}^j=1\). The other elements of \(\Delta\) are only constrained
+to be non-negative.
+
+If \begin{equation}
+\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-loss2}
+\end{equation} then \begin{equation}
+\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^jd(x_i,y_\ell^j)^2.\label{eq-loss3}
+\end{equation} Now define \begin{equation}
+\sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss4}
 \end{equation} The minimum over the \(Y_j\) is attained at the centroids
 \(\hat Y_j:=D_j^{-1}G_j'X\), and if we substitute these optimal
-\(\hat Y_j\) in \ldots{} we see that \(\sigma_\star(X)\) is indeed equal
-to our measure of the total size of all stars. Minimizing
-\(\sigma_\star(X)\) over \(X'X=I\) is homogeneity analysis, and
-computing the solution turns out to be a straightforward
-eigenvalue-eigenvector problem. The details are in the publications we
-mentioned before.
+\(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see that
+\(\sigma_{\star\star}(X)\) is indeed equal to our measure of the total
+size of all stars. Minimizing \(\sigma_{\star\star}(X)\) over \(X'X=I\)
+is homogeneity analysis, and computing the solution turns out to be a
+straightforward eigenvalue-eigenvector problem. The details are in the
+publications we referenced at the beginning of this section.
 
 \subsection{Voronoi Analysis}\label{voronoi-analysis}
 
 Although using loss function \eqref{eq-loss1} makes homogeneity analysis
 a form of (metric) multidimensional scaling there are some important
-differences. There are no local minima in homogeneity analysis because
+differences. There are no local minima in homogeneity analysis, because
 it is a symmetric eigenvalue problem. Also, and most importantly, we do
 not really expect the minimum loss function value to be zero, or even
 close to zero. Zero loss would imply all object points coincide with all
@@ -392,114 +401,126 @@ category points they map into, which is clearly unrealistic. It can only
 be realized if all object and category points map into a single point,
 which is prohibited by the constraint \(X'X=I\). Thus we get a perfectly
 determinate and stable solution, but at the cost of imposing unrealistic
-constraints and an arbitrary normalization.
+constraints and the rather arbitrary normalization \(X'X=I\).
 
 This makes it interesting to generalize loss function \eqref{eq-loss1}
 to \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,...,\Delta_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2\label{eq-loss4}
-\end{equation} with fixed non-negative weights, and with the constraints
-that if \(g_{i\ell}^j=1\) then \(\delta_{i\ell}\leq\delta_{i\nu}\) for
-all \(\nu=1,cdots,k_j\). Thus if object \(i\) is in category \(\ell\) of
-variable \(j\) we do not require the object point to coincide with the
-categiry point, but we merely require that the object point is at least
-as close to category point \(\ell\) as to any of the other \(k_j-1\)
-category points of that variable.
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,...,\Delta_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss5}
+\end{equation} with the constraints that if \(g_{i\ell}^j=1\) then
+merely \(\delta_{i\ell}^j\leq\delta_{i\nu}^j\) for all
+\(\nu=1,\cdots,k_j\). This is significantly weaker than the homogeneity
+analysis constraints, which require the \(\smash{\delta_{i\ell}^j}\) to
+be zero. If object \(i\) is in category \(\ell\) of variable \(j\) we do
+not require the object point to coincide with the category point, but we
+merely require that the object point is at least as close to category
+point \(\ell\) as to any of the other \(k_j-1\) category points of that
+variable.
 
-The geometry corresponding with loss function \eqref{eq-loss4} is
-different. As in homogeneity analysis there is a plot for each variable
-\(j\) with both \(n\) object points and \(k_j\) category points. The
-\(k_j\) category points define \(k_j\) \emph{voronoi regions} that
-partition the space. Voronoi region \(\smash{\mathcal{V}^j_\ell}\) is
-the region of space where the points are at least as close to category
-point \(\smash{y_\ell^j}\) as to any of the other category points. And
-loss \eqref{eq-loss4} is zero (for a variable) if all object points are
-in the ``correct'' Voronoi region, i.e.~in the Voronoi region of the
-category point corresponding with the category they are in.
+As a consequence, the geometry corresponding with loss function
+\eqref{eq-loss5} is also different. As in homogeneity analysis there is
+a plot for each variable \(j\) with both \(n\) object points and \(k_j\)
+category points. The \(k_j\) category points define \(k_j\)
+\emph{voronoi regions} that partition the space. Voronoi region
+\(\smash{\mathcal{V}^j_\ell}\) is the region of space where the points
+are at least as close to category point \(\smash{y_\ell^j}\) as to any
+of the other category points. And loss \eqref{eq-loss4} is zero (for a
+variable) if all object points are in the ``correct'' Voronoi region,
+i.e.~in the Voronoi region of the category point corresponding with the
+category they are in.
 
-One (very inefficient but conceptually easy) way of constructing Voronoi
-regions is to draw the perpendicular bisectors of the lines connecting
-all pairs of category points of a variable. The literature on properties
+One (very inefficient, but conceptually easy) way of constructing
+Voronoi regions is to draw the perpendicular bisectors of the
+(hypothetical) lines connecting all pairs of category points of a
+variable. The convex polyhedral regions thus formed, some bounded and
+some unbounded, define the Voronoi regions. The literature on properties
 and computation on Voronoi regions is large, and we refer to the
-textbooks of
-(\citeproc{ref-okabe_boots_sugihara_chiu_00}{\textbf{okabe\_boots\_sugihara\_chiu\_00?}})
-and (\citeproc{ref-lee_klein_lee_13}{\textbf{lee\_klein\_lee\_13?}}).
+textbooks of Okabe et al.
+(\citeproc{ref-okabe_boots_sugihara_chiu_00}{2000}) and Aurenhammer et
+al. (\citeproc{ref-aurenhammer_klein_lee_13}{2013}).
 
 Since the category point itself is obviously in its own Voronoi region
 and since Voronoi regions are convex it follows that if we make stars by
 connecting category points with objects points as in homogeneity
 analysis then we actually require each star to be in its Voronoi region.
-Of course stars are no longer directly related to the value of the loss
-function.
 
 Voronoi analysis of categorical data, as defined here, minimizes loss
-function \eqref{eq-loss4} over \(X\) and over the \(Y_j\) and over the
-\(\Delta_j\) satisfying the ordinal constraints. It is consequently a
-form of non-metric (ordinal) multidimensional scaling. The constraint
-\(X'X=I\) from homogeneity analysis is no longer needed, but some form
-of normalization is still necessary. We still need to exclude the
-trivial solution in which all points and regions collapse into a single
-point and all \(\Delta_j\) are zero. But, more urgently, we have to deal
-with the trivial solutions familiar from multidimensional unfolding
-(Heiser (\citeproc{ref-heiser_81}{1981}), De Leeuw
-(\citeproc{ref-deleeuw_R_83}{1983}), Busing
-(\citeproc{ref-busing_10}{2010})).
+function \eqref{eq-loss5} over \(X\), over the \(Y_j\) and over the
+\(\Delta_j\) satisfying the ordinal constraints. It is consequently
+another form of non-metric (ordinal) multidimensional scaling. To be
+more precise, we have \(m\) linked non-metric multidimensional unfolding
+problems, which are linked because they share the same \(X\). The data
+are binary, and we use Kruskal's primary approach to ties (De Leeuw
+(\citeproc{ref-deleeuw_A_77}{1977b})).
+
+The constraint \(X'X=I\) from homogeneity analysis is no longer needed,
+but some form of normalization is still necessary. We still need to
+exclude the trivial solution in which all points and regions collapse
+into a single point and all \(\Delta_j\) are zero. But, more urgently,
+we have to deal with the trivial solutions familiar from
+multidimensional unfolding (Heiser (\citeproc{ref-heiser_81}{1981}), De
+Leeuw (\citeproc{ref-deleeuw_R_83}{1983}), Busing
+(\citeproc{ref-busing_10}{2010})). For example, we can collapse all
+category points into a single point and put all object points on a
+sphere with the category point at its center. Then all distances between
+category and object points are the same and we can choose all
+dissimilarities equal to that distance value and obtain stress zero. It
+does not help to require \(X'X=I\), because we can easily construct
+orthogonal configurations with all points on the sphere. Stronger
+normalization constraints are required.
+
+In this paper we use the constraint \begin{equation}
+\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=c_j,\label{eq-norm}
+\end{equation} with \(\overline{\delta}_{ij}\) the mean of the
+\(\delta_{i\ell}^j\) and with \(c_j\) constants. For instance we could
+choose \(c_j=1\) or \(c_j=k_j\) for all \(j\). In addition, of course,
+the \(\delta_{i\ell}^j\) must satisfy the ordinal constraints.
+Constraint \eqref{eq-norm} explicitly excludes the possibility that the
+\(\delta_{i\ell}^j\) for given \(i\) and \(j\) are equal for all
+\(\ell\).
 
 \section{Algorithm}\label{algorithm}
 
-\[
-\sigma(X,Y,\Delta)=\sum_{i=1}^n\sum_{j=1}^m\|\delta _{ij}-d_{ij}(X,Y)\|^2
-\]
+We use an \emph{Alternating Least Squares} of \emph{ALS} algorithm,
+similar to many other non-metric muldimensional scaling methods, to
+minimize loss \eqref{eq-loss5}. For context, see Borg and Groenen
+(\citeproc{ref-borg_groenen_05}{2005}). We alternate minimization over
+\(\Delta\) for given \(X\) and \(Y\) with minimization over \(X\) and
+\(Y\) for given \(\Delta\). Using superscript \((\mu)\) for the
+iteration index we can write \begin{align}
+\Delta^{(\mu)}&=\mathop{\text{argmin}}_{\Delta}\sigma(X^{(\mu)},Y^{(\mu)},\Delta),\\
+(X^{(\mu+1)},Y^{(\mu+1)})&=\mathop{\text{argmin}}_{X,Y}\sigma(X,Y,\Delta^{(\mu)}).
+\end{align}
 
-If \(g_{i\ell}^j=1\) then
-\(\{\delta_{ij}\}_\ell\leq\{\delta_{ij}\}_\nu\) for all
-\(\nu=1,\cdots,k_j\).
+The first substep of iteration \(\mu\) is a form of monotone regression
+for a very simple partial order, in which one of \(k_j\) elements must
+be smaller than the other elements. The second substep is a metric
+multidimensional scaling step. It cannot be carried out completely,
+because it would need an infinite iterative process by itself. Thus the
+second substep consist of a finite number of \emph{inner iterations}
+within the second substep of an \emph{outer iteration}. For the inner
+iterations we use standard smacof majorization steps (De Leeuw
+(\citeproc{ref-deleeuw_C_77}{1977a})).
 
-\[
-\delta_{ij}'J\delta_{ij}=1
-\] \# Majorization
+\subsection{Monotone Regression}\label{monotone-regression}
 
-\[
-A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}
-\] \[
-Z:=\begin{bmatrix}
-X\\Y
-\end{bmatrix}
-\]
-
-\[
-d_{ij}(X,Y)=\text{tr}\ Z'A_{ij}Z
-\] \[
-V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}
-\]
-
-If we define \begin{align}
-V_1&:=(n+m)^{-1}\begin{bmatrix}\frac{m}{n}E&-E\\-E&\frac{n}{m}E\end{bmatrix},\\
-V_2&:=\begin{bmatrix}J_n&0\\0&0\end{bmatrix},\\
-V_3&:=\begin{bmatrix}0&0\\0&J_m\end{bmatrix},
-\end{align} then \[
-V=(n+m)V_1+mV_2+nV_3
-\] Matrices \(V_1,V_2,\) and \(V_3\) are symmetric projectors on
-orthogonal subspaces. It follows that \(V^+\), the Moore-Penrose
-inverse3 of \(V\), is \[
-V^+=\frac{1}{n+m}V_1+\frac{1}{m}V_2+\frac{1}{n}V_3
-\] \[
-B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmatrix}
-\] Now \(V_1B(X,Y)=0\) and thus
-\[V^+B(X,Y)=\frac{1}{m}V_2B(X,Y)+\frac{1}{n}V_3B(X,Y)\]
-
-\section{The Cone}\label{the-cone}
+The \(nm\) monotone regressions are applied to each row \(i\) of each
+variable \(j\). Forgetting about all these indices for a moment we need
+to minimize the sum of squares \(\|\delta_\ell-d_\ell\|^2\) over
+\(\delta\), where one of the elements, say \(\delta_\nu\), must be
+smaller than or equal to all others, and where
+\(\|\delta_\ell-\overline{\delta}\|^2=c\).
 
 Consider the cone of all vectors \(x\) in \(\mathbb{R}^n\) for which
 \(x_i\leq x_1\) for all \(i\neq 1\) and \(e'x=0\). The extreme rays of
 the cone will be the \(n-1\) vectors of the form
 \(\alpha e_i+\beta(e-e_i)\) with \(i\neq 1\). Thus element \(i\) is
 equal to \(\alpha\) and all other elements (including \(x_1\)) are equal
-to beta. Thus we must have \(\alpha>\beta\). The sum of the elements is
-\(\alpha+(n-1)\beta\), which must be zero. Thus \(\alpha=-(n-1)\beta\),
-which implies \(\beta<0\) and \(\alpha>0\). The extreme rays are
-positive multiples of the vectors \(e_i-n^{-1}e\) with \(i\neq 1\) and
-the cone is the set of all weighted sums with non-negative weights of
-these \(n-1\) vectors. Here is a small example.
+to \(\beta\). Thus we must have \(\alpha>\beta\). The sum of the
+elements is \(\alpha+(n-1)\beta\), which must be zero. Thus
+\(\alpha=-(n-1)\beta\), which implies \(\beta<0\) and \(\alpha>0\). The
+extreme rays are positive multiples of the vectors \(e_i-n^{-1}e\) with
+\(i\neq 1\) and the cone is the set of all weighted sums with
+non-negative weights of these \(n-1\) vectors. Here is a small example.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -548,11 +569,7 @@ these \(n-1\) vectors. Here is a small example.
 
 For later reference the sum of squares of the vectors \(e_i-n^{-1}e\) is
 \((n-1)/n\), so the vectors \(\sqrt{n/(n-1)}(e_i-n^{-1}e)\) are the
-vectors of length 1 on the extreme rays. The average of the extreme rays
-is
-
-\section{Normalized Monotone
-Regression}\label{normalized-monotone-regression}
+vectors of length 1 on the extreme rays.
 
 Suppose \(y\) is a vector with \(n\) elements. The problem we study is
 to minimixe the sum of squares \(\sigma(x):=\|x-y\|^2\) over \(x\in K\)
@@ -591,6 +608,41 @@ nor \(e'M(y)=e'y=n\overline{y}\). Thus
 \frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
 \]
 
+\subsection{Majorization}\label{majorization}
+
+\[
+A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}
+\] \[
+Z:=\begin{bmatrix}
+X\\Y
+\end{bmatrix}
+\]
+
+\[
+d_{ij}(X,Y)=\text{tr}\ Z'A_{ij}Z
+\] \[
+V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}
+\]
+
+If we define \begin{align}
+V_1&:=(n+m)^{-1}\begin{bmatrix}\frac{m}{n}E&-E\\-E&\frac{n}{m}E\end{bmatrix},\\
+V_2&:=\begin{bmatrix}J_n&0\\0&0\end{bmatrix},\\
+V_3&:=\begin{bmatrix}0&0\\0&J_m\end{bmatrix},
+\end{align} then \[
+V=(n+m)V_1+mV_2+nV_3
+\] Matrices \(V_1,V_2,\) and \(V_3\) are symmetric projectors on
+orthogonal subspaces. It follows that \(V^+\), the Moore-Penrose
+inverse3 of \(V\), is \[
+V^+=\frac{1}{n+m}V_1+\frac{1}{m}V_2+\frac{1}{n}V_3
+\] \[
+B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmatrix}
+\] Now \(V_1B(X,Y)=0\) and thus
+\[V^+B(X,Y)=\frac{1}{m}V_2B(X,Y)+\frac{1}{n}V_3B(X,Y)\]
+
+\section{Software}\label{software}
+
+\section{Examples}\label{examples}
+
 \sectionbreak
 
 \section*{References}\label{references}
@@ -598,40 +650,58 @@ nor \(e'M(y)=e'y=n\overline{y}\). Thus
 
 \protect\phantomsection\label{refs}
 \begin{CSLReferences}{1}{1}
+\bibitem[\citeproctext]{ref-aurenhammer_klein_lee_13}
+Aurenhammer, Franz, Rolf Klein, and Der-Tsai Lee. 2013. \emph{Voronoi
+Diagrams and Delaunay Triangulations}. World Scientific Publishing Co.
+
 \bibitem[\citeproctext]{ref-bekker_deleeuw_C_88}
-Bekker, P., and J. De Leeuw. 1988. {``Relation Between Variants of
+Bekker, Paul, and Jan De Leeuw. 1988. {``Relation Between Variants of
 Nonlinear Principal Component Analysis.''} Chap. 1 in \emph{Component
-and Correspondence Analysis}, edited by J. L. A. Van Rijckevorsel and J.
-De Leeuw. Wiley Series in Probability and Mathematcal Statistics. Wiley.
+and Correspondence Analysis}, edited by Jan L. A. Van Rijckevorsel and
+Jan De Leeuw. Wiley Series in Probability and Mathematcal Statistics.
+Wiley.
+
+\bibitem[\citeproctext]{ref-borg_groenen_05}
+Borg, Ingwer, and Patrick J. F. Groenen. 2005. \emph{Modern
+Multidimensional Scaling}. Second Edition. Springer.
 
 \bibitem[\citeproctext]{ref-busing_10}
 Busing, Frank M. T. A. 2010. {``Advances in Multidimensional
 Unfolding.''} PhD thesis, Leiden University.
 \url{https://scholarlypublications.universiteitleiden.nl/access/item\%3A2837800/view}.
 
-\bibitem[\citeproctext]{ref-deleeuw_C_23}
-De Leeuw, J. 2023. {``Deconstructing Multiple Correspondence
-Analysis.''} Chap. 22 in \emph{Analysis of Categorical Data from
-Historical Perspectives. Essays in Honour of Shizuhiko Nishisato.},
-edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel. Springer.
+\bibitem[\citeproctext]{ref-deleeuw_C_77}
+De Leeuw, Jan. 1977a. {``Applications of Convex Analysis to
+Multidimensional Scaling.''} In \emph{Recent Developments in
+Statistics}, edited by J. R. Barra, F. Brodeau, G. Romier, and B. Van
+Cutsem. North Holland Publishing Company.
+
+\bibitem[\citeproctext]{ref-deleeuw_A_77}
+De Leeuw, Jan. 1977b. {``Correctness of Kruskal's Algorithms for
+Monotone Regression with Ties.''} \emph{Psychometrika} 42: 141--44.
 
 \bibitem[\citeproctext]{ref-deleeuw_R_83}
 De Leeuw, Jan. 1983. \emph{{On Degenerate Multidimensional Unfolding
 Solutions}}. Research Report. Department of Data Theory FSW/RUL.
 \url{https://jansweb.netlify.app/publication/deleeuw-r-06-a/deleeuw-r-06-a.pdf}.
 
-\bibitem[\citeproctext]{ref-gifi_B_90}
-Gifi, A. 1990. \emph{Nonlinear Multivariate Analysis}. Wiley.
+\bibitem[\citeproctext]{ref-deleeuw_C_23}
+De Leeuw, Jan. 2023. {``Deconstructing Multiple Correspondence
+Analysis.''} Chap. 22 in \emph{Analysis of Categorical Data from
+Historical Perspectives. Essays in Honour of Shizuhiko Nishisato.},
+edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel. Springer.
 
-\bibitem[\citeproctext]{ref-greenacre_91}
-Greenacre, M. J. 1991. {``Interpreting Multiple Correspondence
-Analysis.''} \emph{Applied Stochastic Models and Data Analysis} 7:
-195--210.
+\bibitem[\citeproctext]{ref-gifi_B_90}
+Gifi, Albert. 1990. \emph{Nonlinear Multivariate Analysis}. Wiley.
+
+\bibitem[\citeproctext]{ref-greenacre_blasius_06}
+Greenacre, Michael J., and Jorg Blasius. 2006. \emph{{Multiple
+Correspondence Analysis and Related Methods}}. Chapman; Hall.
 
 \bibitem[\citeproctext]{ref-guttman_41}
-Guttman, L. 1941. {``{The Quantification of a Class of Attributes: A
+Guttman, Louis. 1941. {``{The Quantification of a Class of Attributes: A
 Theory and Method of Scale Construction}.''} In \emph{The Prediction of
-Personal Adjustment}, edited by P. Horst. Social Science Research
+Personal Adjustment}, edited by Paul Horst. Social Science Research
 Council.
 
 \bibitem[\citeproctext]{ref-heiser_81}
@@ -648,14 +718,19 @@ Kruskal, Joseph B. 1964b. {``{Nonmetric Multidimensional Scaling: a
 Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
 
 \bibitem[\citeproctext]{ref-leroux_rouanet_10}
-Le Roux, B., and H. Rouanet. 2010. \emph{Multiple Correspondence
-Analysis}. Sage.
+Le Roux, Brigitte, and Henry Rouanet. 2010. \emph{Multiple
+Correspondence Analysis}. Sage.
+
+\bibitem[\citeproctext]{ref-okabe_boots_sugihara_chiu_00}
+Okabe, Atsuyuki, Barry Boots, Kokichi Sugihara, and Chiu Sung-Nok. 2000.
+\emph{Spatial Tessellations: Concepts and Applications of Voronoi
+Diagrams}. Second Edition. Wiley.
 
 \bibitem[\citeproctext]{ref-tenenhaus_young_85}
-Tenenhaus, M., and F. W. Young. 1985. {``{An Analysis and Synthesis of
-Multiple Correspondence Analysis, Optimal Scaling, Dual Scaling,
-Homogeneity Analysis and Other Methods for Quantifying Categorical
-Multivariate Data}.''} \emph{Psychometrika} 50: 91--119.
+Tenenhaus, Michel, and Forest W. Young. 1985. {``{An Analysis and
+Synthesis of Multiple Correspondence Analysis, Optimal Scaling, Dual
+Scaling, Homogeneity Analysis and Other Methods for Quantifying
+Categorical Multivariate Data}.''} \emph{Psychometrika} 50: 91--119.
 
 \end{CSLReferences}
 
