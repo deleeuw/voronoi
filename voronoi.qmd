@@ -362,8 +362,6 @@ $$
 $$
 B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmatrix}
 $$
-Now $V_1B(X,Y)=0$ and thus $$V^+B(X,Y)=\frac{1}{m}V_2B(X,Y)+\frac{1}{n}V_3B(X,Y)$$
-
 # Software
 
 # Examples
