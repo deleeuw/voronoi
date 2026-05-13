@@ -1,9 +1,10 @@
 source("paraplu.R")
 
-monotone <- function(dhat, dold, ncat, indi) {
-  nobj <- nrow(dhat)
+monotone <- function(dold, ncat, indi) {
+  nobj <- nrow(dold)
   nvar <- length(ncat)
   imtc <- 0L
+  dhat <- array(0, dim(dold))
   for (i in 1:nobj) {
     ksum <- 0L
     for (j in 1:nvar) {
@@ -21,4 +22,7 @@ monotone <- function(dhat, dold, ncat, indi) {
       ksum <- ksum + kimj
     }
   }
+  return(dhat)
 }
+
+normalize <- function() {}

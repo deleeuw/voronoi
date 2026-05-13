@@ -4,7 +4,7 @@ ei <- function(i, n) {
 
 aij <- function(i, j, n) {
   e1 <- ei(i, n)
-  e2 <- e1(j, n)
+  e2 <- ei(j, n)
   return(outer(e1 - e2, e1 - e2))
 }
 
@@ -26,7 +26,7 @@ makeListfromMatrix <- function(y, k) {
   return(ylist)
 }
 
-makeIndicator <- function(x) {
+makeIndicator <- function(x, labs = NULL) {
   return(ifelse(outer(x, sort(unique(
     x
   )), "=="), 1, 0))

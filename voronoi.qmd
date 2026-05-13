@@ -46,14 +46,19 @@ suppressPackageStartupMessages(library(knitr, quietly = TRUE))
 suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
 suppressPackageStartupMessages(library(MASS, quietly = TRUE))
 suppressPackageStartupMessages(library(RSpectra, quietly = TRUE))
+suppressPackageStartupMessages(library(deldir, quietly = TRUE))
+suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 ```
 
 ```{r sourcecode, echo = FALSE}
 source("small.R")
+source("galo.R")
 source("mca.R")
 source("paraplu.R")
 source("majorization.R")
 source("auxiliaries.R")
+source("voronoi.R")
+source("plotVHA.R")
 ```
 
 \sectionbreak 
@@ -84,7 +89,7 @@ that "belong to" the category.
 
 Here is a small example with $n=10$ and $m=3$, taken from @gifi_B_90, page 65.
 ```{r small, echo = FALSE}
-print(xx)
+print(small)
 ```
 
 Suppose the objects are mapped into $n$ points of Euclidean space
@@ -92,15 +97,15 @@ $\mathbb{R}^p$. For each variable we can construct an additional
 $k_j$ points in the same space by computing for each category
 the centroids of all object-points that belong to it. Thus each
 variable defines its own plot. We then draw lines from the $n$ 
-object points to the category point they belong to and we obtain $k_j$ 
+object-points to the category-point they belong to and we obtain $k_j$ 
 "stars". Homogeneity Analysis maps the objects
 into space in such a way that the stars are as small as possible,
 where the size of the star is measured as the sum of squares
-of the distances between each category points and the object
+of the distances between each category-points and the object
 points of the oibjects that belong to the category (summed over categories and over variables). In order
 to avoid the trivial solution in which all objects and categories are mapped
-into the same point homogeneity analysis requires that the *configuration*
-of object points (an $n\times p$ matrix) is column-centered and
+into the same point Homogeneity Analysis requires that the *configuration*
+of object-points (an $n\times p$ matrix) is column-centered and
 orthonormal.
 
 There are a huge number of variations (@deleeuw_R_04e) possible on the same theme.
@@ -108,11 +113,11 @@ Instead of the centroids we could use the Weber points to define
 our stars. Instead of Euclidean distance we could use any other
 distance on $\mathbb{R}^p$. Instead of the stars we could use the 
 convex hulls or the minimum spanning trees, or any other way 
-to visualize and quantify the compactness of the point clouds of each category. Any one of these choices defines a technique that could be called homogeneity analysis, but in this paper we mean the classical
+to visualize and quantify the compactness of the point clouds of each category. Any one of these choices defines a technique that could be called Homogeneity Analysis, but in this paper we mean the classical
 choice that uses stars, squared Euclidean distance, and orthonormal
-object points.
+object-points.
 
-The key mathematical object in homogeneity analysis is the
+The key mathematical object in Homogeneity Analysis is the
 *indicator matrix*, which is a classical way to code categorical data\footnote{Since the indicator matrix is the core of the Gifi 
 system we avoid the irreverent alternative "dummy coding".}.
 For a variable $j$ with $k_j$ categories it is an $n\times k_j$ binary
@@ -123,9 +128,9 @@ frequencies* of the categories on the diagonal. For two different variables the 
 indicator matrices of our small example, next to each other.
 
 ```{r indi, echo = FALSE}
-g1 <- makeIndicator(xx[, 1])
-g2 <- makeIndicator(xx[, 2])
-g3 <- makeIndicator(xx[, 3])
+g1 <- makeIndicator(small[, 1])
+g2 <- makeIndicator(small[, 2])
+g3 <- makeIndicator(small[, 3])
 d1 <- diag(1 / colSums(g1))
 d2 <- diag(1 / colSums(g2))
 d3 <- diag(1 / colSums(g3))
@@ -134,47 +139,50 @@ colnames(gg) <- c("", "a", "b", "c", "", "p", "q", "r", "", "u", "v", "")
 print(gg)
 ```
 A Homogeneity Analysis in two dimensions produces the following three star plots. Objects
-are numbered and in BLUE, categories have bigger labels and are in RED. The analysis minimizes the sum of squares of the length of all black lines in the three plots, under the condition that the matrix of object scores is column-centered and orthonormal. We can think of the results as a form
-of *graph drawing*, where the graph is the union of the $m$ bipartite graphs of the relation "belonging to" (@michailidis_deleeuw_A_01).
+are numbered and in BLUE, categories have bigger labels and are in RED. 
+Note that there are ten objects, but the sets of objects $(1,4,7)$, $(8,10)$, and $(6,9)$
+have the same profile and consequently get mapped to the same object-point.
+Thus there are at most six different object-points. The analysis minimizes the sum of squares of the length of all black lines in the three plots, under the condition that the matrix of object scores is column-centered and orthonormal. We can think of the results as a form
+of *graph drawing*, where the graph is the union of the $m$ bipartite graphs of all $m$ "belonging to" relations (@michailidis_deleeuw_A_01).
 
 ```{r mca, echo = FALSE, fig.align = "center"}
-h <- mca(cbind(g1, g2, g3), 2)
-y1 <- h$yold[1:3, ]
-y2 <- h$yold[4:6, ]
-y3 <- h$yold[7:8, ]
-x <- h$xold
+haux <- mca(cbind(g1, g2, g3), 2)
+y1 <- haux$ymat[1:3, ]
+y2 <- haux$ymat[4:6, ]
+y3 <- haux$ymat[7:8, ]
+x <- haux$xmat
 par(pty = "s")
 par(mfrow = c(1, 3))
 plot(rbind(x, y1), type = "n", xlab = "", ylab = "")
 text(x, as.character(1:10), col = "BLUE", cex = .8)
 text(y1, c("a", "b", "c"), col = "RED", cex = 1.5)
 for (i in 1:10) {
-  if (xx[i, 1] == "a") lines(rbind(x[i,], y1[1, ]))
-  if (xx[i, 1] == "b") lines(rbind(x[i,], y1[2, ]))
-  if (xx[i, 1] == "c") lines(rbind(x[i,], y1[3, ]))
+  if (small[i, 1] == "a") lines(rbind(x[i,], y1[1, ]))
+  if (small[i, 1] == "b") lines(rbind(x[i,], y1[2, ]))
+  if (small[i, 1] == "c") lines(rbind(x[i,], y1[3, ]))
 }
 plot(rbind(x, y2), type = "n", xlab = "", ylab = "")
 text(x, as.character(1:10), col = "BLUE", cex = .8)
 text(y2, c("p", "q", "r"), col = "RED", cex = 1.5)
 for (i in 1:10) {
-  if (xx[i, 2] == "p") lines(rbind(x[i,], y2[1, ]))
-  if (xx[i, 2] == "q") lines(rbind(x[i,], y2[2, ]))
-  if (xx[i, 2] == "r") lines(rbind(x[i,], y2[3, ]))
+  if (small[i, 2] == "p") lines(rbind(x[i,], y2[1, ]))
+  if (small[i, 2] == "q") lines(rbind(x[i,], y2[2, ]))
+  if (small[i, 2] == "r") lines(rbind(x[i,], y2[3, ]))
 }
 plot(rbind(x, y3), type = "n", xlab = "", ylab = "")
 text(x, as.character(1:10), col = "BLUE", cex = .8)
 text(y3, c("u", "v"), col = "RED", cex = 1.5)
 for (i in 1:10) {
-  if (xx[i, 3] == "u") lines(rbind(x[i,], y3[1, ]))
-  if (xx[i, 3] == "v") lines(rbind(x[i,], y3[2, ]))
+  if (small[i, 3] == "u") lines(rbind(x[i,], y3[1, ]))
+  if (small[i, 3] == "v") lines(rbind(x[i,], y3[2, ]))
 }
 ```
-We now deviate from the usual Gifi and French approaches (@husson_josse_saporta_16) and define homogeneity analysis as a form of non-metric multidimensional scaling, using the *stress* loss function (@kruskal_64a, @kruskal_64b). Define\footnote{The symbol $:=$ is used for definitions}
+We now deviate from the usual Gifi and French approaches (@husson_josse_saporta_16) and define Homogeneity Analysis as a form of non-metric multidimensional scaling, using the *stress* loss function (@kruskal_64a, @kruskal_64b). Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
 \end{equation}
 with $d(.,.)$ Euclidean distance.
-Homogeneity analysis minimizes this loss over all configurations $X$ with $X'X=I$, over all $Y_j$, and over all $\Delta_j$ that satisfy $\delta_{i\ell}^j=0$ whenever $g_{i\ell}^j=1$. All other elements of $\Delta$ are only constrained to be non-negative. 
+Homogeneity analysis minimizes this loss over all configurations $X$ with $X'X=I$, over all $Y_j$, and over all $\Delta_j$ that satisfy $\delta_{i\ell}^j=0$ whenever $g_{i\ell}^j=1$. All other elements of the $\Delta_j$ are only constrained to be non-negative. 
 
 If
 \begin{equation}
@@ -188,57 +196,58 @@ Next define
 \begin{equation}
 \sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss4}
 \end{equation}
-The minimum over the $Y_j$ is attained at the centroids $\hat Y_j:=D_j^{-1}G_j'X$, and if we substitute these optimal $\smash{\hat Y_j}$
-in \eqref{eq-loss3} we see that $\sigma_{\star\star}(X)$ is indeed equal to the sum of squares of all stars. Minimizing $\sigma_{\star\star}(X)$ over $X'X=I$, and thus minimizing \eqref{eq-loss1} over $X$, the $Y_j$, and the $\Delta_j$, defines homogeneity analysis. Computing the solution turns out to be a straightforward eigenvalue-eigenvector problem. The details are in the publications we referenced at the beginning of this section.
+The minimum of \eqref{eq-loss3} over the $Y_j$ is attained at the centroids $\hat Y_j:=D_j^{-1}G_j'X$, and if we substitute these optimal $\smash{\hat Y_j}$
+in \eqref{eq-loss3} we see that $\sigma_{\star\star}(X)$ is indeed equal to the sum of squares of all lines defining the stars. Minimizing $\sigma_{\star\star}(X)$ over $X'X=I$, and thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$, defines Homogeneity Analysis. 
+
+Actually computing the solution turns out to be a straightforward eigenvalue-eigenvector problem. The details are in the publications we referenced at the beginning of this section.
 
 ## Voronoi Analysis
 
-Although using loss function \eqref{eq-loss1} makes homogeneity analysis a form of non-metric multidimensional scaling there are some important differences with more familiar applications of minimizing stress. There are no local minima in homogeneity analysis, because it tuirns out to be a symmetric eigenvalue problem. Also, and perhaps most importantly, we do not
+Although using loss function \eqref{eq-loss1} makes Homogeneity Analysis a form of non-metric multidimensional scaling there are some important differences with more familiar applications of minimizing stress. There are no local minima in Homogeneity Analysis, because it tuirns out to be a symmetric eigenvalue problem. Also, and perhaps most importantly, we do not
 really expect the minimum loss function value to be zero, or even close
 to zero. The loss functions measures deviations from a very unrealistic
-model. Zero loss would imply all object points coincide with 
-all category points they belong to. This
-can only be realized, except in trivial cases, if all object and category points map into a single point, which is prohibited by the orthonormality constraint on the object scores. Thus we get a perfectly determinate and stable solution, at low computational cost, but by imposing unrealistic constraints and a rather arbitrary normalization. We can get around this 
+model. Zero loss would imply all object-points coincide with 
+all category-points they belong to. This
+can only be realized, except in trivial cases, if all object and category-points map into a single point, which is prohibited by the orthonormality constraint on the object scores. Thus we get a perfectly determinate and stable solution, at low computational cost, but by imposing unrealistic constraints and a rather arbitrary normalization. We can get around this 
 seemingly unfortunate situation by admitting we are not fitting or
 testing a "model", but we are making drawings of the bipartite graphs that constitute the data.
 
-The lack of a realistic Model makes it interesting to generalize loss function \eqref{eq-loss1}
-to
+The lack of a realistic model makes it interesting to generalize loss function \eqref{eq-loss1} to
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,...,\Delta_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss5}
 \end{equation}
 with the constraints that
 if $g_{i\ell}^j=1$ then merely $\delta_{i\ell}^j\leq\delta_{i\nu}^j$ for all
 $\nu=1,\cdots,k_j$. This is significantly weaker than the homogeneity
-analysis constraints, which require the $\smash{\delta_{i\ell}^j}$ to be zero.
+analysis constraints, which require the $mn$ disparities $\smash{\delta_{i\ell}^j}$ to be zero.
 If object $i$ belongs to category $\ell$ of 
-variable $j$ we do not require the object point to coincide
-with the category point, but we merely require that the object
-point is at least as close to category point $\ell$ as to any of the
-other $k_j-1$ category points of that variable.
+variable $j$ we do no longer require the object-point to coincide
+with the category-point, but we merely require that the object-point
+is at least as close to category-point $\ell$ as to any of the
+other $k_j-1$ category-points of that variable.
 
-As a consequence, the plots corresponding with loss function \eqref{eq-loss5} are also different. As in homogeneity analysis there is a plot for each variable $j$ with both $n$ object points and $k_j$ category points. The $k_j$
-category points define $k_j$ *voronoi regions* that partition the
+As a consequence, the plots corresponding with loss function \eqref{eq-loss5} are also different. As in Homogeneity Analysis there is a plot for each variable $j$ with both $n$ object-points and $k_j$ category-points. The $k_j$
+category-points define $k_j$ *voronoi regions* that partition the
 space. Voronoi region $\smash{\mathcal{V}^j_\ell}$ is the region of space
-where the points are at least as close to category point $\smash{y_\ell^j}$ as to any of the other category points of variable $j$. And loss \eqref{eq-loss4} is zero (for a variable) if all object points are in the "correct"
+where the points are at least as close to category-point $\smash{y_\ell^j}$ as to any of the other category-points of variable $j$. And loss \eqref{eq-loss4} is zero (for a variable) if all object-points are in the "correct"
 Voronoi region, i.e. in the Voronoi region of the category
 point corresponding with the category they belong to. 
 
 One (very inefficient, but conceptually easy) way of constructing
 Voronoi regions is to draw the perpendicular bisectors of 
-the (hypothetical) lines connecting all pairs of category points of a variable. The convex polyhedral regions thus formed, some bounded and some 
+the (hypothetical) lines connecting all pairs of category-points of a variable. The convex polyhedral regions thus formed, some bounded and some 
 unbounded, define the Voronoi regions.
 The literature on properties and computation on Voronoi regions 
 is large, and we refer to the textbooks of @okabe_boots_sugihara_chiu_00
 and @aurenhammer_klein_lee_13.
 
-Since the category point itself is obviously in its own Voronoi
+Since the category-point itself is obviously in its own Voronoi
 region and since Voronoi regions are convex it follows that
-if we make stars by connecting category points with object
-points as in homogeneity analysis then we actually require
+if we make stars by connecting category-points with object
+points as in Homogeneity Analysis then we actually require
 each star to be in its Voronoi region. It is no longer 
-true that a category point is the centroid of points of the objects belonging to the category. The category point can even be outside the 
-convex hull of "its" object points.
+true that a category-point is the centroid of points of the objects belonging to the category. The category-point can even be outside the 
+convex hull of "its" object-points.
 
 Voronoi Homogeneity Analysis of categorical data, as defined here, minimizes
 loss function \eqref{eq-loss5} over $X$, over the $Y_j$ and
@@ -249,17 +258,17 @@ problems, which are linked because they share the same $X$. The
 data are binary, and we use Kruskal's primary approach to ties
 (@deleeuw_A_77).
 
-The constraint $X'X=I$ from homogeneity analysis is no longer
+The constraint $X'X=I$ from Homogeneity Analysis is no longer
 needed, but some form of normalization is still necessary.
 We still need to exclude the trivial solution in which all
 points and regions collapse into a single point and all
 $\Delta_j$ are zero. But, more urgently, we have to deal
 with the trivial solutions familiar from multidimensional
 unfolding (@heiser_81, @deleeuw_R_83, @busing_10). For example,
-we can collapse all category points into a single point and 
-put all object points on a sphere with the category point
+we can collapse all category-points into a single point and 
+put all object-points on a sphere with the category-point
 at its center. Then all distances between category and
-object points are the same and we can choose all dissimilarities
+object-points are the same and we can choose all dissimilarities
 equal to that distance value and obtain stress zero. It does not
 help to require $X'X=I$, because we can easily 
 construct orthogonal configurations with all points on the 
@@ -302,22 +311,19 @@ iterations we use standard smacof majorization steps
 
 ## Monotone Regression
 
-The $nm$ monotone regressions are applied to each row $i$ of
+The $nm$ monotone regressions are applied for each object $i$ and
 each variable $j$. Forgetting about all these indices for a 
 moment we need to minimize the sum of squares
-$\|\delta_\ell-d_\ell\|^2$
-over $\delta$, where one of the elements, say $\delta_\nu$, must be
-smaller than or equal to all others, and where
-$\|\delta_\ell-\overline{\delta}\|^2=c$.
+$\|\delta-d\|^2$ over $\delta$, where one of the elements, say $\delta_\nu$, must be smaller than or equal to all others, and where
+$\|\delta-\overline{\delta}\|^2=c$.
 
-Consider the cone of all vectors $x$ in $\mathbb{R}^n$ for which
-$x_i\leq x_1$ for all $i\neq 1$ and $e'x=0$. The extreme rays of the
-cone will be the $n-1$ vectors of the form $\alpha e_i+\beta(e-e_i)$ with
-$i\neq 1$. Thus element $i$ is equal to $\alpha$ and all other elements
-(including $x_1$) are equal to $\beta$. Thus we must have $\alpha>\beta$.
+Consider the cone of all vectors $\delta$ in $\mathbb{R}^n$ for which
+$\delta_i\leq\delta_\ell$ for all $i\neq \ell$ and $e'\delta=0$. The extreme rays of the cone will be the $n-1$ vectors of the form $\alpha e_i+\beta(e-e_i)$ with
+$i\neq \ell$. Thus element $i$ is equal to $\alpha$ and all other elements
+(including $\delta_\ell$) are equal to $\beta$. Thus we must have $\alpha>\beta$.
 The sum of the elements is $\alpha+(n-1)\beta$, which must be zero. 
 Thus $\alpha=-(n-1)\beta$, which implies $\beta<0$ and $\alpha>0$.
-The extreme rays are positive multiples of the vectors $e_i-n^{-1}e$ with $i\neq 1$ and the cone is the set of all weighted sums with non-negative weights of these $n-1$ vectors. Here is a small example.
+The extreme rays are positive multiples of the vectors $e_i-n^{-1}e$ with $i\neq\ell$ and the cone is the set of all weighted sums with non-negative weights of these $n-1$ vectors. Here is a small example.
 ```{r}
 a <- -cbind(1, -diag(4))
 b <- (diag(5)-(1 / 5))[, -1]
@@ -377,9 +383,9 @@ $$
 $$
 d_{ij}(X,Y)=\text{tr}\ Z'A_{ij}Z
 $$
-$$
-V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}
-$$
+\begin{equation}
+V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}\label{eq-vdef}
+\end{equation}
 ```{r check1, echo = FALSE, eval = FALSE}
 m <- 3
 n <- 5
@@ -424,10 +430,94 @@ $$
 $$
 B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmatrix}
 $$
+
+\sectionbreak
+
+# Centering
+
+$$
+m\ \text{tr}\ (X-\tilde X)'(X-\tilde X)+n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)-2\ \text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)
+$$
+$$
+Y-\tilde Y=e_me_n'(X-\tilde X)
+$$
+$$
+n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)=nm\ \text{tr}(X-\tilde X)'e_ne_n'(X-\tilde X)
+$$
+$$
+\text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)=m\text{tr}\ (X-\tilde X)'e_ne_n'(X-\tilde X)=
+$$
+
+# Constraints
+
+## Normalization
+
+## Orthogonality Constraints
+
+$$
+m\text{tr}\ (X-\tilde X)'(X-\tilde X)+n\text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)
+$$
+
+## Centroid Constraints
+
+## Rank Constraints
+
 # Software
+
+\sectionbreak
+
 
 # Examples
 
+## Small Example
+
+We start with the small example we used before to illustrate 
+Homogeneity Analysis.
+
+```{r smallvha, echo = FALSE}
+h_small<-vha(small, itmax = 1000, eps = 1e-8, verbose = FALSE)
+par(mfrow=c(1, 3))
+plotVHA(h_small$xmat, h_small$ymat, ncat = ncat_small, labs = labs_small, pdf = FALSE)
+```
+Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after `r h_small$itel` iterations. If we compare the plots from the Voronoi
+analysis with the star plots from the initial Homogeneity Analysis for this example we see that the algorithm did not have to change much to obtain perfect fit. One thing that does change is that the iterations moves
+the category-points "p" and "r" for variable 2 very close to each other.
+At the point where we stop the iterations they are still distinguishable,
+and thus their perpendicular bisector is still a line in the Voronoi
+plot. If we would continue iterating "p" and "r" would coincide
+and there would only be two Voronoi regions: one containing category-point
+"q" and object-point 2, and one containing all other points.
+one containing all other 
+
+## GALO
+
+```{r galovha, echo = FALSE, verbose = FALSE, cache = TRUE}
+h_galo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
+```
+```{r galo_bnds, echo = FALSE}
+gmax <- max(rbind(h_galo$xmat, h_galo$ymat))
+gmin <- min(rbind(h_galo$xmat, h_galo$ymat))
+```
+Loss is `r formatC(h_galo$loss, digits = 10, format = "f")` after `r h_galo$itel` iterations.
+
+```{r galo_d_dhat, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo D-Dhat Plot",  main =""}
+par(pty="s")
+plot(h_galo$dmat, h_galo$dhat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
+```
+
+```{r galo_IQ, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ",  main =""}
+par(pty="s")
+plot(voronoi(h_galo$ymat[3:11,], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(h_galo$ymat[3:11,], as.character(1:9), col = "RED", cex = 1.5)
+text(h_galo$xmat, as.character(galo[, 2]), col = "BLUE")
+```
+
+```{r galo_ADV, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV",  main =""}
+par(pty="s")
+plot(voronoi(h_galo$ymat[12:18,], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(h_galo$ymat[12:18,], sort(lab3), col = "RED", cex = 1.5)
+text(h_galo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .5)
+```
 \sectionbreak
 
 # References

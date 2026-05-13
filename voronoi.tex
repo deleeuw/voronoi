@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{May 10, 2026}
+\date{May 12, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -346,16 +346,16 @@ Suppose the objects are mapped into \(n\) points of Euclidean space
 \(\mathbb{R}^p\). For each variable we can construct an additional
 \(k_j\) points in the same space by computing for each category the
 centroids of all object-points that belong to it. Thus each variable
-defines its own plot. We then draw lines from the \(n\) object points to
-the category point they belong to and we obtain \(k_j\) ``stars''.
+defines its own plot. We then draw lines from the \(n\) object-points to
+the category-point they belong to and we obtain \(k_j\) ``stars''.
 Homogeneity Analysis maps the objects into space in such a way that the
 stars are as small as possible, where the size of the star is measured
-as the sum of squares of the distances between each category points and
+as the sum of squares of the distances between each category-points and
 the object points of the oibjects that belong to the category (summed
 over categories and over variables). In order to avoid the trivial
 solution in which all objects and categories are mapped into the same
-point homogeneity analysis requires that the \emph{configuration} of
-object points (an \(n\times p\) matrix) is column-centered and
+point Homogeneity Analysis requires that the \emph{configuration} of
+object-points (an \(n\times p\) matrix) is column-centered and
 orthonormal.
 
 There are a huge number of variations (De Leeuw
@@ -365,11 +365,11 @@ stars. Instead of Euclidean distance we could use any other distance on
 \(\mathbb{R}^p\). Instead of the stars we could use the convex hulls or
 the minimum spanning trees, or any other way to visualize and quantify
 the compactness of the point clouds of each category. Any one of these
-choices defines a technique that could be called homogeneity analysis,
+choices defines a technique that could be called Homogeneity Analysis,
 but in this paper we mean the classical choice that uses stars, squared
-Euclidean distance, and orthonormal object points.
+Euclidean distance, and orthonormal object-points.
 
-The key mathematical object in homogeneity analysis is the
+The key mathematical object in Homogeneity Analysis is the
 \emph{indicator matrix}, which is a classical way to code categorical
 data\footnote{Since the indicator matrix is the core of the Gifi 
 system we avoid the irreverent alternative "dummy coding".}. For a
@@ -399,12 +399,15 @@ example, next to each other.
 
 A Homogeneity Analysis in two dimensions produces the following three
 star plots. Objects are numbered and in BLUE, categories have bigger
-labels and are in RED. The analysis minimizes the sum of squares of the
-length of all black lines in the three plots, under the condition that
-the matrix of object scores is column-centered and orthonormal. We can
-think of the results as a form of \emph{graph drawing}, where the graph
-is the union of the \(m\) bipartite graphs of the relation ``belonging
-to'' (Michailidis and De Leeuw
+labels and are in RED. Note that there are ten objects, but the sets of
+objects \((1,4,7)\), \((8,10)\), and \((6,9)\) have the same profile and
+consequently get mapped to the same object-point. Thus there are at most
+six different object-points. The analysis minimizes the sum of squares
+of the length of all black lines in the three plots, under the condition
+that the matrix of object scores is column-centered and orthonormal. We
+can think of the results as a form of \emph{graph drawing}, where the
+graph is the union of the \(m\) bipartite graphs of all \(m\)
+``belonging to'' relations (Michailidis and De Leeuw
 (\citeproc{ref-michailidis_deleeuw_A_01}{2001})).
 
 \begin{center}
@@ -412,8 +415,8 @@ to'' (Michailidis and De Leeuw
 \end{center}
 
 We now deviate from the usual Gifi and French approaches (Husson et al.
-(\citeproc{ref-husson_josse_saporta_16}{2016})) and define homogeneity
-analysis as a form of non-metric multidimensional scaling, using the
+(\citeproc{ref-husson_josse_saporta_16}{2016})) and define Homogeneity
+Analysis as a form of non-metric multidimensional scaling, using the
 \emph{stress} loss function (Kruskal
 (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
 (\citeproc{ref-kruskal_64b}{1964b})).
@@ -424,7 +427,7 @@ Define\footnote{The symbol $:=$ is used for definitions}
 minimizes this loss over all configurations \(X\) with \(X'X=I\), over
 all \(Y_j\), and over all \(\Delta_j\) that satisfy
 \(\delta_{i\ell}^j=0\) whenever \(g_{i\ell}^j=1\). All other elements of
-\(\Delta\) are only constrained to be non-negative.
+the \(\Delta_j\) are only constrained to be non-negative.
 
 If \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-loss2}
@@ -432,28 +435,30 @@ If \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^jd^2(x_i,y_\ell^j).\label{eq-loss3}
 \end{equation} Next define \begin{equation}
 \sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss4}
-\end{equation} The minimum over the \(Y_j\) is attained at the centroids
-\(\hat Y_j:=D_j^{-1}G_j'X\), and if we substitute these optimal
-\(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see that
-\(\sigma_{\star\star}(X)\) is indeed equal to the sum of squares of all
-stars. Minimizing \(\sigma_{\star\star}(X)\) over \(X'X=I\), and thus
-minimizing \eqref{eq-loss1} over \(X\), the \(Y_j\), and the
-\(\Delta_j\), defines homogeneity analysis. Computing the solution turns
-out to be a straightforward eigenvalue-eigenvector problem. The details
-are in the publications we referenced at the beginning of this section.
+\end{equation} The minimum of \eqref{eq-loss3} over the \(Y_j\) is
+attained at the centroids \(\hat Y_j:=D_j^{-1}G_j'X\), and if we
+substitute these optimal \(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see
+that \(\sigma_{\star\star}(X)\) is indeed equal to the sum of squares of
+all lines defining the stars. Minimizing \(\sigma_{\star\star}(X)\) over
+\(X'X=I\), and thus minimizing \eqref{eq-loss1} over
+\((X, Y_j,\Delta_j)\), defines Homogeneity Analysis.
+
+Actually computing the solution turns out to be a straightforward
+eigenvalue-eigenvector problem. The details are in the publications we
+referenced at the beginning of this section.
 
 \subsection{Voronoi Analysis}\label{voronoi-analysis}
 
-Although using loss function \eqref{eq-loss1} makes homogeneity analysis
+Although using loss function \eqref{eq-loss1} makes Homogeneity Analysis
 a form of non-metric multidimensional scaling there are some important
 differences with more familiar applications of minimizing stress. There
-are no local minima in homogeneity analysis, because it tuirns out to be
+are no local minima in Homogeneity Analysis, because it tuirns out to be
 a symmetric eigenvalue problem. Also, and perhaps most importantly, we
 do not really expect the minimum loss function value to be zero, or even
 close to zero. The loss functions measures deviations from a very
-unrealistic model. Zero loss would imply all object points coincide with
-all category points they belong to. This can only be realized, except in
-trivial cases, if all object and category points map into a single
+unrealistic model. Zero loss would imply all object-points coincide with
+all category-points they belong to. This can only be realized, except in
+trivial cases, if all object and category-points map into a single
 point, which is prohibited by the orthonormality constraint on the
 object scores. Thus we get a perfectly determinate and stable solution,
 at low computational cost, but by imposing unrealistic constraints and a
@@ -462,34 +467,34 @@ unfortunate situation by admitting we are not fitting or testing a
 ``model'', but we are making drawings of the bipartite graphs that
 constitute the data.
 
-The lack of a realistic Model makes it interesting to generalize loss
+The lack of a realistic model makes it interesting to generalize loss
 function \eqref{eq-loss1} to \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,...,\Delta_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss5}
 \end{equation} with the constraints that if \(g_{i\ell}^j=1\) then
 merely \(\delta_{i\ell}^j\leq\delta_{i\nu}^j\) for all
 \(\nu=1,\cdots,k_j\). This is significantly weaker than the homogeneity
-analysis constraints, which require the \(\smash{\delta_{i\ell}^j}\) to
-be zero. If object \(i\) belongs to category \(\ell\) of variable \(j\)
-we do not require the object point to coincide with the category point,
-but we merely require that the object point is at least as close to
-category point \(\ell\) as to any of the other \(k_j-1\) category points
-of that variable.
+analysis constraints, which require the \(mn\) disparities
+\(\smash{\delta_{i\ell}^j}\) to be zero. If object \(i\) belongs to
+category \(\ell\) of variable \(j\) we do no longer require the
+object-point to coincide with the category-point, but we merely require
+that the object-point is at least as close to category-point \(\ell\) as
+to any of the other \(k_j-1\) category-points of that variable.
 
 As a consequence, the plots corresponding with loss function
-\eqref{eq-loss5} are also different. As in homogeneity analysis there is
-a plot for each variable \(j\) with both \(n\) object points and \(k_j\)
-category points. The \(k_j\) category points define \(k_j\)
+\eqref{eq-loss5} are also different. As in Homogeneity Analysis there is
+a plot for each variable \(j\) with both \(n\) object-points and \(k_j\)
+category-points. The \(k_j\) category-points define \(k_j\)
 \emph{voronoi regions} that partition the space. Voronoi region
 \(\smash{\mathcal{V}^j_\ell}\) is the region of space where the points
-are at least as close to category point \(\smash{y_\ell^j}\) as to any
-of the other category points of variable \(j\). And loss
-\eqref{eq-loss4} is zero (for a variable) if all object points are in
+are at least as close to category-point \(\smash{y_\ell^j}\) as to any
+of the other category-points of variable \(j\). And loss
+\eqref{eq-loss4} is zero (for a variable) if all object-points are in
 the ``correct'' Voronoi region, i.e.~in the Voronoi region of the
 category point corresponding with the category they belong to.
 
 One (very inefficient, but conceptually easy) way of constructing
 Voronoi regions is to draw the perpendicular bisectors of the
-(hypothetical) lines connecting all pairs of category points of a
+(hypothetical) lines connecting all pairs of category-points of a
 variable. The convex polyhedral regions thus formed, some bounded and
 some unbounded, define the Voronoi regions. The literature on properties
 and computation on Voronoi regions is large, and we refer to the
@@ -497,13 +502,13 @@ textbooks of Okabe et al.
 (\citeproc{ref-okabe_boots_sugihara_chiu_00}{2000}) and Aurenhammer et
 al. (\citeproc{ref-aurenhammer_klein_lee_13}{2013}).
 
-Since the category point itself is obviously in its own Voronoi region
+Since the category-point itself is obviously in its own Voronoi region
 and since Voronoi regions are convex it follows that if we make stars by
-connecting category points with object points as in homogeneity analysis
+connecting category-points with object points as in Homogeneity Analysis
 then we actually require each star to be in its Voronoi region. It is no
-longer true that a category point is the centroid of points of the
-objects belonging to the category. The category point can even be
-outside the convex hull of ``its'' object points.
+longer true that a category-point is the centroid of points of the
+objects belonging to the category. The category-point can even be
+outside the convex hull of ``its'' object-points.
 
 Voronoi Homogeneity Analysis of categorical data, as defined here,
 minimizes loss function \eqref{eq-loss5} over \(X\), over the \(Y_j\)
@@ -514,7 +519,7 @@ multidimensional unfolding problems, which are linked because they share
 the same \(X\). The data are binary, and we use Kruskal's primary
 approach to ties (De Leeuw (\citeproc{ref-deleeuw_A_77}{1977b})).
 
-The constraint \(X'X=I\) from homogeneity analysis is no longer needed,
+The constraint \(X'X=I\) from Homogeneity Analysis is no longer needed,
 but some form of normalization is still necessary. We still need to
 exclude the trivial solution in which all points and regions collapse
 into a single point and all \(\Delta_j\) are zero. But, more urgently,
@@ -522,9 +527,9 @@ we have to deal with the trivial solutions familiar from
 multidimensional unfolding (Heiser (\citeproc{ref-heiser_81}{1981}), De
 Leeuw (\citeproc{ref-deleeuw_R_83}{1983}), Busing
 (\citeproc{ref-busing_10}{2010})). For example, we can collapse all
-category points into a single point and put all object points on a
-sphere with the category point at its center. Then all distances between
-category and object points are the same and we can choose all
+category-points into a single point and put all object-points on a
+sphere with the category-point at its center. Then all distances between
+category and object-points are the same and we can choose all
 dissimilarities equal to that distance value and obtain stress zero. It
 does not help to require \(X'X=I\), because we can easily construct
 orthogonal configurations with all points on the sphere. Stronger
@@ -542,7 +547,7 @@ Constraint \eqref{eq-norm} explicitly excludes the possibility that the
 
 \section{Algorithm}\label{algorithm}
 
-We use an \emph{Alternating Least Squares} of \emph{ALS} algorithm,
+We use an \emph{Alternating Least Squares} or \emph{ALS} algorithm,
 similar to many other non-metric muldimensional scaling methods, to
 minimize loss \eqref{eq-loss5}. For context, see Borg and Groenen
 (\citeproc{ref-borg_groenen_05}{2005}). We alternate minimization over
@@ -558,31 +563,31 @@ for a very simple partial order, in which one of \(k_j\) elements must
 be smaller than the other elements. The second substep is a metric
 multidimensional scaling step. It cannot be carried out completely,
 because it would need an infinite iterative process by itself. Thus the
-second substep consist of a finite number of \emph{inner iterations}
-within the second substep of an \emph{outer iteration}. For the inner
-iterations we use standard smacof majorization steps (De Leeuw
+second substep consists of a finite number of \emph{inner iterations}
+within the second substep of an ALS \emph{outer iteration}. For the
+inner iterations we use standard smacof majorization steps (De Leeuw
 (\citeproc{ref-deleeuw_C_77}{1977a})).
 
 \subsection{Monotone Regression}\label{monotone-regression}
 
-The \(nm\) monotone regressions are applied to each row \(i\) of each
-variable \(j\). Forgetting about all these indices for a moment we need
-to minimize the sum of squares \(\|\delta_\ell-d_\ell\|^2\) over
-\(\delta\), where one of the elements, say \(\delta_\nu\), must be
-smaller than or equal to all others, and where
-\(\|\delta_\ell-\overline{\delta}\|^2=c\).
+The \(nm\) monotone regressions are applied for each object \(i\) and
+each variable \(j\). Forgetting about all these indices for a moment we
+need to minimize the sum of squares \(\|\delta-d\|^2\) over \(\delta\),
+where one of the elements, say \(\delta_\nu\), must be smaller than or
+equal to all others, and where \(\|\delta-\overline{\delta}\|^2=c\).
 
-Consider the cone of all vectors \(x\) in \(\mathbb{R}^n\) for which
-\(x_i\leq x_1\) for all \(i\neq 1\) and \(e'x=0\). The extreme rays of
-the cone will be the \(n-1\) vectors of the form
-\(\alpha e_i+\beta(e-e_i)\) with \(i\neq 1\). Thus element \(i\) is
-equal to \(\alpha\) and all other elements (including \(x_1\)) are equal
-to \(\beta\). Thus we must have \(\alpha>\beta\). The sum of the
-elements is \(\alpha+(n-1)\beta\), which must be zero. Thus
-\(\alpha=-(n-1)\beta\), which implies \(\beta<0\) and \(\alpha>0\). The
-extreme rays are positive multiples of the vectors \(e_i-n^{-1}e\) with
-\(i\neq 1\) and the cone is the set of all weighted sums with
-non-negative weights of these \(n-1\) vectors. Here is a small example.
+Consider the cone of all vectors \(\delta\) in \(\mathbb{R}^n\) for
+which \(\delta_i\leq\delta_\ell\) for all \(i\neq \ell\) and
+\(e'\delta=0\). The extreme rays of the cone will be the \(n-1\) vectors
+of the form \(\alpha e_i+\beta(e-e_i)\) with \(i\neq \ell\). Thus
+element \(i\) is equal to \(\alpha\) and all other elements (including
+\(\delta_\ell\)) are equal to \(\beta\). Thus we must have
+\(\alpha>\beta\). The sum of the elements is \(\alpha+(n-1)\beta\),
+which must be zero. Thus \(\alpha=-(n-1)\beta\), which implies
+\(\beta<0\) and \(\alpha>0\). The extreme rays are positive multiples of
+the vectors \(e_i-n^{-1}e\) with \(i\neq\ell\) and the cone is the set
+of all weighted sums with non-negative weights of these \(n-1\) vectors.
+Here is a small example.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -682,9 +687,9 @@ X\\Y
 
 \[
 d_{ij}(X,Y)=\text{tr}\ Z'A_{ij}Z
-\] \[
-V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}
-\]
+\] \begin{equation}
+V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}\label{eq-vdef}
+\end{equation}
 
 If we define \begin{align}
 V_1&:=(n+m)^{-1}\begin{bmatrix}\frac{m}{n}E&-E\\-E&\frac{n}{m}E\end{bmatrix},\\
@@ -698,9 +703,94 @@ inverse3 of \(V\), is \[
 V^+=\frac{1}{n+m}V_1+\frac{1}{m}V_2+\frac{1}{n}V_3
 \] \[
 B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmatrix}
-\] \# Software
+\]
+
+\sectionbreak
+
+\section{Centering}\label{centering}
+
+\[
+m\ \text{tr}\ (X-\tilde X)'(X-\tilde X)+n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)-2\ \text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)
+\] \[
+Y-\tilde Y=e_me_n'(X-\tilde X)
+\] \[
+n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)=nm\ \text{tr}(X-\tilde X)'e_ne_n'(X-\tilde X)
+\] \[
+\text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)=m\text{tr}\ (X-\tilde X)'e_ne_n'(X-\tilde X)=
+\]
+
+\section{Constraints}\label{constraints}
+
+\subsection{Normalization}\label{normalization}
+
+\subsection{Orthogonality Constraints}\label{orthogonality-constraints}
+
+\[
+m\text{tr}\ (X-\tilde X)'(X-\tilde X)+n\text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)
+\]
+
+\subsection{Centroid Constraints}\label{centroid-constraints}
+
+\subsection{Rank Constraints}\label{rank-constraints}
+
+\section{Software}\label{software}
+
+\sectionbreak
 
 \section{Examples}\label{examples}
+
+\subsection{Small Example}\label{small-example}
+
+We start with the small example we used before to illustrate Homogeneity
+Analysis.
+
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvha-1.pdf}}
+
+Loss is 0.0000000000 after 308 iterations. If we compare the plots from
+the Voronoi analysis with the star plots from the initial Homogeneity
+Analysis for this example we see that the algorithm did not have to
+change much to obtain perfect fit. One thing that does change is that
+the iterations moves the category-points ``p'' and ``r'' for variable 2
+very close to each other. At the point where we stop the iterations they
+are still distinguishable, and thus their perpendicular bisector is
+still a line in the Voronoi plot. If we would continue iterating ``p''
+and ``r'' would coincide and there would only be two Voronoi regions:
+one containing category-point ``q'' and object-point 2, and one
+containing all other points. one containing all other
+
+\subsection{GALO}\label{galo}
+
+Loss is 0.0008972348 after 1000 iterations.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_d_dhat-1.pdf}}
+
+}
+
+\caption{Galo D-Dhat Plot}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_IQ-1.pdf}}
+
+}
+
+\caption{Galo IQ}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_ADV-1.pdf}}
+
+}
+
+\caption{Galo ADV}
+
+\end{figure}%
 
 \sectionbreak
 
