@@ -54,7 +54,6 @@ suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 source("small.R")
 source("galo.R")
 source("mca.R")
-source("paraplu.R")
 source("majorization.R")
 source("auxiliaries.R")
 source("voronoi.R")
@@ -234,8 +233,8 @@ Voronoi region, i.e. in the Voronoi region of the category
 point corresponding with the category they belong to. 
 
 One (very inefficient, but conceptually easy) way of constructing
-Voronoi regions is to draw the perpendicular bisectors of 
-the (hypothetical) lines connecting all pairs of category-points of a variable. The convex polyhedral regions thus formed, some bounded and some 
+Voronoi regions in the plane is to draw the perpendicular bisectors of 
+the (hypothetical) lines connecting all pairs of category-points of a variable. In higher dimensions $p>2$ the bisectors are planes of dimension $p-1$. The convex polyhedral regions thus formed, some bounded and some 
 unbounded, define the Voronoi regions.
 The literature on properties and computation on Voronoi regions 
 is large, and we refer to the textbooks of @okabe_boots_sugihara_chiu_00
@@ -305,9 +304,7 @@ The second substep is a metric multidimensional scaling step.
 It cannot be carried out completely, because it would need an 
 infinite iterative process by itself. Thus the second substep
 consists of a finite number of *inner iterations* within the
-second substep of an ALS *outer iteration*. For the inner
-iterations we use standard smacof majorization steps
-(@deleeuw_C_77).
+second substep of an ALS *outer iteration*. 
 
 ## Monotone Regression
 
@@ -317,59 +314,12 @@ moment we need to minimize the sum of squares
 $\|\delta-d\|^2$ over $\delta$, where one of the elements, say $\delta_\nu$, must be smaller than or equal to all others, and where
 $\|\delta-\overline{\delta}\|^2=c$.
 
-Consider the cone of all vectors $\delta$ in $\mathbb{R}^n$ for which
-$\delta_i\leq\delta_\ell$ for all $i\neq \ell$ and $e'\delta=0$. The extreme rays of the cone will be the $n-1$ vectors of the form $\alpha e_i+\beta(e-e_i)$ with
-$i\neq \ell$. Thus element $i$ is equal to $\alpha$ and all other elements
-(including $\delta_\ell$) are equal to $\beta$. Thus we must have $\alpha>\beta$.
-The sum of the elements is $\alpha+(n-1)\beta$, which must be zero. 
-Thus $\alpha=-(n-1)\beta$, which implies $\beta<0$ and $\alpha>0$.
-The extreme rays are positive multiples of the vectors $e_i-n^{-1}e$ with $i\neq\ell$ and the cone is the set of all weighted sums with non-negative weights of these $n-1$ vectors. Here is a small example.
-```{r}
-a <- -cbind(1, -diag(4))
-b <- (diag(5)-(1 / 5))[, -1]
-print(a)
-print(b)
-print(a %*% b)
-```
-For later reference the sum of squares of the vectors $e_i-n^{-1}e$ is
-$(n-1)/n$, so the vectors $\sqrt{n/(n-1)}(e_i-n^{-1}e)$ are the
-vectors of length 1 on the extreme rays. 
 
-
-Suppose $y$ is a vector with $n$ elements. The problem we study is 
-to minimixe the sum of squares $\sigma(x):=\|x-y\|^2$ over
-$x\in K$ and $x'Jx=1$. Here 
-
-* $K$ is the cone of vectors with $\smash{x_1\leq x_2\leq\cdots\leq x_n}$,
-* $J$ is the centering matrix $\smash{J:=I-n^{-1}ee'}$, where
-* $e$ is the vector with all $n$ elements equal to one.
-
-Change variables to $\tilde x=Jx$. Then $x'Jx=\tilde x'\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also $\tilde x = Jx$
-if and only if $x=\tilde x+\beta e$. So the transformed problem is
-to minimize
-$\|\tilde x+\beta e-y\|^2$ over $\beta$ and $\tilde x\in K$, with
-$e'\tilde x=0$ and $\tilde x'\tilde x=1$. The minimizer for $\beta$ is $\overline{y}:=n^{-1}e'y$,
-and thus the problem becomes minimizing
-$\|\tilde x- Jy\|^2$ over $\tilde x\in K$, $\tilde x'\tilde x=1$, and $e'\tilde x=0$. 
-
-Forget about the constraint $e'\tilde x=0$. If $M$ is the monotone regression operator 
-it follows
-that the solution for $\tilde x$ is $M(Jy)/\|M(Jy)\|$, which automatically
-satisfies $e'\tilde x=0$. Thus the solution of our original problem is 
-$$
-\hat x=\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}.
-$$
-$M(y-\overline{y})=M(y)-\overline{y}$
-and thus $\|M(y-\overline y)\|^2=\|M(y)\|^2+n\overline{y}^2-2\overline{y}e'M(y)$
-nor $e'M(y)=e'y=n\overline{y}$.
-Thus $\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2$
-$$
-\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
-\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
-$$
 
 ## Majorization
 
+For the inner iterations we use standard smacof majorization steps
+(@deleeuw_C_77).
 
 $$
 A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}
@@ -433,34 +383,120 @@ $$
 
 \sectionbreak
 
-# Centering
+## Regression Constraints
+
+Consider the cone of all vectors $\delta$ in $\mathbb{R}^n$ for which
+$\delta_i\leq\delta_\ell$ for all $i\neq \ell$ and $e'\delta=0$. The extreme rays of the cone will be the $n-1$ vectors of the form $\alpha e_i+\beta(e-e_i)$ with
+$i\neq \ell$. Thus element $i$ is equal to $\alpha$ and all other elements
+(including $\delta_\ell$) are equal to $\beta$. Thus we must have $\alpha>\beta$.
+The sum of the elements is $\alpha+(n-1)\beta$, which must be zero. 
+Thus $\alpha=-(n-1)\beta$, which implies $\beta<0$ and $\alpha>0$.
+The extreme rays are positive multiples of the vectors $e_i-n^{-1}e$ with $i\neq\ell$ and the cone is the set of all weighted sums with non-negative weights of these $n-1$ vectors. Here is a small example.
+```{r}
+a <- -cbind(1, -diag(4))
+b <- (diag(5)-(1 / 5))[, -1]
+print(a)
+print(b)
+print(a %*% b)
+```
+For later reference the sum of squares of the vectors $e_i-n^{-1}e$ is
+$(n-1)/n$, so the vectors $\sqrt{n/(n-1)}(e_i-n^{-1}e)$ are the
+vectors of length 1 on the extreme rays. 
+
+
+Suppose $y$ is a vector with $n$ elements. The problem we study is 
+to minimixe the sum of squares $\sigma(x):=\|x-y\|^2$ over
+$x\in K$ and $x'Jx=1$. Here 
+
+* $K$ is the cone of vectors with $\smash{x_1\leq x_2\leq\cdots\leq x_n}$,
+* $J$ is the centering matrix $\smash{J:=I-n^{-1}ee'}$, where
+* $e$ is the vector with all $n$ elements equal to one.
+
+Change variables to $\tilde x=Jx$. Then $x'Jx=\tilde x'\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also $\tilde x = Jx$
+if and only if $x=\tilde x+\beta e$. So the transformed problem is
+to minimize
+$\|\tilde x+\beta e-y\|^2$ over $\beta$ and $\tilde x\in K$, with
+$e'\tilde x=0$ and $\tilde x'\tilde x=1$. The minimizer for $\beta$ is $\overline{y}:=n^{-1}e'y$,
+and thus the problem becomes minimizing
+$\|\tilde x- Jy\|^2$ over $\tilde x\in K$, $\tilde x'\tilde x=1$, and $e'\tilde x=0$. 
+
+Forget about the constraint $e'\tilde x=0$. If $M$ is the monotone regression operator 
+it follows
+that the solution for $\tilde x$ is $M(Jy)/\|M(Jy)\|$, which automatically
+satisfies $e'\tilde x=0$. Thus the solution of our original problem is 
+$$
+\hat x=\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}.
+$$
+$M(y-\overline{y})=M(y)-\overline{y}$
+and thus $\|M(y-\overline y)\|^2=\|M(y)\|^2+n\overline{y}^2-2\overline{y}e'M(y)$
+nor $e'M(y)=e'y=n\overline{y}$.
+Thus $\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2$
+$$
+\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
+\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
+$$
+
+## Configuration Constraints
+
+### Column-Centering
+
+If we require $X'e=0$ then the update becomes $J_n\tilde X$, with
+$J_n=I-n^{-1}ee'$ the centering matrix.
+
+This is different from updating $X$ as $J_n\tilde X$ and $Y$
+as $\tilde Y-n^{-1}ee'\tilde X$. With this update, in which we
+subtract the column-means of $\tilde X$ from both $\tilde X$
+and $\tilde Y$, the distances are the same before and after
+centering. Thus the distances in all iterations, and the
+loss function values, are the same with or without this 
+type of centering.
+
+In general it is advantagous to require $e'X=0$ because the third
+term in
+$$
+m\|X-\tilde X\|^2+n\|Y-\tilde Y\|^2-2\ \text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)
+$$
+becomes independent of $X$, and thus the $(X,Y)$ minimization 
+is separable.
+
+### Orthogonality
+
+If we require $X'X=I$, together with $e'X=0$, as in Homogeneity Analysis, 
+the solution for $X$ is $KL'$, where $J_n\tilde X=K\Lambda L'$ is a
+singular value decomposition. 
+
+### Rank Constraints
+
+One of the main themes in @gifi_B_90 is that the $k_j\times p$ matrices of category quantifications can be constrained to be of rank $r<p$. We will
+restrict ourselves in this paper to $r=1$, which defines what Gifi calls
+*single quantifications*. If all variables are restricted to have
+single quantifications then a Homogeneity Analysis becomes equivalent
+to a Principal Component Analysis of the transformed variables. 
+
+In Voronoi Homogeneity Analysis the Voronoi regions of single variables
+become parallel strips. The category-points of a variable are on a line through the origin, and the Voronoi lines or planes are parallel and perpendicular to the line with category-points.
 
 $$
-m\ \text{tr}\ (X-\tilde X)'(X-\tilde X)+n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)-2\ \text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)
+-2\text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)+n\|Y-\tilde Y\|^2=\text{tr}\ \|(Y-\tilde Y)-n^{-1}ee'(X-\tilde X)\|^2+C
+$$
+So rank one approximation of $\tilde Y+ee'(X-\tilde X)$. If $X$ is 
+column-centered then of course $\tilde Y-ee'\tilde X)$.
+
+### Centroid 
+
+A more complicated restriction is $Y=D^{-1}G'X$. This eliminates
+$Y$ from the problem and only requires minimization of $
+$$
+m\|X-\tilde X\|^2+n\|D^{-1}G'X-\tilde Y\|^2-2\text{tr}\ (X-\tilde X)'ee'(D^{-1}G'X-\tilde Y)
 $$
 $$
-Y-\tilde Y=e_me_n'(X-\tilde X)
+m\ \text{tr}\ X'X+n\ \text{tr}\ X'GD^{-2}G'X-2\ \text{tr}\ X'e_ne_m'D^{-1}G'X.
 $$
 $$
-n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)=nm\ \text{tr}(X-\tilde X)'e_ne_n'(X-\tilde X)
-$$
-$$
-\text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)=m\text{tr}\ (X-\tilde X)'e_ne_n'(X-\tilde X)=
+-2m\ \text{tr}\ X'\tilde X-2n\ \text{tr}\ X'GD^{-1}\tilde Y+2\text{tr}\ X'ee'\tilde Y+2\text{tr}\ X'GD^{-1}ee'\tilde X
 $$
 
-# Constraints
-
-## Normalization
-
-## Orthogonality Constraints
-
-$$
-m\text{tr}\ (X-\tilde X)'(X-\tilde X)+n\text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)
-$$
-
-## Centroid Constraints
-
-## Rank Constraints
+\sectionbreak
 
 # Software
 

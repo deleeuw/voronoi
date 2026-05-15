@@ -3,7 +3,6 @@ library(deldir)
 library(dismo)
 
 source("mca.R")
-source("paraplu.R")
 source("majorization.R")
 source("auxiliaries.R")
 source("monotone.R")
@@ -27,15 +26,19 @@ voronoiHomogeneityAnalysis <- function(x,
     indi <- cbind(indi, indj)
     ncat[j] <- ncol(indj)
   }
+  if (length(yrank) == 1) {
+    yrank <- rep(yrank, nvar)
+  }
   ktot <- ncol(indi)
   vinv <- makeVinv(nobj, ktot)
   haux <- mca(indi, ndim)
   xold <- haux$xmat
   yold <- haux$ymat
   dold <- makeDmat(xold, yold)
-  # initialize dhat from indi
-  # dhat <- initializeDhat
   dhat <- monotone(dold, ncat, indi)
+  if (dnorm) {
+    dhat <- normalizeDhat(dhat, dold, indi, ncat, dnorm)
+  }
   sold <- sum((dhat - dold)^2)
   itel <- 1
   repeat {
@@ -46,7 +49,8 @@ voronoiHomogeneityAnalysis <- function(x,
     xnew <- xnew - outer(rep(1, nobj), meax)
     ynew <- ynew - outer(rep(1, ktot), meax)
     if (xnorm) {
-      xnew <- qr.Q(qr(xnew))
+      xsvd <- svd(xnew)
+      xnew <- tcrossprod(xsvd$u, xsvd$v)
     }
     if (!is.null(yrank)) {
       ksum <- 0
@@ -62,7 +66,11 @@ voronoiHomogeneityAnalysis <- function(x,
     dnew <- makeDmat(xnew, ynew)
     smid <- sum((dhat - dnew)^2)
     dhat <- monotone(dnew, ncat, indi)
+    if (dnorm) {
+      dhat <- normalizeDhat(dhat, dnew, indi, ncat, dnorm)
+    }
     snew <- sum((dhat - dnew)^2)
+    aps <- max(abs(dold - dnew))
     if (verbose) {
       cat(
         "itel",
@@ -88,10 +96,16 @@ voronoiHomogeneityAnalysis <- function(x,
           width = 15,
           format = "f"
         ),
+        "apsi",
+        formatC(
+          aps,
+          digits = 10,
+          width = 15,
+          format = "f"
+        ),
         "\n"
       )
     }
-    aps <- max(abs(dold - dnew))
     if ((itel == itmax) || (aps < eps)) {
       break
     }
@@ -101,40 +115,22 @@ voronoiHomogeneityAnalysis <- function(x,
     sold <- snew
     itel <- itel + 1
   }
-  return(list(
-    xmat = xnew,
-    ymat = ynew,
-    dmat = dnew,
-    dhat = dhat,
-    itel = itel,
-    loss = snew,
-    xini = haux$xmat,
-    yini = haux$ymat,
-    indi = indi,
-    ncat = ncat
-  ))
-}
-
-
-makeDmat <- function(x, y) {
-  xx <- rowSums(x^2)
-  yy <- rowSums(y^2)
-  dmat <- sqrt(outer(xx, yy, "+") - 2 * tcrossprod(x, y))
-  return(dmat)
-}
-
-makeDhat <- function(indi, ncat, norm = 1) {
-  nobj <- nrow(indi)
-  nvar <- length(ncat)
-  dhat <- NULL
-  ksum <- 0
-  for (j in 1:nvar) {
-    catj <- ncat[j]
-    fact <- switch(norm, sqrt(catj / (catj - 1)), sqrt(catj^2 / (catj - 1)))
-    indj <- indi[, ksum + 1:catj]
-    dhat <- cbind(dhat, indj * fact)
-  }
-  return(dhat)
+  return(
+    list(
+      xmat = xnew,
+      ymat = ynew,
+      dmat = dnew,
+      dhat = dhat,
+      itel = itel,
+      loss = snew,
+      xini = haux$xmat,
+      yini = haux$ymat,
+      indi = indi,
+      ncat = ncat
+    )
+  )
 }
 
 vha <- voronoiHomogeneityAnalysis
+
+

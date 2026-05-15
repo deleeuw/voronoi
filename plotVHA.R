@@ -3,6 +3,7 @@ library(dismo)
 plotVHA <- function(xmat,
                     ymat,
                     ncat,
+                    main = NULL,
                     labs = NULL,
                     pdf = FALSE) {
   nvar <- length(ncat)
@@ -14,7 +15,7 @@ plotVHA <- function(xmat,
       pdf(paste("plot", j , ".pdf", sep = ""))
     }
     y <- ymat[kcat + 1:ncat[j], ]
-    plot(voronoi(y, ext = c(rmin, rmax, rmin, rmax)))
+    plot(voronoi(y, ext = c(rmin, rmax, rmin, rmax)), main = main[j])
     text(xmat, as.character(1:nrow(xmat)))
     if (!is.null(labs)) {
       ylab <- labs[kcat + 1:ncat[j]]

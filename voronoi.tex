@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{May 12, 2026}
+\date{May 13, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -493,12 +493,13 @@ the ``correct'' Voronoi region, i.e.~in the Voronoi region of the
 category point corresponding with the category they belong to.
 
 One (very inefficient, but conceptually easy) way of constructing
-Voronoi regions is to draw the perpendicular bisectors of the
-(hypothetical) lines connecting all pairs of category-points of a
-variable. The convex polyhedral regions thus formed, some bounded and
-some unbounded, define the Voronoi regions. The literature on properties
-and computation on Voronoi regions is large, and we refer to the
-textbooks of Okabe et al.
+Voronoi regions in the plane is to draw the perpendicular bisectors of
+the (hypothetical) lines connecting all pairs of category-points of a
+variable. In higher dimensions \(p>2\) the bisectors are planes of
+dimension \(p-1\). The convex polyhedral regions thus formed, some
+bounded and some unbounded, define the Voronoi regions. The literature
+on properties and computation on Voronoi regions is large, and we refer
+to the textbooks of Okabe et al.
 (\citeproc{ref-okabe_boots_sugihara_chiu_00}{2000}) and Aurenhammer et
 al. (\citeproc{ref-aurenhammer_klein_lee_13}{2013}).
 
@@ -677,7 +678,7 @@ nor \(e'M(y)=e'y=n\overline{y}\). Thus
 
 \subsection{Majorization}\label{majorization}
 
-\[
+The majorization algorithm for multidimensional scaling \[
 A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}
 \] \[
 Z:=\begin{bmatrix}
@@ -707,31 +708,66 @@ B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmat
 
 \sectionbreak
 
-\section{Centering}\label{centering}
+\subsection{Regression Constraints}\label{regression-constraints}
+
+\subsection{Configuration Constraints}\label{configuration-constraints}
+
+\subsubsection{Column-Centering}\label{column-centering}
+
+If we require \(X'e=0\) then the update becomes \(J_n\tilde X\), with
+\(J_n=I-n^{-1}ee'\) the centering matrix.
+
+This is different from updating \(X\) as \(J_n\tilde X\) and \(Y\) as
+\(\tilde Y-n^{-1}ee'\tilde X\). With this update, in which we subtract
+the column-means of \(\tilde X\) from both \(\tilde X\) and
+\(\tilde Y\), the distances are the same before and after centering.
+Thus the distances in all iterations, and the loss function values, are
+the same with or without this type of centering.
+
+In general it is advantagous to require \(e'X=0\) because the third term
+in \[
+m\|X-\tilde X\|^2+n\|Y-\tilde Y\|^2-2\ \text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)
+\] becomes independent of \(X\), and thus the \((X,Y)\) minimization is
+separable.
+
+\subsubsection{Orthogonality}\label{orthogonality}
+
+If we require \(X'X=I\), together with \(e'X=0\), as in Homogeneity
+Analysis, the solution for \(X\) is \(KL'\), where
+\(J_n\tilde X=K\Lambda L'\) is a singular value decomposition.
+
+\subsubsection{Rank Constraints}\label{rank-constraints}
+
+One of the main themes in Gifi (\citeproc{ref-gifi_B_90}{1990}) is that
+the \(k_j\times p\) matrices of category quantifications can be
+constrained to be of rank \(r<p\). We will restrict ourselves in this
+paper to \(r=1\), which defines what Gifi calls \emph{single
+quantifications}. If all variables are restricted to have single
+quantifications then a Homogeneity Analysis becomes equivalent to a
+Principal Component Analysis of the transformed variables.
+
+In Voronoi Homogeneity Analysis the Voronoi regions of single variables
+become parallel strips. The category-points of a variable are on a line
+through the origin, and the Voronoi lines or planes are parallel and
+perpendicular to the line with category-points.
 
 \[
-m\ \text{tr}\ (X-\tilde X)'(X-\tilde X)+n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)-2\ \text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)
+-2\text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)+n\|Y-\tilde Y\|^2=\text{tr}\ \|(Y-\tilde Y)-n^{-1}ee'(X-\tilde X)\|^2+C
+\] So rank one approximation of \(\tilde Y+ee'(X-\tilde X)\). If \(X\)
+is column-centered then of course \(\tilde Y-ee'\tilde X)\).
+
+\subsubsection{Centroid}\label{centroid}
+
+A more complicated restriction is \(Y=D^{-1}G'X\). This eliminates \(Y\)
+from the problem and only requires minimization of \$ \[
+m\|X-\tilde X\|^2+n\|D^{-1}G'X-\tilde Y\|^2-2\text{tr}\ (X-\tilde X)'ee'(D^{-1}G'X-\tilde Y)
 \] \[
-Y-\tilde Y=e_me_n'(X-\tilde X)
+m\ \text{tr}\ X'X+n\ \text{tr}\ X'GD^{-2}G'X-2\ \text{tr}\ X'e_ne_m'D^{-1}G'X.
 \] \[
-n\ \text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)=nm\ \text{tr}(X-\tilde X)'e_ne_n'(X-\tilde X)
-\] \[
-\text{tr}\ (Y-\tilde Y)'e_me_n'(X-\tilde X)=m\text{tr}\ (X-\tilde X)'e_ne_n'(X-\tilde X)=
+-2m\ \text{tr}\ X'\tilde X-2n\ \text{tr}\ X'GD^{-1}\tilde Y+2\text{tr}\ X'ee'\tilde Y+2\text{tr}\ X'GD^{-1}ee'\tilde X
 \]
 
-\section{Constraints}\label{constraints}
-
-\subsection{Normalization}\label{normalization}
-
-\subsection{Orthogonality Constraints}\label{orthogonality-constraints}
-
-\[
-m\text{tr}\ (X-\tilde X)'(X-\tilde X)+n\text{tr}\ (Y-\tilde Y)'(Y-\tilde Y)
-\]
-
-\subsection{Centroid Constraints}\label{centroid-constraints}
-
-\subsection{Rank Constraints}\label{rank-constraints}
+\sectionbreak
 
 \section{Software}\label{software}
 

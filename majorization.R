@@ -1,10 +1,7 @@
 majorizationStep <- function(dold, dhat, xold, yold, vinv, inmax, ips) {
-  n <- nrow(xold)
-  m <- nrow(yold)
   bmat <- makeBmat(dold, dhat)
   xmid <- bmat$b11 * xold + bmat$b12 %*% yold
   ymid <- bmat$b22 * yold + crossprod(bmat$b12, xold)
-  vinv <- makeVinv(n, m)
   xnew <- vinv$v11 %*% xmid + vinv$v12 %*% ymid
   ynew <- t(vinv$v12) %*% xmid + vinv$v22 %*% ymid
   return(list(xnew = xnew, ynew = ynew))
