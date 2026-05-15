@@ -31,9 +31,9 @@ voronoiHomogeneityAnalysis <- function(x,
   }
   ktot <- ncol(indi)
   vinv <- makeVinv(nobj, ktot)
-  haux <- mca(indi, ndim)
-  xold <- haux$xmat
-  yold <- haux$ymat
+  hini <- mca(indi, ndim)
+  xold <- hini$xmat
+  yold <- hini$ymat
   dold <- makeDmat(xold, yold)
   dhat <- monotone(dold, ncat, indi)
   if (dnorm) {
@@ -47,7 +47,7 @@ voronoiHomogeneityAnalysis <- function(x,
     ynew <- haux$ynew
     meax <- apply(xnew, 2, mean)
     xnew <- xnew - outer(rep(1, nobj), meax)
-    ynew <- ynew - outer(rep(1, ktot), meax)
+    # ynew <- ynew - outer(rep(1, ktot), meax)
     if (xnorm) {
       xsvd <- svd(xnew)
       xnew <- tcrossprod(xsvd$u, xsvd$v)
@@ -123,8 +123,8 @@ voronoiHomogeneityAnalysis <- function(x,
       dhat = dhat,
       itel = itel,
       loss = snew,
-      xini = haux$xmat,
-      yini = haux$ymat,
+      xini = hini$xmat,
+      yini = hini$ymat,
       indi = indi,
       ncat = ncat
     )
