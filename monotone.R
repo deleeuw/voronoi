@@ -65,10 +65,10 @@ normalizeDhat <- function(dhat, dnew, indi, ncat, dnorm) {
         hwrk[iwrk] <- -Inf
         jwrk <- which.max(hwrk)
         hwrk <- ifelse(jwrk == 1:nwrk, nwrk, 0) - 1
-        dhat[i, kwrk + 1:nwrk] <- hwrk / sqrt(nwrk * (nwrk - 1))
+        dhat[i, kwrk + 1:nwrk] <- hwrk / sqrt(nwrk * (nwrk - 1)) + dave
       } else {
         hwrk <- hwrk - dave
-        dhat[i, kwrk + 1:nwrk] <- hwrk / sqrt(sum(hwrk^2))
+        dhat[i, kwrk + 1:nwrk] <- hwrk / sqrt(sum(hwrk^2)) + dave
       }
     }
     kwrk <- kwrk + ncat[j]
