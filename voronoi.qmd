@@ -273,94 +273,78 @@ help to require $X'X=I$, because we can easily
 construct orthogonal configurations with all points on the 
 sphere. Stronger normalization constraints are required.
 
-In this paper we use the constraint
-\begin{equation}
-\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=c_j,\label{eq-norm}
-\end{equation}
-with $\overline{\delta}_{ij}$ the mean of the $\delta_{i\ell}^j$
-and with $c_j$ constants. For instance we could choose
-$c_j=1$ or $c_j=k_j$ for all $j$. In addition, of course, the 
-$\delta_{i\ell}^j$ must satisfy the ordinal constraints. Constraint
-\eqref{eq-norm} explicitly excludes the possibility that the
-$\delta_{i\ell}^j$ for given $i$ and $j$ are equal for all $\ell$.
+
 
 # Algorithm
 
 We use an *Alternating Least Squares* or *ALS* algorithm, similar to many
 other non-metric muldimensional scaling methods, to minimize
 loss \eqref{eq-loss5}. For context, see @borg_groenen_05.
-We alternate minimization over $\Delta$
-for given $X$ and $Y$ with minimization over $X$ and $Y$ for
-given $\Delta$. Using superscript $(\mu)$ for the iteration index we can write
+We alternate minimization over $\Delta_1,\cdots,\Delta_m$
+for given $X$ and $Y_1\cdots Y_m$ with minimization over $X$ and $Y_1\cdots Y_m$ for
+given $\Delta_1,\cdots,\Delta_m$. Using superscript $(\mu)$ for the iteration index we can write for an ALS iteration
+\begin{subequations}
 \begin{align}
-\Delta^{(\mu)}&=\mathop{\text{argmin}}_{\Delta}\sigma(X^{(\mu)},Y^{(\mu)},\Delta),\\
-(X^{(\mu+1)},Y^{(\mu+1)})&=\mathop{\text{argmin}}_{X,Y}\sigma(X,Y,\Delta^{(\mu)}).
+(\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)})&=\mathop{\text{argmin}}_{(\Delta_1,\cdots,\Delta_m)}\sigma(X^{(\mu)},Y_1^{(\mu)},\cdots,Y_m^{(\mu)},\Delta_1,\cdots,\Delta_m),\label{eq-als1}\\
+(X^{(\mu+1)},Y_1^{(\mu+1)},\cdots,Y_m^{(\mu+1)})&=\mathop{\text{argmin}}_{X,Y_1,\cdots,Y_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)}).\label{eq-als2}
 \end{align}
-
-The first substep of iteration $\mu$ is a form
-of monotone regression for a very simple partial order, in which
-one of $k_j$ elements must be smaller than the other elements.
-The second substep is a metric multidimensional scaling step.
-It cannot be carried out completely, because it would need an 
-infinite iterative process by itself. Thus the second substep
+\end{subequations}
+The first substep \eqref{eq-als1} of iteration $(\mu)$ solves
+a monotone regression problem for a simple partial order, in which
+one of $k_j$ elements must be smaller than the other $k_j-1$ elements.
+The second substep \eqref{eq-als2} solves a metric multidimensional scaling problem.
+This subproblem cannot be solved completely, because it would need an 
+infinite iterative process by itself. Thus the second substep \eqref{eq-als2}
 consists of a finite number of *inner iterations* within the
-second substep of an ALS *outer iteration*. 
+second substep of a single ALS *outer iteration*. 
 
 ## Monotone Regression
 
 The $nm$ monotone regressions are applied for each object $i$ and
 each variable $j$. Forgetting about all these indices for a 
 moment we need to minimize the sum of squares
-$\|\delta-d\|^2$ over $\delta$, where one of the elements, say $\delta_\nu$, must be smaller than or equal to all others, and where
-$\|\delta-\overline{\delta}\|^2=c$.
+$\|\delta-d\|^2$ over $\delta$, where one of the elements, 
+say $\delta_\nu$, must be smaller than or equal to all others.
 
-
+This can be solved by using monotone regression with the 
+primary approach to ties
+(@kruskal_64b, @deleeuw_A_77), treating all $\delta_\ell$
+with $\ell\neq\nu$ as ties.
 
 ## Majorization
 
-For the inner iterations we use standard smacof majorization steps
-(@deleeuw_C_77).
-
-$$
-A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}
-$$
-$$
+For the inner iterations we use standard *smacof* majorization steps
+(@deleeuw_C_77). We define some of the entities normally used
+in *smacof*. First we define the partitioned matrix\footnote{The $e_i$ are unit vectors with element
+$i$ equal to one and the other elements zero. The number of elements of the $e_i$ follows from the
+context.}
+\begin{equation}
+A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}.\label{eq-adef}
+\end{equation}
+Next
+\begin{equation}
 Z:=\begin{bmatrix}
-X\\Y
-\end{bmatrix}
-$$
+X_{\ }\\
+Y_1\\
+\vdots\\
+Y_m
+\end{bmatrix}.\label{eq-zdef}
+\end{equation}
+With these definitions
+\begin{equation}
+d_{ij}(X,Y)=\sqrt{\text{tr}\ Z'A_{ij}Z},\label{eq-dz}
+\end{equation}
+and thus loss \eqref{eq-loss5} becomes
+\begin{equation}
+\sigma(X,Z):=\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-\text{tr}\ Z'A_{i\ell}^jZ)^2,
+\end{equation}
 
-$$
-d_{ij}(X,Y)=\text{tr}\ Z'A_{ij}Z
-$$
+
+
 \begin{equation}
 V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}\label{eq-vdef}
 \end{equation}
-```{r check1, echo = FALSE, eval = FALSE}
-m <- 3
-n <- 5
-library(MASS)
-v <- matrix(0, n + m, n + m)
-v[1:n, 1:n] <- m * diag(n)
-v[n + (1:m), n + (1:m)] <- n * diag(m)
-v[1:n, n + (1:m)] <- -1
-v[n + (1:m), 1:n] <- -1
-v1 <- matrix(0, n + m, n + m)
-v1[1:n, 1:n] <- (m / n)
-v1[n + (1:m), n + (1:m)] <- (n / m)
-v1[1:n, n + (1:m)] <- -1
-v1[n + (1:m), 1:n] <- -1
-v1 <- v1 / (n + m)
-v2 <- matrix(0, n + m, n + m)
-v2[1:n, 1:n] <- diag(n) - (1 / n)
-v3 <- matrix(0, n + m, n + m)
-v3[n + (1:m), n + (1:m)] <- diag(m) - (1 / m)
-vv <- (n + m) * v1 + m * v2 + n * v3
-print(max(abs(v - vv)))
-vin <- ginv(v)
-viv <- v1 / (n + m) + v2 / m + v3 / n
-print(max(abs(vin - viv)))
-```
+
 If we define
 \begin{align}
 V_1&:=(n+m)^{-1}\begin{bmatrix}\frac{m}{n}E&-E\\-E&\frac{n}{m}E\end{bmatrix},\\
@@ -383,7 +367,20 @@ $$
 
 \sectionbreak
 
+# Constraints
+
 ## Regression Constraints
+
+In this paper we use the constraint
+\begin{equation}
+\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=c_j,\label{eq-norm}
+\end{equation}
+with $\overline{\delta}_{ij}$ the mean of the $\delta_{i\ell}^j$
+and with $c_j$ constants. For instance we could choose
+$c_j=1$ or $c_j=k_j$ for all $j$. In addition, of course, the 
+$\delta_{i\ell}^j$ must satisfy the ordinal constraints. Constraint
+\eqref{eq-norm} explicitly excludes the possibility that the
+$\delta_{i\ell}^j$ for given $i$ and $j$ are equal for all $\ell$.
 
 Consider the cone of all vectors $\delta$ in $\mathbb{R}^n$ for which
 $\delta_i\leq\delta_\ell$ for all $i\neq \ell$ and $e'\delta=0$. The extreme rays of the cone will be the $n-1$ vectors of the form $\alpha e_i+\beta(e-e_i)$ with
@@ -438,26 +435,34 @@ $$
 
 ## Configuration Constraints
 
+If there are constraints on $X$ and/or $Y$ we use majorization 
+theory for restricted MDS( from (@deleeuw_heiser_C_80). Suppose 
+$$
+\tilde Z:=\begin{bmatrix}\tilde X\\\tilde Y\end{bmatrix}
+$$
+is the unrestricted Guttman transform. In the majorization step we minimize (or decrease)
+\begin{equation}
+\text{tr}\ (Z-\tilde Z)'V(Z-\tilde Z)=m\|X-\tilde X\|^2+n\|Y-\tilde Y\|^2-2\ \text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)\label{eq-partition}
+\end{equation}
+over $X$ and $Y$ satisfying the constraints.
+
 ### Column-Centering
 
 If we require $X'e=0$ then the update becomes $J_n\tilde X$, with
 $J_n=I-n^{-1}ee'$ the centering matrix.
 
 This is different from updating $X$ as $J_n\tilde X$ and $Y$
-as $\tilde Y-n^{-1}ee'\tilde X$. With this update, in which we
+as $\tilde Y-n^{-1}ee'\tilde X$. With this alternative update, in which we
 subtract the column-means of $\tilde X$ from both $\tilde X$
 and $\tilde Y$, the distances are the same before and after
-centering. Thus the distances in all iterations, and the
+centering. Thus the distances in all iterations, and consequently the
 loss function values, are the same with or without this 
 type of centering.
 
 In general it is advantagous to require $e'X=0$ because the third
-term in
-$$
-m\|X-\tilde X\|^2+n\|Y-\tilde Y\|^2-2\ \text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)
-$$
-becomes independent of $X$, and thus the $(X,Y)$ minimization 
-is separable.
+term in equation \eqref{eq-partition}
+becomes independent of $X$, and thus the $(X,Y)$ minimization step
+is separable (can be solved for $X$ and $Y$ separately).
 
 ### Orthogonality
 
@@ -474,26 +479,39 @@ single quantifications then a Homogeneity Analysis becomes equivalent
 to a Principal Component Analysis of the transformed variables. 
 
 In Voronoi Homogeneity Analysis the Voronoi regions of single variables
-become parallel strips. The category-points of a variable are on a line through the origin, and the Voronoi lines or planes are parallel and perpendicular to the line with category-points.
+become parallel strips. The category-points of a variable are on a line through the origin, and the Voronoi lines or planes are parallel and perpendicular to the line with the category-points.
 
 $$
 -2\text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)+n\|Y-\tilde Y\|^2=\text{tr}\ \|(Y-\tilde Y)-n^{-1}ee'(X-\tilde X)\|^2+C
 $$
-So rank one approximation of $\tilde Y+ee'(X-\tilde X)$. If $X$ is 
+So rank one approximation of $\tilde Y+n^{-1}ee'(X-\tilde X)$. If $X$ is 
 column-centered then of course $\tilde Y-ee'\tilde X)$.
 
 ### Centroid 
 
-A more complicated restriction is $Y=D^{-1}G'X$. This eliminates
-$Y$ from the problem and only requires minimization of $
+A more complicated restriction is $Y=D^{-1}G'X$, together with $X'X=I$ and $e'X=0$.
+
+This eliminates
+$Y$ from the problem and only requires minimization of 
 $$
 m\|X-\tilde X\|^2+n\|D^{-1}G'X-\tilde Y\|^2-2\text{tr}\ (X-\tilde X)'ee'(D^{-1}G'X-\tilde Y)
 $$
 $$
-m\ \text{tr}\ X'X+n\ \text{tr}\ X'GD^{-2}G'X-2\ \text{tr}\ X'e_ne_m'D^{-1}G'X.
+-2m\text{tr}\ X'\tilde X+n\text{tr}\ X'GD^{-2}G'X-2n\text{tr}\ X'GD^{-1}\tilde Y
++2\text{tr}\ X'GD^{-1}e_me_n'\tilde X+C
 $$
 $$
--2m\ \text{tr}\ X'\tilde X-2n\ \text{tr}\ X'GD^{-1}\tilde Y+2\text{tr}\ X'ee'\tilde Y+2\text{tr}\ X'GD^{-1}ee'\tilde X
+nGD^{-2}G'X-m\tilde X-nGD^{-1}\tilde Y+GD^{-1}e_me_n'\tilde X+e_n\lambda'+XM
+$$
+Now $e_n'GD^{-1}=e_m'$ and thus
+$$
+ne_m'D^{-1}G'X-me_n'\tilde X-ne_m'\tilde Y+me_n'\tilde X+n\lambda'=0
+$$
+$$
+e_n\lambda'=-(e_ne_m'D^{-1}G'X-e_ne_m'\tilde Y)
+$$
+$$
+\{nGD^{-1}-e_ne_m'\}\{D^{-1}G'X-\tilde Y\}-(mI_n-GD^{-1}e_me_n')\tilde X=XM
 $$
 
 \sectionbreak
