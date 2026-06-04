@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 1, 2026}
+\date{June 4, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -351,8 +351,8 @@ Here is a small example with \(n=10\) and \(m=3\), taken from Gifi
 [10,] "a"  "p"  "v" 
 \end{verbatim}
 
-The key mathematical object in Homogeneity Analysis is the
-\emph{indicator matrix}, which is a classical way to code categorical
+The key mathematical object in HGA is the \emph{indicator matrix}, a
+classical way to code categorical
 data\footnote{Since the indicator matrix is the core of the Gifi 
 system we avoid the irreverent alternative "dummy coding".}. For a
 variable \(j\) with \(k_j\) categories it is an \(n\times k_j\) binary
@@ -380,21 +380,19 @@ example, next to each other.
 \end{verbatim}
 
 We now deviate from the usual Gifi and French approaches (Husson et al.
-(\citeproc{ref-husson_josse_saporta_16}{2016})) and define Homogeneity
-Analysis as a form of non-metric multidimensional scaling, using the
-\emph{stress} loss function (Kruskal
-(\citeproc{ref-kruskal_64a}{1964a}), Kruskal
+(\citeproc{ref-husson_josse_saporta_16}{2016})) and define HGA as a form
+of non-metric multidimensional scaling, using the \emph{stress} loss
+function (Kruskal (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
 (\citeproc{ref-kruskal_64b}{1964b})).
 Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
 \end{equation} with \(d(.,.)\) Euclidean distance.
 
-Homogeneity analysis minimizes this loss over all \(n\times p\)
-configurations \(X\) satisfying \(X'X=I\), over all \(Y_j\), and over
-all \(\Delta_j\) that satisfy \(\delta_{i\ell}^j=0\) whenever
-\(g_{i\ell}^j=1\). All other elements of the \(\Delta_j\) are only
-constrained to be non-negative.
+HGA minimizes this loss over all \(n\times p\) configurations \(X\)
+satisfying \(X'X=I\), over all \(Y_j\), and over all \(\Delta_j\) that
+satisfy \(\delta_{i\ell}^j=0\) whenever \(g_{i\ell}^j=1\). All other
+elements of the \(\Delta_j\) are only constrained to be non-negative.
 
 If \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-loss2}
@@ -408,10 +406,10 @@ substitute these optimal \(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see
 that \(\sigma_{\star\star}(X)\) is indeed equal to the sum of squares of
 all lines defining the stars. Minimizing \(\sigma_{\star\star}(X)\) over
 \(X'X=I\), and thus minimizing \eqref{eq-loss1} over
-\((X, Y_j,\Delta_j)\), defines Homogeneity Analysis. Actually computing
-the solution turns out to be a straightforward eigenvalue-eigenvector
-problem. The details are in the publications we referenced at the
-beginning of this section.
+\((X, Y_j,\Delta_j)\), defines HGA. Actually computing the solution
+turns out to be a straightforward eigenvalue-eigenvector problem. The
+details are in the publications we referenced at the beginning of this
+section.
 
 A HGA in two dimensions produces of our small example the following
 three star plots. Objects are numbered and in BLUE, categories have
@@ -434,9 +432,10 @@ and De Leeuw (\citeproc{ref-michailidis_deleeuw_A_01}{2001})).
 
 Although using loss function \eqref{eq-loss1} makes HGA a form of
 non-metric multidimensional scaling there are some important differences
-with the more familiar applications of minimizing stress. There are no
-local minima in HGA, because it turns out to be a symmetric eigenvalue
-problem. Also, and perhaps most importantly, we do not really expect the
+with the more familiar MDS versions minimizing stress. There is no local
+minima problem in HGA, because it turns out to be a symmetric eigenvalue
+problem. In HGA, unlike in MDS, we impose the constraint \(X'X=I\).
+Also, and perhaps most importantly, in HGA we do not really expect the
 minimum loss function value to be zero, or even close to zero. The loss
 function measures deviations from a very unrealistic ``model''. Zero
 loss would imply all object-points coincide with all category-points
@@ -444,101 +443,100 @@ they belong to. This can only be realized, except in trivial cases, if
 all object and category-points map into a single point, which is
 prohibited by the orthonormality constraint on the object scores. Thus
 we get a perfectly determinate and stable solution, at low computational
-cost, but by imposing unrealistic constraints and a rather arbitrary
-normalization. We can get around this seemingly unfortunate situation by
-admitting we are not fitting or testing a ``model'', but we are creating
-``best'' drawings of the bipartite graphs that constitute the data.
+cost, but by imposing strong constraints on the disparities and a rather
+arbitrary normalization. We can get around this seemingly unfortunate
+situation by admitting we are not fitting or testing a ``model'', but we
+are creating ``best'' drawings of the bipartite graphs that constitute
+the data.
 
-The lack of a realistic model makes it interesting to generalize loss
-function \eqref{eq-loss1} to \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,...,\Delta_m):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss5}
-\end{equation} with the constraints that if \(g_{i\ell}^j=1\) then
-merely \(\delta_{i\ell}^j\leq\delta_{i\nu}^j\) for all
-\(\nu=1,\cdots,k_j\). This is significantly weaker than the homogeneity
-analysis constraints, which require the \(mn\) disparities
+The lack of a realistic model makes it interesting to continue to use
+the loss function \eqref{eq-loss1}, but now with the constraints that if
+\(g_{i\ell}^j=1\) then merely \(\delta_{i\ell}^j\leq\delta_{i\nu}^j\)
+for all \(\nu=1,\cdots,k_j\). This is significantly weaker than the HGA
+constraints, which require the \(mn\) disparities
 \(\smash{\delta_{i\ell}^j}\) to be zero. If object \(i\) belongs to
 category \(\ell\) of variable \(j\) we do no longer require the
 object-point to coincide with the category-point, but we merely require
 that the object-point is at least as close to category-point \(\ell\) as
 to any of the other \(k_j-1\) category-points of that variable.
 
-As a consequence, the plots corresponding with loss function
-\eqref{eq-loss5} are also different. As in Homogeneity Analysis there is
-a plot for each variable \(j\) with both \(n\) object-points and \(k_j\)
-category-points. The \(k_j\) category-points define \(k_j\)
-\emph{voronoi regions} that partition the space. Voronoi region
-\(\smash{\mathcal{V}^j_\ell}\) is the region of space where the points
-are at least as close to category-point \(\smash{y_\ell^j}\) as to any
-of the other category-points of variable \(j\). And loss
-\eqref{eq-loss4} is zero (for a variable) if all object-points are in
-the ``correct'' Voronoi region, i.e.~in the Voronoi region of the
-category point corresponding with the category they belong to.
+\emph{Voronoi Homogeneity Analysis} (VHA) of categorical data minimizes
+loss function \eqref{eq-loss1} over \(X\), over the \(Y_j\) and over the
+\(\Delta_j\) satisfying the relaxed ordinal constraints. It is
+consequently another form of non-metric (ordinal) multidimensional
+scaling. To be more precise, we have \(m\) linked non-metric
+multidimensional unfolding problems for the binary matrices \(G_j\),
+which are linked because they share the same \(X\).
 
-One (very inefficient, but conceptually easy) way of constructing
-Voronoi regions in the plane is to draw the perpendicular bisectors of
-the (hypothetical) lines connecting all pairs of category-points of a
+Because of the different ordinal constraints on the disparities, the
+plots corresponding with this analysis are different. As in HGA there is
+a plot for each variable \(j\) with both \(n\) object-points and \(k_j\)
+category-points. The \(k_j\) category-points are the \emph{generators}
+of \(k_j\) \emph{Voronoi regions} that partition the space. Voronoi
+region \(\smash{\mathcal{V}^j_\ell}\) is the region of space where the
+points are at least as close to generator \(\smash{y_\ell^j}\) as to any
+of the other generators of variable \(j\). And loss \eqref{eq-loss4} is
+zero (for a variable) if all object-points are in the ``correct''
+Voronoi region, i.e.~in the Voronoi region of the generator
+corresponding with the category they belong to.
+
+One (inefficient, but conceptually easy) way of constructing Voronoi
+regions in the plane is to draw the perpendicular bisectors of the
+(hypothetical) lines connecting all pairs of category-points of a
 variable. In higher dimensions \(p>2\) the bisectors are planes of
 dimension \(p-1\). The convex polyhedral regions thus formed, some
-bounded and some unbounded, define the Voronoi regions. The literature
-on properties and computation on Voronoi regions is large, and we refer
-to the textbooks of Okabe et al.
+bounded and some unbounded, define the Voronoi
+regions\footnote{In the plane a Voronoi region is unbounded if and only if its generator is on the boundary of the convex hull of all generators.}.
+The literature on properties and computation of Voronoi regions is
+large, and we refer to the textbooks of Okabe et al.
 (\citeproc{ref-okabe_boots_sugihara_chiu_00}{2000}) and Aurenhammer et
 al. (\citeproc{ref-aurenhammer_klein_lee_13}{2013}).
 
 Since the category-point itself is obviously in its own Voronoi region
 and since Voronoi regions are convex it follows that if we make stars by
-connecting category-points with object points as in Homogeneity Analysis
-then we actually require each star to be in its Voronoi region. It is no
-longer true that a category-point is the centroid of points of the
-objects belonging to the category. The category-point can even be
-outside the convex hull of ``its'' object-points.
+connecting category-points with object points as in HGA then we actually
+require each star to be in its Voronoi region. It is no longer true that
+a category-point is the centroid of points of the objects belonging to
+the category. The category-point can even be outside the convex hull of
+the object-points belonging to the category.
 
-Voronoi Homogeneity Analysis of categorical data, as defined here,
-minimizes loss function \eqref{eq-loss5} over \(X\), over the \(Y_j\)
-and over the \(\Delta_j\) satisfying the ordinal constraints. It is
-consequently another form of non-metric (ordinal) multidimensional
-scaling. To be more precise, we have \(m\) linked non-metric
-multidimensional unfolding problems, which are linked because they share
-the same \(X\). The data are binary, and we use Kruskal's primary
-approach to ties (De Leeuw (\citeproc{ref-deleeuw_A_77}{1977b})).
-
-The constraint \(X'X=I\) from Homogeneity Analysis is no longer needed,
-but some form of normalization is still necessary. We still need to
-exclude the trivial solution in which all points and regions collapse
-into a single point and all \(\Delta_j\) are zero. But, more urgently,
-we have to deal with the trivial solutions familiar from
-multidimensional unfolding (Heiser (\citeproc{ref-heiser_81}{1981}), De
-Leeuw (\citeproc{ref-deleeuw_R_83}{1983}), Busing
+The constraint \(X'X=I\) from HGA is no longer imposed directly, but we
+somehow have to deal with the fact that in VHA the minimum of loss
+function \eqref{eq-loss1} is always zero. The trivial solution, in which
+all points and regions collapse into a single point and all \(\Delta_j\)
+are zero, is always available and not excluded by the constraints. But,
+perhaps more urgently, we have to deal with the types of trivial
+solutions familiar from multidimensional unfolding (Heiser
+(\citeproc{ref-heiser_81}{1981}), De Leeuw
+(\citeproc{ref-deleeuw_R_83}{1983}), Busing
 (\citeproc{ref-busing_10}{2010})). For example, we can collapse all
-category-points into a single point and put all object-points on a
-sphere with the category-point at its center. Then all distances between
-category and object-points are the same and we can choose all
-dissimilarities equal to that distance value and obtain stress zero. It
-does not help to require \(X'X=I\), because we can easily construct
-orthogonal configurations with all points on the sphere. Stronger
-normalization constraints are required.
+category-points of a variable into a single point and put all
+object-points on a sphere with the category-point at its center. Then
+all distances between category and object-points are the same and we can
+choose all disparities equal to that distance value and obtain loss
+zero.
 
 \section{Algorithm}\label{algorithm}
 
 We use an \emph{Alternating Least Squares} or \emph{ALS} algorithm,
-similar to many other non-metric muldimensional scaling methods, to
-minimize loss \eqref{eq-loss5}. For context, see Borg and Groenen
+similar to the approach used in many other non-metric scaling methods,
+to minimize loss \eqref{eq-loss5}. For context, see Borg and Groenen
 (\citeproc{ref-borg_groenen_05}{2005}). We alternate minimization over
 \(\Delta_1,\cdots,\Delta_m\) for given \(X\) and \(Y_1\cdots Y_m\) with
 minimization over \(X\) and \(Y_1\cdots Y_m\) for given
 \(\Delta_1,\cdots,\Delta_m\). Using superscript \((\mu)\) for the
 iteration index we can write for an ALS iteration \begin{subequations}
 \begin{align}
-(\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)})&=\mathop{\text{argmin}}_{(\Delta_1,\cdots,\Delta_m)}\sigma(X^{(\mu)},Y_1^{(\mu)},\cdots,Y_m^{(\mu)},\Delta_1,\cdots,\Delta_m),\label{eq-als1}\\
+(\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)})&=\mathop{\text{argmin}}_{\Delta_1,\cdots,\Delta_m}\sigma(X^{(\mu)},Y_1^{(\mu)},\cdots,Y_m^{(\mu)},\Delta_1,\cdots,\Delta_m),\label{eq-als1}\\
 (X^{(\mu+1)},Y_1^{(\mu+1)},\cdots,Y_m^{(\mu+1)})&=\mathop{\text{argmin}}_{X,Y_1,\cdots,Y_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)}).\label{eq-als2}
 \end{align}
 \end{subequations} The first substep \eqref{eq-als1} of iteration
 \((\mu)\) solves a monotone regression problem for a simple partial
 order, in which one of \(k_j\) elements must be smaller than the other
 \(k_j-1\) elements. The second substep \eqref{eq-als2} solves a metric
-multidimensional scaling problem. This subproblem cannot be solved
-completely, because it would need an infinite iterative process by
-itself. Thus the second substep \eqref{eq-als2} consists of a finite
+multidimensional scaling problem. This second subproblem cannot be
+solved completely, because it would need an infinite iterative process
+by itself. Thus the second substep \eqref{eq-als2} consists of a finite
 number of \emph{inner iterations} within the second substep of a single
 ALS \emph{outer iteration}.
 
@@ -558,42 +556,33 @@ approach to ties (Kruskal (\citeproc{ref-kruskal_64b}{1964b}), De Leeuw
 \subsection{Majorization}\label{majorization}
 
 For the inner iterations we use standard \emph{smacof} majorization
-steps (De Leeuw (\citeproc{ref-deleeuw_C_77}{1977a})). We define some of
-the entities normally used in \emph{smacof}. First we define the
-partitioned matrix\footnote{The $e_i$ are unit vectors with element
-$i$ equal to one and the other elements zero. The number of elements of the $e_i$ follows from the
-context.} \begin{equation}
-A_{ij}:=\begin{bmatrix}e_ie_i'&-e_ie_j'\\-e_je_i'&e_je_j'\end{bmatrix}.\label{eq-adef}
-\end{equation} Next \begin{equation}
-Z:=\begin{bmatrix}
-X_{\ }\\
-Y_1\\
-\vdots\\
-Y_m
-\end{bmatrix}.\label{eq-zdef}
-\end{equation} With these definitions \begin{equation}
-d_{ij}(X,Y)=\sqrt{\text{tr}\ Z'A_{ij}Z},\label{eq-dz}
-\end{equation} and thus loss \eqref{eq-loss5} becomes \begin{equation}
-\sigma(X,Z):=\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-\text{tr}\ Z'A_{i\ell}^jZ)^2,
-\end{equation}
+steps (De Leeuw (\citeproc{ref-deleeuw_C_77}{1977a})). Because of the
+structure of the problem it is advantageous to decompose a majorization
+step into two substeps: updating \(X\) for \(Y_j\) fixed at its current
+values and updating the \(Y_j\) for \(X\) fixed at its current value.
+This could be called \emph{Alternating Majorization}.
 
+Let's first update \(X\). The majorization equality we use, for current
+fixed \(Y_j\) and a current value \(\tilde X\) for \(X\), is a version
+of Cauchy-Schwartz. \begin{equation}
+d_{i\ell}^j(X,Y_j)\geq\frac{1}{d_{i\ell}^j(\tilde X,Y_j)}(x_i-y_\ell^j)'(\tilde x_i- y_\ell^j).
+\end{equation} If we define \begin{equation}
+b_{i\ell}^j(\tilde X,Y_j):=w_{i\ell}^j\frac{\delta_{i\ell}^j}{d_{i\ell}^j(\tilde X,Y_j)}
+\end{equation} then \begin{align}
+\sigma_j(X,Y_j)\leq C_j&-2\sum_{i=1}^n\sum_{\ell=1}^{k_j}b_{i\ell}^j(\tilde X,Y_j)(x_i-y_\ell^j)'(\tilde x_i- y_\ell^j)\notag\\&+\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(x_i-y_\ell^j)'(x_i-y_\ell^j),\label{eq-majx1}
+\end{align} where \(C_j\) does not depend of \(X\). The right-hand-side
+of \eqref{eq-majx1} must be minimized over \(X\). Use the symbol
+\(\star\) to replace a subscript or superscript over which we have
+summed. The stationary equations are\\
+\begin{subequations}
 \begin{equation}
-V:=\sum_{i=1}^n\sum_{j=1}^m A_{ij}=\begin{bmatrix}\hfill mI&-ee'\\-ee'&\hfill nI\end{bmatrix}\label{eq-vdef}
+w_{i\star}^\star x_i=b_{i\star}^\star(\tilde X,Y_j)\tilde x_i-\sum_{j=1}^m\sum_{\ell=1}^{k_j}(b_{i\ell}^j(\tilde X,Y_j)-w_{i\ell}^j)y_\ell^j.
 \end{equation}
-
-If we define \begin{align}
-V_1&:=(n+m)^{-1}\begin{bmatrix}\frac{m}{n}E&-E\\-E&\frac{n}{m}E\end{bmatrix},\\
-V_2&:=\begin{bmatrix}J_n&0\\0&0\end{bmatrix},\\
-V_3&:=\begin{bmatrix}0&0\\0&J_m\end{bmatrix},
-\end{align} then \[
-V=(n+m)V_1+mV_2+nV_3
-\] Matrices \(V_1,V_2,\) and \(V_3\) are symmetric projectors on
-orthogonal subspaces. It follows that \(V^+\), the Moore-Penrose
-inverse3 of \(V\), is \[
-V^+=\frac{1}{n+m}V_1+\frac{1}{m}V_2+\frac{1}{n}V_3
-\] \[
-B(X,Y):=\begin{bmatrix}B_{11}(X,Y)&B_{12}(X,Y)\\B_{21}(X,Y)&B_{22}(X,Y)\end{bmatrix}
-\]
+In the same way we can update $\tilde Y_j$. By symmetry
+\begin{equation}
+w_{\star\ell}^jy_\ell^j=b_{\star\ell}^j(X,\tilde Y_j)\tilde y_\ell^j-\sum_{i=1}^n(b_{i\ell}^j(X,\tilde Y_j)-w_{i\ell}^j)x_i
+\end{equation}
+\end{subequations}
 
 \sectionbreak
 
@@ -740,9 +729,9 @@ and \(Y\) separately).
 
 \subsubsection{Orthogonality}\label{orthogonality}
 
-If we require \(X'X=I\), together with \(e'X=0\), as in Homogeneity
-Analysis, the solution for \(X\) is \(KL'\), where
-\(J_n\tilde X=K\Lambda L'\) is a singular value decomposition.
+If we require \(X'X=I\), together with \(e'X=0\), as in HGA, the
+solution for \(X\) is \(KL'\), where \(J_n\tilde X=K\Lambda L'\) is a
+singular value decomposition.
 
 \subsubsection{Rank Constraints}\label{rank-constraints}
 
@@ -751,13 +740,13 @@ the \(k_j\times p\) matrices of category quantifications can be
 constrained to be of rank \(r<p\). We will restrict ourselves in this
 paper to \(r=1\), which defines what Gifi calls \emph{single
 quantifications}. If all variables are restricted to have single
-quantifications then a Homogeneity Analysis becomes equivalent to a
-Principal Component Analysis of the transformed variables.
+quantifications then a HGA becomes equivalent to a PCA of the
+transformed variables.
 
-In Voronoi Homogeneity Analysis the Voronoi regions of single variables
-become parallel strips. The category-points of a variable are on a line
-through the origin, and the Voronoi lines or planes are parallel and
-perpendicular to the line with the category-points.
+In VHA the Voronoi regions of single variables become parallel strips.
+The category-points of a variable are on a line through the origin, and
+the Voronoi lines or planes are parallel and perpendicular to the line
+with the category-points.
 
 \[
 -2\text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)+n\|Y-\tilde Y\|^2=\text{tr}\ \|(Y-\tilde Y)-n^{-1}ee'(X-\tilde X)\|^2+C
@@ -766,23 +755,22 @@ perpendicular to the line with the category-points.
 
 \subsubsection{Centroid}\label{centroid}
 
-A more complicated restriction is \(Y=D^{-1}G'X\), together with
-\(X'X=I\) and \(e'X=0\).
+A more complicated restriction is \(Y=D^{-1}G'X\), possibly together
+with \(X'X=I\) and \(e'X=0\). The \emph{centroid constraints}
+effectively eliminate the \(Y_j\) from the optimization problem. We have
+to adapt the majorization method to take the constraints into account.
 
-This eliminates \(Y\) from the problem and only requires minimization of
-\[
-m\|X-\tilde X\|^2+n\|D^{-1}G'X-\tilde Y\|^2-2\text{tr}\ (X-\tilde X)'ee'(D^{-1}G'X-\tilde Y)
-\] \[
--2m\text{tr}\ X'\tilde X+n\text{tr}\ X'GD^{-2}G'X-2n\text{tr}\ X'GD^{-1}\tilde Y
-+2\text{tr}\ X'GD^{-1}e_me_n'\tilde X+C
-\] \[
-nGD^{-2}G'X-m\tilde X-nGD^{-1}\tilde Y+GD^{-1}e_me_n'\tilde X+e_n\lambda'+XM
-\] Now \(e_n'GD^{-1}=e_m'\) and thus \[
-ne_m'D^{-1}G'X-me_n'\tilde X-ne_m'\tilde Y+me_n'\tilde X+n\lambda'=0
-\] \[
-e_n\lambda'=-(e_ne_m'D^{-1}G'X-e_ne_m'\tilde Y)
-\] \[
-\{nGD^{-1}-e_ne_m'\}\{D^{-1}G'X-\tilde Y\}-(mI_n-GD^{-1}e_me_n')\tilde X=XM
+Consider a single variable \(j\) and the corresponding \(n\times k_j\)
+distance matrix \(D_j(X)\). We have \(d_{i\ell}(X)=\|t\|\), where
+\(t:=X'r\) and \(r:=e_i-d_l^{-1}g_l\). Now \begin{subequations}
+\begin{align}
+d_{i\ell}&=\sqrt{t't}\geq\frac{1}{\sqrt{\tilde t'\tilde t}}\tilde t't=\frac{1}{\sqrt{\tilde t'\tilde t}}\tilde t'X'r=\text{tr}\ X'\frac{r\tilde t'}{\sqrt{\tilde t'\tilde t}},\\
+d_{il}^2&=t't=\text{tr}\ X'rr'X,
+\end{align}
+\end{subequations} with \(\tilde t:=\tilde X'r\).
+
+The loss component for the variable is \[
+\sigma_j(X)=\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}(\delta_{i\ell}-d_{ij}(X))^2
 \]
 
 \sectionbreak
@@ -799,17 +787,17 @@ We start with the small example we used before to illustrate HGA.
 
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvha-1.pdf}}
 
-Loss is 0.0000000000 after 96 iterations. If we compare the plots from
-the Voronoi analysis with the star plots from the initial Homogeneity
-Analysis for this example we see that the algorithm did not have to
-change much to obtain perfect fit. One thing that does change is that
-the iterations moves the category-points ``p'' and ``r'' for variable 2
-very close to each other. At the point where we stop the iterations they
-are still distinguishable, and thus their perpendicular bisector is
-still a line in the Voronoi plot. If we would continue iterating ``p''
-and ``r'' would coincide and there would only be two Voronoi regions:
-one containing category-point ``q'' and object-point 2, and one
-containing all other points. one containing all other
+Loss is 0.0000009581 after 33 iterations. If we compare the plots from
+the Voronoi analysis with the star plots from the initial HGA for this
+example we see that the algorithm did not have to change much to obtain
+perfect fit. One thing that does change is that the iterations moves the
+category-points ``p'' and ``r'' for variable 2 very close to each other.
+At the point where we stop the iterations they are still
+distinguishable, and thus their perpendicular bisector is still a line
+in the Voronoi plot. If we would continue iterating ``p'' and ``r''
+would coincide and there would only be two Voronoi regions: one
+containing category-point ``q'' and object-point 2, and one containing
+all other points. one containing all other
 
 \subsection{GALO}\label{galo}
 
@@ -847,8 +835,69 @@ Loss is 0.0008972348 after 1000 iterations.
 
 \sectionbreak
 
-\section*{References}\label{references}
-\addcontentsline{toc}{section}{References}
+\section{Appendix: Majorized Alternating Least Squares
+(MALS)}\label{appendix-majorized-alternating-least-squares-mals}
+
+Consider the following problem: minimize the loss function \[
+\sigma(X,Y):=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
+\] over \(X\) in a subset \(\mathcal{X}\) of \(\mathbb{R}^{n\times p}\)
+and \(Y\) in a subset \(\mathcal{Y}\) of \(\mathbb{R}^{m\times p}\).
+Here \(d(x_i,y_j)\) is the Euclidean distance between row \(i\) of \(X\)
+and row \(j\) of \(Y\). The weights \(w_{ij}\) and the dissimilarities
+\(\delta_{ij}\) are given non-negative numbers.
+
+The algorithm we propose in this appendix alternates between decreasing
+loss by modifying \(X\) for fixed \(Y\) and decreasing loss by modifying
+\(Y\) for fixed \(X\). This is the alternating least squares (ALS)
+component of our algorithm. Majorization is applied to both the function
+of \(X\) minimized in the first ALS step and to the function of \(Y\)
+minimized in the second ALS step.
+
+We derive the update formula for \(X\), the one for \(Y\) follows by
+symmetry. First expand stress \[
+\sigma(X,Y)=C-2\ \sum_{i=1}^n\sum_{j=1}^mw_{ij}\delta_{ij}d(x_i,y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}d_{ij}^2(x_i,y_j)
+\] Here \(C\) is used as a generic term that does not depend on \(X\).
+So \(C\) can mean different things in different formulas.
+
+Suppose \(\tilde X\) and \(\tilde Y\) are our current values of \(X\)
+and \(Y\). Then by the CS-inequality \[
+d(x_i,\tilde y_j)\geq\frac{1}{d(\tilde x_i,\tilde y_j)}(x_i-\tilde y_j)(\tilde x_i-\tilde y_j)
+\] Define \[
+\tilde b_{ij}:=w_{ij}\frac{\delta_{ij}}{d(x_i,y_j)}
+\] Then \[
+\sigma(X,\tilde Y)\leq\eta(X,\tilde X,\tilde Y)
+\] with \[
+\eta(X,\tilde X,\tilde Y):=
+C-2\ \sum_{i=1}^n\sum_{j=1}^m\tilde b_{ij}(x_i-\tilde y_j)'(\tilde x_i-\tilde y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}(x_i-\tilde y_j)'(x_i-\tilde y_j)
+\]
+
+Now \[
+\sum_{i=1}^nx_i'\sum_{j=1}^m\tilde b_{ij}(\tilde x_i-\tilde y_j)=\text{tr}\ X'(\tilde B_r\tilde X-\tilde B\tilde Y)+C
+\] with \(\tilde B_r\) the diagonal matrix of row sums of \(\tilde B\).
+Also
+
+\[
+\sum_{i=1}^n\sum_{j=1}^mw_{ij}(x_i-\tilde y_j)'(x_i-\tilde y_j)=\text{tr}\ X'W_r X-2\ \text{tr}\ X'W\tilde Y+C
+\] with \(W_r\) the diagonal matrix of row sums of \(W\). Gathering
+terms gives \[
+\eta(X,\tilde X, \tilde Y)=\text{tr}\ (X-\overline X)'W_r(X-\overline X)+C
+\] with \[
+\overline {X}=W_r^{-1}(\tilde B_r\tilde X-(\tilde B-W)\tilde Y)
+\]
+
+By symmetry \[
+\eta(Y,\tilde X, \tilde Y)=\text{tr}\ (Y-\overline Y)'W_c(Y-\overline Y)+C
+\] with \[
+\overline {Y}=W_c^{-1}(\tilde B_c\tilde Y-(\tilde B-W)'\tilde X)
+\] using the diagonal matrices \(W_c\) and \(B_c\) of column sums.
+
+The algorithm to minimize stress is thus as follows. Our current best
+values in iteration \(k\) are \(\smash{X^{(k)}}\) and
+\(\smash{Y^{(k)}}\). \[
+X^{(k+1)}=\text{proj}_r(W_r^{-1}(\tilde B_r^{(k,k)}X^{(k)}-(B^{(k,k)}-W)Y^{(k)}))
+\] \[
+Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{(k+1)}))
+\] \# References
 
 \protect\phantomsection\label{refs}
 \begin{CSLReferences}{1}{1}

@@ -1,6 +1,6 @@
-library(RSpectra)
-library(deldir)
-library(dismo)
+suppressPackageStartupMessages(library(RSpectra, quietly = TRUE))
+suppressPackageStartupMessages(library(deldir, quietly = TRUE))
+suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 
 source("mca.R")
 source("majorization.R")
@@ -13,6 +13,7 @@ voronoiHomogeneityAnalysis <- function(x,
                                        ips = 1e-6,
                                        itmax = 1000,
                                        eps = 1e-6,
+                                       aps = 1e-6,
                                        dnorm = FALSE,
                                        xnorm = FALSE,
                                        yrank = NULL,
@@ -70,7 +71,7 @@ voronoiHomogeneityAnalysis <- function(x,
       dhat <- normalizeDhat(dhat, dnew, indi, ncat, dnorm)
     }
     snew <- sum((dhat - dnew)^2)
-    aps <- max(abs(dold - dnew))
+    daps <- max(abs(dold - dnew))
     if (verbose) {
       cat(
         "itel",
@@ -96,9 +97,9 @@ voronoiHomogeneityAnalysis <- function(x,
           width = 15,
           format = "f"
         ),
-        "apsi",
+        "daps",
         formatC(
-          aps,
+          daps,
           digits = 10,
           width = 15,
           format = "f"
@@ -106,7 +107,7 @@ voronoiHomogeneityAnalysis <- function(x,
         "\n"
       )
     }
-    if ((itel == itmax) || (aps < eps)) {
+    if ((itel == itmax) || (daps < eps) || (snew < aps)) {
       break
     }
     dold <- dnew
@@ -132,5 +133,4 @@ voronoiHomogeneityAnalysis <- function(x,
 }
 
 vha <- voronoiHomogeneityAnalysis
-
 
