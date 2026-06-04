@@ -14,7 +14,7 @@ voronoiHomogeneityAnalysis <- function(x,
                                        dnorm = FALSE,
                                        xcent = FALSE,
                                        xnorm = FALSE,
-                                       yrank = NULL,
+                                       yrank = ndim,
                                        verbose = FALSE) {
   nobj <- nrow(x)
   nvar <- ncol(x)
@@ -45,7 +45,7 @@ voronoiHomogeneityAnalysis <- function(x,
   itel <- 1
   repeat {
     xnew <- makeXnew(xold, yold, dold, dhat, wght, wsum, xcent, xnorm)
-    ynew <- makeYnew(xnew, yold, dold, dhat, wght)
+    ynew <- makeYnew(xnew, yold, dold, dhat, wght, yrank)
     snew <- 0.0
     smid <- 0.0
     daps <- 0.0
@@ -101,7 +101,6 @@ voronoiHomogeneityAnalysis <- function(x,
     sold <- snew
     itel <- itel + 1
   }
-  print(crossprod(xnew, wsum * xnew))
   return(
     list(
       xmat = xnew,
