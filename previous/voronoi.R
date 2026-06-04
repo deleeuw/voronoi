@@ -2,10 +2,10 @@ suppressPackageStartupMessages(library(RSpectra, quietly = TRUE))
 suppressPackageStartupMessages(library(deldir, quietly = TRUE))
 suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 
-source("mca.R")
-source("majorization.R")
-source("auxiliaries.R")
-source("monotone.R")
+source("previous/mca.R")
+source("previous/majorization.R")
+source("previous/auxiliaries.R")
+source("previous/monotone.R")
 
 voronoiHomogeneityAnalysis <- function(x,
                                        ndim = 2,

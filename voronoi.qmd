@@ -51,14 +51,15 @@ suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 ```
 
 ```{r sourcecode, echo = FALSE}
-source("small.R")
-source("galo.R")
-source("cetacea.R")
-source("mca.R")
-source("majorization.R")
-source("auxiliaries.R")
-source("voronoi.R")
-source("plotVHA.R")
+source("data/small.R")
+source("data/galo.R")
+source("data/cetacea.R")
+source("previous/mca.R")
+source("previous/majorization.R")
+source("previous/monotone.R")
+source("previous/auxiliaries.R")
+source("previous/voronoi.R")
+source("previous/plotVHA.R")
 ```
 
 \sectionbreak 
@@ -411,8 +412,13 @@ over $X$ and $Y$ satisfying the constraints.
 
 ### Column-Centering
 
-If we require $X'e=0$ then the update becomes $J_n\tilde X$, with
-$J_n=I-n^{-1}ee'$ the centering matrix.
+If we require $X'W_re=0$ then the stationarty equations are
+$W_r(X-\overline X)=W_re\lambda'$ and thus
+$X=\overline X+e\lambda'$ with $\lambda'=-e'W_r\overline X/e'W_re$
+or
+$$
+X=(I-\frac{ee'W_r}{e'W_re})\overline X
+$$
 
 This is different from updating $X$ as $J_n\tilde X$ and $Y$
 as $\tilde Y-n^{-1}ee'\tilde X$. With this alternative update, in which we
@@ -429,9 +435,11 @@ is separable (can be solved for $X$ and $Y$ separately).
 
 ### Orthogonality
 
-If we require $X'X=I$, together with $e'X=0$, as in HGA, 
-the solution for $X$ is $KL'$, where $J_n\tilde X=K\Lambda L'$ is a
-singular value decomposition. 
+If we require $X'W_rX=I$ we have ther staionary equations
+$\overline X=XM$, with $M$ a symmetric matrix of Lagrange
+multipliers. Thus $$X=\text{procrustus}(\overline X):=\overline X(\overline X'W_r\overline X)^{-\frac12}$$.
+If we require both $X'W_rX=I$ and $X'W_re=0$ we have
+$$X=\text{procrustus}((I-\frac{ee'W_r}{e'W_re})\overline X)$$
 
 ### Rank Constraints
 
@@ -444,9 +452,8 @@ to a PCA of the transformed variables.
 In VHA the Voronoi regions of single variables
 become parallel strips. The category-points of a variable are on a line through the origin, and the Voronoi lines or planes are parallel and perpendicular to the line with the category-points.
 
-$$
--2\text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)+n\|Y-\tilde Y\|^2=\text{tr}\ \|(Y-\tilde Y)-n^{-1}ee'(X-\tilde X)\|^2+C
-$$
+$$\text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a$$
+
 So rank one approximation of $\tilde Y+n^{-1}ee'(X-\tilde X)$. If $X$ is 
 column-centered then of course $\tilde Y-ee'\tilde X)$.
 
