@@ -53,6 +53,7 @@ suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 ```{r sourcecode, echo = FALSE}
 source("small.R")
 source("galo.R")
+source("cetacea.R")
 source("mca.R")
 source("majorization.R")
 source("auxiliaries.R")
@@ -118,11 +119,13 @@ print(gg)
 
 We now deviate from the usual Gifi and French approaches (@husson_josse_saporta_16) and define HGA as a form of non-metric multidimensional scaling, using the *stress* loss function (@kruskal_64a, @kruskal_64b). Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
 \end{equation}
-with $d(.,.)$ Euclidean distance.
+with $d(x_i,y_\ell^j)$ the Euclidean distance between row $i$ of $X$ and row $\ell$ of $Y_j$.
 
-HGA minimizes this loss over all $n\times p$ configurations $X$ satisfying $X'X=I$, over all $Y_j$, and over all $\Delta_j$ that satisfy $\delta_{i\ell}^j=0$ whenever $g_{i\ell}^j=1$. All other elements of the $\Delta_j$ are only constrained to be non-negative. 
+HGA minimizes \eqref{eq-loss1} over all $n\times p$ configurations $X$ satisfying $X'X=I$, over all $Y_j$, and over all $\Delta_j$ that satisfy $\smash{\delta_{i\ell}^j=0}$ whenever $\smash{g_{i\ell}^j=1}$. All other elements of the $\Delta_j$ are only constrained to be non-negative. 
+
+geometry, disparities
 
 If
 \begin{equation}
@@ -145,7 +148,7 @@ are numbered and in BLUE, categories have bigger labels and are in RED.
 Note that there are ten objects, but the sets of objects $(1,4,7)$, $(8,10)$, and $(6,9)$
 have the same *profile* and consequently get mapped into the same object-point.
 Thus there are at most six different object-points. The analysis minimizes the sum of squares of the length of all black lines in the three plots, under the condition that the matrix of object scores is column-centered and orthonormal. We can think of the results as a form
-of *graph drawing*, where the graph is the union of the $m$ bipartite graphs of all $m$ "belonging to" relations (@michailidis_deleeuw_A_01).
+of *graph drawing*, where the graph is the union of the $m$ bipartite graphs of all $m$ "belonging to" relations (@deleeuw_michailidis_C_00, @michailidis_deleeuw_A_01).
 
 ```{r mca, echo = FALSE, fig.align = "center"}
 haux <- mca(cbind(g1, g2, g3), 2)
@@ -192,7 +195,9 @@ seemingly unfortunate situation by admitting we are not fitting or
 testing a "model", but we are creating "best" drawings of the bipartite graphs 
 that constitute the data.
 
-The lack of a realistic model makes it interesting to continue to use the loss function \eqref{eq-loss1}, but now
+The lack of a realistic model makes it interesting to continue use the more general loss function \begin{equation}
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss2}
+\end{equation}
 with the constraints that
 if $g_{i\ell}^j=1$ then merely $\delta_{i\ell}^j\leq\delta_{i\nu}^j$ for all
 $\nu=1,\cdots,k_j$. This is significantly weaker than the HGA constraints, which require the $mn$ disparities $\smash{\delta_{i\ell}^j}$ to be zero.
@@ -207,7 +212,8 @@ loss function \eqref{eq-loss1} over $X$, over the $Y_j$ and
 over the $\Delta_j$ satisfying the relaxed ordinal constraints. It is consequently
 another form of non-metric (ordinal) multidimensional scaling. To be 
 more precise, we have $m$ linked non-metric multidimensional unfolding
-problems for the binary matrices $G_j$, which are linked because they share the same $X$. 
+problems for the binary matrices $G_j$, which are "linked" because they share 
+the same $X$. 
 
 Because of the different ordinal constraints on the disparities, the plots corresponding with this analysis are different. As in HGA there is a plot for each variable $j$ with both $n$ object-points and $k_j$ category-points. The $k_j$
 category-points are the *generators* of $k_j$ *Voronoi regions* that partition the
@@ -247,6 +253,8 @@ put all object-points on a sphere with the category-point
 at its center. Then all distances between category and
 object-points are the same and we can choose all disparities
 equal to that distance value and obtain loss zero. 
+
+\sectionbreak
 
 # Algorithm
 
@@ -493,6 +501,8 @@ and there would only be two Voronoi regions: one containing category-point
 "q" and object-point 2, and one containing all other points.
 one containing all other 
 
+## Cetacea
+
 ## GALO
 
 ```{r galovha, echo = FALSE, verbose = FALSE, cache = TRUE}
@@ -536,6 +546,8 @@ $\mathcal{Y}$ of $\mathbb{R}^{m\times p}$. Here $d(x_i,y_j)$ is the Euclidean di
 between row $i$ of $X$ and row $j$ of $Y$.
 The weights $w_{ij}$ and the dissimilarities $\delta_{ij}$ are given non-negative
 numbers.
+
+@heiser_deleeuw_A_79
 
 The algorithm we propose in this appendix alternates between decreasing loss by 
 modifying $X$ for fixed $Y$ and decreasing loss by modifying $Y$ for fixed $X$.
@@ -605,4 +617,6 @@ $$
 $$
 Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{(k+1)}))
 $$
+\sectionbreak
+
 # References

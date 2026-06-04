@@ -386,13 +386,17 @@ function (Kruskal (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
 (\citeproc{ref-kruskal_64b}{1964b})).
 Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
-\end{equation} with \(d(.,.)\) Euclidean distance.
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
+\end{equation} with \(d(x_i,y_\ell^j)\) the Euclidean distance between
+row \(i\) of \(X\) and row \(\ell\) of \(Y_j\).
 
-HGA minimizes this loss over all \(n\times p\) configurations \(X\)
-satisfying \(X'X=I\), over all \(Y_j\), and over all \(\Delta_j\) that
-satisfy \(\delta_{i\ell}^j=0\) whenever \(g_{i\ell}^j=1\). All other
-elements of the \(\Delta_j\) are only constrained to be non-negative.
+HGA minimizes \eqref{eq-loss1} over all \(n\times p\) configurations
+\(X\) satisfying \(X'X=I\), over all \(Y_j\), and over all \(\Delta_j\)
+that satisfy \(\smash{\delta_{i\ell}^j=0}\) whenever
+\(\smash{g_{i\ell}^j=1}\). All other elements of the \(\Delta_j\) are
+only constrained to be non-negative.
+
+geometry, disparities
 
 If \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-loss2}
@@ -449,10 +453,12 @@ situation by admitting we are not fitting or testing a ``model'', but we
 are creating ``best'' drawings of the bipartite graphs that constitute
 the data.
 
-The lack of a realistic model makes it interesting to continue to use
-the loss function \eqref{eq-loss1}, but now with the constraints that if
-\(g_{i\ell}^j=1\) then merely \(\delta_{i\ell}^j\leq\delta_{i\nu}^j\)
-for all \(\nu=1,\cdots,k_j\). This is significantly weaker than the HGA
+The lack of a realistic model makes it interesting to continue use the
+more general loss function \begin{equation}
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss2}
+\end{equation} with the constraints that if \(g_{i\ell}^j=1\) then
+merely \(\delta_{i\ell}^j\leq\delta_{i\nu}^j\) for all
+\(\nu=1,\cdots,k_j\). This is significantly weaker than the HGA
 constraints, which require the \(mn\) disparities
 \(\smash{\delta_{i\ell}^j}\) to be zero. If object \(i\) belongs to
 category \(\ell\) of variable \(j\) we do no longer require the
@@ -515,6 +521,8 @@ object-points on a sphere with the category-point at its center. Then
 all distances between category and object-points are the same and we can
 choose all disparities equal to that distance value and obtain loss
 zero.
+
+\sectionbreak
 
 \section{Algorithm}\label{algorithm}
 
@@ -799,6 +807,8 @@ would coincide and there would only be two Voronoi regions: one
 containing category-point ``q'' and object-point 2, and one containing
 all other points. one containing all other
 
+\subsection{Cetacea}\label{cetacea}
+
 \subsection{GALO}\label{galo}
 
 Loss is 0.0008972348 after 1000 iterations.
@@ -845,6 +855,8 @@ and \(Y\) in a subset \(\mathcal{Y}\) of \(\mathbb{R}^{m\times p}\).
 Here \(d(x_i,y_j)\) is the Euclidean distance between row \(i\) of \(X\)
 and row \(j\) of \(Y\). The weights \(w_{ij}\) and the dissimilarities
 \(\delta_{ij}\) are given non-negative numbers.
+
+Heiser and De Leeuw (\citeproc{ref-heiser_deleeuw_A_79}{1979})
 
 The algorithm we propose in this appendix alternates between decreasing
 loss by modifying \(X\) for fixed \(Y\) and decreasing loss by modifying
@@ -897,7 +909,10 @@ values in iteration \(k\) are \(\smash{X^{(k)}}\) and
 X^{(k+1)}=\text{proj}_r(W_r^{-1}(\tilde B_r^{(k,k)}X^{(k)}-(B^{(k,k)}-W)Y^{(k)}))
 \] \[
 Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{(k+1)}))
-\] \# References
+\] \sectionbreak
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
 
 \protect\phantomsection\label{refs}
 \begin{CSLReferences}{1}{1}
@@ -964,6 +979,11 @@ Council.
 \bibitem[\citeproctext]{ref-heiser_81}
 Heiser, Willem J. 1981. {``Unfolding Analysis of Proximity Data.''} PhD
 thesis, Leiden University.
+
+\bibitem[\citeproctext]{ref-heiser_deleeuw_A_79}
+Heiser, Willem J., and Jan De Leeuw. 1979. {``Metric Multidimensional
+Unfolding.''} \emph{{Methoden en Data Nieuwsbrief SWS/VVS}} 4: 26--50.
+\url{https://jansweb.netlify.app/publication/heiser-deleeuw-a-79/heiser-deleeuw-a-79.pdf}.
 
 \bibitem[\citeproctext]{ref-husson_josse_saporta_16}
 Husson, François, Julie Josse, and Gilbert Saporta. 2016. {``Jan de
