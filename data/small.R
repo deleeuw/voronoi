@@ -7,4 +7,4 @@ small <- matrix(c(
 
 ncat_small <- c(3, 3, 2) 
 
-labs_small <- c("a", "b", "c", "p", "q", "r", "u", "v")
+labs_small <- list(c("a", "b", "c"), c("p", "q", "r"), c("u", "v"))

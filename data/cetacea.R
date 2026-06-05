@@ -48,3 +48,22 @@ structure(list(NECK = c(0L, 0L, 0L, 1L, 0L, 1L, 0L, 0L, 0L, 0L,
 "Cameroun's dolphins", "Spotted dolphins", "Rough toothed dolphins",
 "La Plata's dolphins", "Shepherd's beaked whales", "Bottle-nosed dolphins",
 "Goosebeak whales"))
+
+cetacea_cats = list(
+  c("does not exist", "exists"),
+  c("cylindrical", "conical", "with a curved forehead", "globular", "flat", "convex"),
+  c("very big", "medium size"),
+  c("missing", "large", "narrow and short", "narrow and long"),
+  c("missing", "triangular", "falciform", "backward and falciform"),
+  c("small", "large and short", "medium size", "long and narrow"),
+  c("on the lower jaw", "on the lower and upper jaw", "without teeth but long baleens",
+    "without teeth , thick baleens", "without teeth , large baleens"),
+  c("feed on squish", "feed on fish", "feed on seal", "feed on plankton"),
+  c("on the left side", "on the right side", "on the middle line", "on the middle line with two holes"),
+  c("ventral parts are clearer than dorsal parts", "blackish", "no pigmentation", "spotted"),
+  c("free", "partly or completely welded"),
+  c("form one piece", "are independent"),
+  c("rivers", "temperate or warm seas", "cold seas", "coasts", "variable"),
+  c("do not exist", "a small number exists", "a big number exists"),
+  c("symmetrical", "slightly unsymmetrical", "unsymmetrical", "very unsymmetrical")
+)

@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 4, 2026}
+\date{June 5, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -721,8 +721,11 @@ minimize (or decrease) \begin{equation}
 
 \subsubsection{Column-Centering}\label{column-centering}
 
-If we require \(X'e=0\) then the update becomes \(J_n\tilde X\), with
-\(J_n=I-n^{-1}ee'\) the centering matrix.
+If we require \(X'W_re=0\) then the stationarty equations are
+\(W_r(X-\overline X)=W_re\lambda'\) and thus \(X=\overline X+e\lambda'\)
+with \(\lambda'=-e'W_r\overline X/e'W_re\) or \[
+X=(I-\frac{ee'W_r}{e'W_re})\overline X
+\]
 
 This is different from updating \(X\) as \(J_n\tilde X\) and \(Y\) as
 \(\tilde Y-n^{-1}ee'\tilde X\). With this alternative update, in which
@@ -738,9 +741,12 @@ and \(Y\) separately).
 
 \subsubsection{Orthogonality}\label{orthogonality}
 
-If we require \(X'X=I\), together with \(e'X=0\), as in HGA, the
-solution for \(X\) is \(KL'\), where \(J_n\tilde X=K\Lambda L'\) is a
-singular value decomposition.
+If we require \(X'W_rX=I\) we have ther staionary equations
+\(\overline X=XM\), with \(M\) a symmetric matrix of Lagrange
+multipliers. Thus
+\[X=\text{procrustus}(\overline X):=\overline X(\overline X'W_r\overline X)^{-\frac12}\].
+If we require both \(X'W_rX=I\) and \(X'W_re=0\) we have
+\[X=\text{procrustus}((I-\frac{ee'W_r}{e'W_re})\overline X)\]
 
 \subsubsection{Rank Constraints}\label{rank-constraints}
 
@@ -757,9 +763,9 @@ The category-points of a variable are on a line through the origin, and
 the Voronoi lines or planes are parallel and perpendicular to the line
 with the category-points.
 
-\[
--2\text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)+n\|Y-\tilde Y\|^2=\text{tr}\ \|(Y-\tilde Y)-n^{-1}ee'(X-\tilde X)\|^2+C
-\] So rank one approximation of \(\tilde Y+n^{-1}ee'(X-\tilde X)\). If
+\[\text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a\]
+
+So rank one approximation of \(\tilde Y+n^{-1}ee'(X-\tilde X)\). If
 \(X\) is column-centered then of course \(\tilde Y-ee'\tilde X)\).
 
 \subsubsection{Centroid}\label{centroid}
@@ -786,6 +792,49 @@ The loss component for the variable is \[
 
 \section{Software}\label{software}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{source}\NormalTok{(}\StringTok{"mca.R"}\NormalTok{)}
+\FunctionTok{source}\NormalTok{(}\StringTok{"mals.R"}\NormalTok{)}
+\FunctionTok{source}\NormalTok{(}\StringTok{"monotone.R"}\NormalTok{)}
+\FunctionTok{source}\NormalTok{(}\StringTok{"auxiliaries.R"}\NormalTok{)}
+
+\NormalTok{voronoiHomogeneityAnalysis }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x,}
+                                       \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+                                       \AttributeTok{wght =} \ConstantTok{NULL}\NormalTok{,}
+                                       \AttributeTok{inmax =} \DecValTok{5}\NormalTok{,}
+                                       \AttributeTok{ips =} \FloatTok{1e{-}6}\NormalTok{,}
+                                       \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                                       \AttributeTok{eps =} \FloatTok{1e{-}6}\NormalTok{,}
+                                       \AttributeTok{aps =} \FloatTok{1e{-}6}\NormalTok{,}
+                                       \AttributeTok{dnorm =} \ConstantTok{FALSE}\NormalTok{,}
+                                       \AttributeTok{xcent =} \ConstantTok{FALSE}\NormalTok{,}
+                                       \AttributeTok{xnorm =} \ConstantTok{FALSE}\NormalTok{,}
+                                       \AttributeTok{yrank =}\NormalTok{ ndim,}
+                                       \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{vha }\OtherTok{\textless{}{-}}\NormalTok{ voronoiHomogeneityAnalysis}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{return}\NormalTok{(}
+    \FunctionTok{list}\NormalTok{(}
+      \AttributeTok{xmat =}\NormalTok{ xnew,}
+      \AttributeTok{ymat =}\NormalTok{ ynew,}
+      \AttributeTok{dmat =}\NormalTok{ dnew,}
+      \AttributeTok{dhat =}\NormalTok{ dhat,}
+      \AttributeTok{itel =}\NormalTok{ itel,}
+      \AttributeTok{loss =}\NormalTok{ snew,}
+      \AttributeTok{indi =}\NormalTok{ indi,}
+      \AttributeTok{ncat =}\NormalTok{ ncat,}
+      \AttributeTok{wght =}\NormalTok{ wght}
+\NormalTok{    )}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
 \sectionbreak
 
 \section{Examples}\label{examples}
@@ -794,9 +843,11 @@ The loss component for the variable is \[
 
 We start with the small example we used before to illustrate HGA.
 
+\begin{center}
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvha-1.pdf}}
+\end{center}
 
-Loss is 0.0000009581 after 33 iterations. If we compare the plots from
+Loss is 0.0000000000 after 443 iterations. If we compare the plots from
 the Voronoi analysis with the star plots from the initial HGA for this
 example we see that the algorithm did not have to change much to obtain
 perfect fit. One thing that does change is that the iterations moves the
@@ -806,23 +857,17 @@ distinguishable, and thus their perpendicular bisector is still a line
 in the Voronoi plot. If we would continue iterating ``p'' and ``r''
 would coincide and there would only be two Voronoi regions: one
 containing category-point ``q'' and object-point 2, and one containing
-all other points. one containing all other
+all other points. one containing all other.
+
+\begin{center}
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/redo-1.pdf}}
+\end{center}
 
 \subsection{Cetacea}\label{cetacea}
 
 \subsection{GALO}\label{galo}
 
-Loss is 0.0008972348 after 1000 iterations.
-
-\begin{figure}[H]
-
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_d_dhat-1.pdf}}
-
-}
-
-\caption{Galo D-Dhat Plot}
-
-\end{figure}%
+Loss is 0.0000822431 after 1000 iterations.
 
 \begin{figure}[H]
 

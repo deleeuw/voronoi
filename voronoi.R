@@ -15,7 +15,7 @@ voronoiHomogeneityAnalysis <- function(x,
                                        xcent = FALSE,
                                        xnorm = FALSE,
                                        yrank = ndim,
-                                       verbose = FALSE) {
+                                       verbose = TRUE) {
   nobj <- nrow(x)
   nvar <- ncol(x)
   ncat <- rep(0, nvar)
@@ -110,6 +110,7 @@ voronoiHomogeneityAnalysis <- function(x,
       itel = itel,
       loss = snew,
       indi = indi,
+      ncat = ncat,
       wght = wght
     )
   )

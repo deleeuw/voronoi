@@ -54,12 +54,12 @@ suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 source("data/small.R")
 source("data/galo.R")
 source("data/cetacea.R")
-source("previous/mca.R")
-source("previous/majorization.R")
-source("previous/monotone.R")
-source("previous/auxiliaries.R")
-source("previous/voronoi.R")
-source("previous/plotVHA.R")
+source("mca.R")
+source("mals.R")
+source("monotone.R")
+source("auxiliaries.R")
+source("voronoi.R")
+source("plotVHA.R")
 ```
 
 \sectionbreak 
@@ -152,10 +152,10 @@ Thus there are at most six different object-points. The analysis minimizes the s
 of *graph drawing*, where the graph is the union of the $m$ bipartite graphs of all $m$ "belonging to" relations (@deleeuw_michailidis_C_00, @michailidis_deleeuw_A_01).
 
 ```{r mca, echo = FALSE, fig.align = "center"}
-haux <- mca(cbind(g1, g2, g3), 2)
-y1 <- haux$ymat[1:3, ]
-y2 <- haux$ymat[4:6, ]
-y3 <- haux$ymat[7:8, ]
+haux <- mca(list(g1, g2, g3), c(3, 3, 2), 2)
+y1 <- haux$ymat[[1]]
+y2 <- haux$ymat[[2]]
+y3 <- haux$ymat[[3]]
 x <- haux$xmat
 par(pty = "s")
 par(mfrow = c(1, 3))
@@ -483,6 +483,51 @@ $$
 
 # Software
 
+## Main
+
+The main program voronoiHomogeneityAnalysis(), aliased as vha(), has the following arguments.
+
+```{r arguments, eval = FALSE}
+voronoiHomogeneityAnalysis <- function(theData,
+                                       ndim = 2,
+                                       wght = NULL,
+                                       inmax = 5,
+                                       ips = 1e-6,
+                                       itmax = 1000,
+                                       eps = 1e-6,
+                                       aps = 1e-6,
+                                       dnorm = FALSE,
+                                       xcent = FALSE,
+                                       xnorm = FALSE,
+                                       yrank = ndim,
+                                       verbose = TRUE)
+```
+
+```{r output, eval = FALSE}
+  return(
+    list(
+      xmat = xnew,
+      ymat = ynew,
+      dmat = dnew,
+      dhat = dhat,
+      itel = itel,
+      loss = snew,
+      indi = indi,
+      ncat = ncat,
+      wght = wght
+    )
+  )
+```
+
+## Subroutines
+
+
+
+
+## Plots
+
+
+
 \sectionbreak
 
 
@@ -493,10 +538,12 @@ $$
 We start with the small example we used before to illustrate 
 HGA.
 
-```{r smallvha, echo = FALSE}
-h_small<-vha(small, itmax = 1000, eps = 1e-8, verbose = FALSE)
-par(mfrow=c(1, 3))
-plotVHA(h_small$xmat, h_small$ymat, ncat = ncat_small, labs = labs_small, pdf = FALSE)
+```{r smallvha, fig.align = "center", echo = FALSE}
+h_small <- vha(small, itmax = 1000, eps = 1e-10, verbose = FALSE)
+par(mfrow = c(1, 3))
+plotVHA(h_small$xmat, h_small$ymat[[1]], h_small$indi[[1]], ncat_small[1], xlab = small[, 1], ylab = labs_small[[1]], pdf = FALSE)
+plotVHA(h_small$xmat, h_small$ymat[[2]], h_small$indi[[2]], h_small$ncat[2], xlab = small[, 2], ylab = labs_small[[2]], pdf = FALSE)
+plotVHA(h_small$xmat, h_small$ymat[[3]], h_small$indi[[3]], h_small$ncat[3], xlab = small[, 3], ylab = labs_small[[3]], pdf = FALSE)
 ```
 Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after `r h_small$itel` iterations. If we compare the plots from the Voronoi
 analysis with the star plots from the initial HGA for this example we see that the algorithm did not have to change much to obtain perfect fit. One thing that does change is that the iterations moves
@@ -506,38 +553,44 @@ and thus their perpendicular bisector is still a line in the Voronoi
 plot. If we would continue iterating "p" and "r" would coincide
 and there would only be two Voronoi regions: one containing category-point
 "q" and object-point 2, and one containing all other points.
-one containing all other 
+one containing all other.
+
+```{r redo, echo = FALSE, fig.align = "center"}
+plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], 23, xlab = small[, 2], ylab = c("p r", "q"), pdf = FALSE)
+```
 
 ## Cetacea
 
 ## GALO
 
 ```{r galovha, echo = FALSE, verbose = FALSE, cache = TRUE}
-h_galo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
+hgalo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
 ```
 ```{r galo_bnds, echo = FALSE}
-gmax <- max(rbind(h_galo$xmat, h_galo$ymat))
-gmin <- min(rbind(h_galo$xmat, h_galo$ymat))
+gmax <- max(c(max(hgalo$xmat), sapply(hgalo$ymat, max)))
+gmin <- min(c(min(hgalo$xmat), sapply(hgalo$ymat, min)))
 ```
-Loss is `r formatC(h_galo$loss, digits = 10, format = "f")` after `r h_galo$itel` iterations.
+Loss is `r formatC(hgalo$loss, digits = 10, format = "f")` after `r hgalo$itel` iterations.
 
-```{r galo_d_dhat, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo D-Dhat Plot",  main =""}
-par(pty="s")
-plot(h_galo$dmat, h_galo$dhat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
+```{r galo_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot",  main = "", eval = FALSE}
+par(pty = "s")
+dmatmat <- makeMatrixFromList(hgalo$dmat)
+dhatmat <- makeMatrixFromList(hgalo$dhat)
+plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
-```{r galo_IQ, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ",  main =""}
-par(pty="s")
-plot(voronoi(h_galo$ymat[3:11,], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
-text(h_galo$ymat[3:11,], as.character(1:9), col = "RED", cex = 1.5)
-text(h_galo$xmat, as.character(galo[, 2]), col = "BLUE")
+```{r galo_IQ, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ",  main = ""}
+par(pty = "s")
+plot(voronoi(hgalo$ymat[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hgalo$ymat[[2]], as.character(1:9), col = "RED", cex = 1.5)
+text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE")
 ```
 
 ```{r galo_ADV, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV",  main =""}
 par(pty="s")
-plot(voronoi(h_galo$ymat[12:18,], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
-text(h_galo$ymat[12:18,], sort(lab3), col = "RED", cex = 1.5)
-text(h_galo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .5)
+plot(voronoi(hgalo$ymat[[3]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hgalo$ymat[[3]], sort(lab3), col = "RED", cex = 1.5)
+text(hgalo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .5)
 ```
 
 \sectionbreak
