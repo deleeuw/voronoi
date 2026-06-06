@@ -247,13 +247,20 @@ The trivial solution, in which all
 points and regions collapse into a single point and all
 $\Delta_j$ are zero, is always available and not excluded by the constraints.
 But, perhaps more urgently, we have to deal
-with the types of trivial solutions familiar from multidimensional
+with the types of degenerate solutions familiar from multidimensional
 unfolding (@heiser_81, @deleeuw_R_83, @busing_10). For example,
 we can collapse all category-points of a variable into a single point and 
 put all object-points on a sphere with the category-point
 at its center. Then all distances between category and
 object-points are the same and we can choose all disparities
 equal to that distance value and obtain loss zero. 
+
+We will use some constraints that tend to counteract degeneracy. Also,
+we always start our iterations with the HGA analysis, which in most
+cases already has small loss. Then we perform iterations until
+either the distances do not change from one iteration to the next
+(up to some epsilon) or the loss becomes zero (up to some epsilon)
+or we have reached the maximum number of iterations allowed.
 
 \sectionbreak
 
@@ -280,10 +287,12 @@ infinite iterative process by itself. Thus the second substep \eqref{eq-als2}
 consists of a finite number of *inner iterations* within the
 second substep of a single ALS *outer iteration*. 
 
+## Initial Configuration
+
 ## Monotone Regression
 
 The $nm$ monotone regressions are applied for each object $i$ and
-each variable $j$. Forgetting about all these indices for a 
+each variable $j$. Forgetting about all these indices for the 
 moment we need to minimize the sum of squares
 $\|\delta-d\|^2$ over $\delta$, where one of the elements, 
 say $\delta_\nu$, must be smaller than or equal to all others.
@@ -335,67 +344,17 @@ w_{\star\ell}^jy_\ell^j=b_{\star\ell}^j(X,\tilde Y_j)\tilde y_\ell^j-\sum_{i=1}^
 
 ## Regression Constraints
 
-In this paper we use the constraint
+In this paper we use the constraints
 \begin{equation}
-\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=c_j,\label{eq-norm}
+\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=w_{i\star}^j,\label{eq-norm}
 \end{equation}
-with $\overline{\delta}_{ij}$ the mean of the $\delta_{i\ell}^j$
-and with $c_j$ constants. For instance we could choose
-$c_j=1$ or $c_j=k_j$ for all $j$. In addition, of course, the 
+for all $I$ and $j$, with $\smash{\overline{\delta}_{ij}}$ the weighted mean of the $\smash{\delta_{i\ell}^j}$.
+In addition, of course, the 
 $\delta_{i\ell}^j$ must satisfy the ordinal constraints. Constraint
 \eqref{eq-norm} explicitly excludes the possibility that the
-$\delta_{i\ell}^j$ for given $i$ and $j$ are equal for all $\ell$.
-
-Consider the cone of all vectors $\delta$ in $\mathbb{R}^n$ for which
-$\delta_i\leq\delta_\ell$ for all $i\neq \ell$ and $e'\delta=0$. The extreme rays of the cone will be the $n-1$ vectors of the form $\alpha e_i+\beta(e-e_i)$ with
-$i\neq \ell$. Thus element $i$ is equal to $\alpha$ and all other elements
-(including $\delta_\ell$) are equal to $\beta$. Thus we must have $\alpha>\beta$.
-The sum of the elements is $\alpha+(n-1)\beta$, which must be zero. 
-Thus $\alpha=-(n-1)\beta$, which implies $\beta<0$ and $\alpha>0$.
-The extreme rays are positive multiples of the vectors $e_i-n^{-1}e$ with $i\neq\ell$ and the cone is the set of all weighted sums with non-negative weights of these $n-1$ vectors. Here is a small example.
-```{r}
-a <- -cbind(1, -diag(4))
-b <- (diag(5)-(1 / 5))[, -1]
-print(a)
-print(b)
-print(a %*% b)
-```
-For later reference the sum of squares of the vectors $e_i-n^{-1}e$ is
-$(n-1)/n$, so the vectors $\sqrt{n/(n-1)}(e_i-n^{-1}e)$ are the
-vectors of length 1 on the extreme rays. 
+$\smash{\delta_{i\ell}^j}$ for given $i$ and $j$ are equal for all $\ell$.
 
 
-Suppose $y$ is a vector with $n$ elements. The problem we study is 
-to minimixe the sum of squares $\sigma(x):=\|x-y\|^2$ over
-$x\in K$ and $x'Jx=1$. Here 
-
-* $K$ is the cone of vectors with $\smash{x_1\leq x_2\leq\cdots\leq x_n}$,
-* $J$ is the centering matrix $\smash{J:=I-n^{-1}ee'}$, where
-* $e$ is the vector with all $n$ elements equal to one.
-
-Change variables to $\tilde x=Jx$. Then $x'Jx=\tilde x'\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also $\tilde x = Jx$
-if and only if $x=\tilde x+\beta e$. So the transformed problem is
-to minimize
-$\|\tilde x+\beta e-y\|^2$ over $\beta$ and $\tilde x\in K$, with
-$e'\tilde x=0$ and $\tilde x'\tilde x=1$. The minimizer for $\beta$ is $\overline{y}:=n^{-1}e'y$,
-and thus the problem becomes minimizing
-$\|\tilde x- Jy\|^2$ over $\tilde x\in K$, $\tilde x'\tilde x=1$, and $e'\tilde x=0$. 
-
-Forget about the constraint $e'\tilde x=0$. If $M$ is the monotone regression operator 
-it follows
-that the solution for $\tilde x$ is $M(Jy)/\|M(Jy)\|$, which automatically
-satisfies $e'\tilde x=0$. Thus the solution of our original problem is 
-$$
-\hat x=\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}.
-$$
-$M(y-\overline{y})=M(y)-\overline{y}$
-and thus $\|M(y-\overline y)\|^2=\|M(y)\|^2+n\overline{y}^2-2\overline{y}e'M(y)$
-nor $e'M(y)=e'y=n\overline{y}$.
-Thus $\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2$
-$$
-\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
-\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
-$$
 
 ## Configuration Constraints
 
@@ -485,23 +444,38 @@ $$
 
 ## Main
 
-The main program voronoiHomogeneityAnalysis(), aliased as vha(), has the following arguments.
+The main program voronoiHomogeneityAnalysis(), aliased as vha(), has the following arguments
+(with default values).
 
 ```{r arguments, eval = FALSE}
-voronoiHomogeneityAnalysis <- function(theData,
-                                       ndim = 2,
+voronoiHomogeneityAnalysis <- function(theData,  # n x m matrix with categorical variables
+                                       ndim = 2, # dimensionality
                                        wght = NULL,
-                                       inmax = 5,
-                                       ips = 1e-6,
-                                       itmax = 1000,
-                                       eps = 1e-6,
-                                       aps = 1e-6,
                                        dnorm = FALSE,
                                        xcent = FALSE,
                                        xnorm = FALSE,
                                        yrank = ndim,
+                                       itmax = 1000,
+                                       eps = 1e-6,
+                                       aps = 1e-6,
                                        verbose = TRUE)
 ```
+
+* *theData* is an $n\times m$ matrix with $n$ observations on $m$categorical variables.
+* *ndim* is the number of dimensions of the solution.
+* *wght* is either NULL or a list of $n\times k_j$ matrices. If wght is NULL all weights are one.
+* *dnorm* if TRUE the monotone regression is normalized.
+* *xcent* if TRUE object scores are W-centered.
+* *xnorm* if TRUE object scores are W-orthonormal.
+* *yrank* rank restrictions on category quantifications. If the length of yrank 
+is one it is expanded to a vector of length $m$.
+* *itmax* is the maximum number of iterations.
+* *eps* is the cutoff for the change in distances from one iteration to another.
+* *aps* is the cutoff for the loss function value. If loss is smaller than *aps*
+the program stops.
+* *verbose* if TRUE iteration information is printed to stdout.
+
+The value returned by the program is a list.
 
 ```{r output, eval = FALSE}
   return(
@@ -510,6 +484,8 @@ voronoiHomogeneityAnalysis <- function(theData,
       ymat = ynew,
       dmat = dnew,
       dhat = dhat,
+      xini = xini,
+      yini = yini,
       itel = itel,
       loss = snew,
       indi = indi,
@@ -518,6 +494,18 @@ voronoiHomogeneityAnalysis <- function(theData,
     )
   )
 ```
+
+* *xmat* object scores, an $n\times p$ matrix, with $p$ equal to *ndim*.
+* *ymat* category quantifications, a list of *m* matrices of dimension $k_j\times p$.
+* *dmat* distances, a list of *m* matrices of dimension $n\times k_j$.
+* *dhat* disparities, a list of *m* matrices of dimension $n\times k_j$.
+* *xini* the HGA solution for the object scores,
+* *yini* the HGA solution for the category quantifications,
+* *itel* number of iterations.
+* *loss* final value of stress.
+* *indi* indicators, a list of *m* matrices of dimension $n\times k_j$.
+* *ncat* number of categories of the $m$ variables.
+* *wght* weights, a list of *m* matrices of dimension $n\times k_j$.
 
 ## Subroutines
 
@@ -561,7 +549,41 @@ plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], 23, xlab = sm
 
 ## Cetacea
 
+@vescia_85, @vanderburg_85, @guttman_85
+
+```{r cetaceavha, echo = FALSE, verbose = FALSE, cache = TRUE}
+hcetacea <- vha(cetacea, itmax = 1000, verbose = FALSE)
+```
+```{r cetacea_bnds, echo = FALSE}
+gmax <- max(c(max(hcetacea$xmat), sapply(hcetacea$ymat, max)))
+gmin <- min(c(min(hcetacea$xmat), sapply(hcetacea$ymat, min)))
+```
+Loss is `r formatC(hcetacea$loss, digits = 10, format = "f")` after `r hcetacea$itel` iterations.
+
+```{r cetacea_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot",  main = ""}
+par(pty = "s")
+dmatmat <- makeMatrixFromList(hcetacea$dmat)
+dhatmat <- makeMatrixFromList(hcetacea$dhat)
+plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
+```
+```{r cetacea_y6, echo = FALSE}
+y <- hcetacea$ymat[[6]]
+rownames(y) <- cetacea_cats[[6]]
+y <- cbind(y, colSums(hcetacea$indi[[6]]))
+colnames(y) <- c("dim1", "dim2", "freq")
+print(y)
+```
+
+```{r cetcea_flippers, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Flippers",  main = ""}
+par(pty = "s")
+plot(voronoi(hcetacea$ymat[[6]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hcetacea$ymat[[6]], cetacea_cats[[6]], col = "RED", cex = 1.5)
+text(hcetacea$xmat, cetacea_cats[[6]][hcetacea$indi[[6]]%*%1:4], col = "BLUE", cex = .75)
+```
+
 ## GALO
+
+@peschar_75
 
 ```{r galovha, echo = FALSE, verbose = FALSE, cache = TRUE}
 hgalo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
@@ -572,13 +594,20 @@ gmin <- min(c(min(hgalo$xmat), sapply(hgalo$ymat, min)))
 ```
 Loss is `r formatC(hgalo$loss, digits = 10, format = "f")` after `r hgalo$itel` iterations.
 
-```{r galo_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot",  main = "", eval = FALSE}
+```{r galo_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot",  main = ""}
 par(pty = "s")
 dmatmat <- makeMatrixFromList(hgalo$dmat)
 dhatmat <- makeMatrixFromList(hgalo$dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
+```{r galo_y2, echo = FALSE}
+y <- hgalo$ymat[[2]]
+rownames(y) <- as.character(1:9)
+y <- cbind(y, colSums(hgalo$indi[[2]]))
+colnames(y) <- c("dim1", "dim2", "freq")
+print(y)
+```
 ```{r galo_IQ, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ",  main = ""}
 par(pty = "s")
 plot(voronoi(hgalo$ymat[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
@@ -586,21 +615,76 @@ text(hgalo$ymat[[2]], as.character(1:9), col = "RED", cex = 1.5)
 text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE")
 ```
 
+
+```{r galo_y3, echo = FALSE}
+y <- hgalo$ymat[[3]]
+rownames(y) <- lab3
+y <- cbind(y, colSums(hgalo$indi[[3]]))
+colnames(y) <- c("dim1", "dim2", "freq")
+print(y)
+```
+
 ```{r galo_ADV, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV",  main =""}
-par(pty="s")
+par(pty = "s")
 plot(voronoi(hgalo$ymat[[3]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
 text(hgalo$ymat[[3]], sort(lab3), col = "RED", cex = 1.5)
-text(hgalo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .5)
+text(hgalo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .75)
 ```
+The Voronoi diagram is messed up because the category quantifications for Agr, Gen, Grls
+are the same, as are those for Ext, None. If we pool those categories we get a well-behaved
+Voronoi diagram.
+
+```{r galo_ADV2, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV Corrected",  main =""}
+par(pty = "s")
+ycor <- hgalo$ymat[[3]][c(1, 2, 5, 7), ]
+plot(voronoi(ycor, ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(ycor, c("AgrGenGrls", "ExtNone", "Man", "Uni"), col = "RED", cex = 1.5)
+text(hgalo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .75)
+```
+
+\sectionbreak 
+
+# Appendix A: Normalized Monotone Regression
+
+Suppose $y$ is a vector with $n$ elements. The problem we study is 
+to minimize the sum of squares $\sigma(x):=\|x-y\|^2$ over
+$x\in K$ and $x'Jx$ is equal to some constant $c$. Here 
+
+* $K$ is the cone of vectors with $\smash{x_1\leq x_2\leq\cdots\leq x_n}$,
+* $J$ is the centering matrix $\smash{J:=I-n^{-1}ee'}$, where
+* $e$ is the vector with all $n$ elements equal to one.
+
+Change variables to $\tilde x=Jx$. Then $x'Jx=\tilde x'\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also $\tilde x = Jx$
+if and only if $x=\tilde x+\beta e$. So the transformed problem is
+to minimize
+$\|\tilde x+\beta e-y\|^2$ over $\beta$ and $\tilde x\in K$, with
+$e'\tilde x=0$ and $\tilde x'\tilde x=n$. The minimizer for $\beta$ is $\overline{y}:=n^{-1}e'y$,
+and thus the equivalent "reduced" problem becomes minimizing
+$\|\tilde x- Jy\|^2$ over $\tilde x\in K$, $\tilde x'\tilde x=c$, and $e'\tilde x=0$. 
+
+Forget about the constraint $e'\tilde x=0$ for now. If $M$ is the monotone regression operator 
+it follows that the solution for $\tilde x$ is $\sqrt{c}M(Jy)/\|M(Jy)\|$, which automatically
+satisfies $e'\tilde x=0$ (@bauschke_bui_wang_18).
+Thus the solution of our original problem is 
+$$
+\hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}e.
+$$
+This can be rewritten in a perhaps more revealing way. Now $M(y-\overline{y}e)=M(y)-\overline{y}e$
+and $e'M(y)=e'y=n\overline{y}$.
+Thus $\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2$ so that
+$$
+\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
+\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
+$$
 
 \sectionbreak
 
-# Appendix: Majorized Alternating Least Squares (MALS)
+# Appendix B: Majorized Alternating Least Squares (MALS) {.appendix}
 
 Consider the following problem: minimize the loss function
-$$
+\begin{equation}
 \sigma(X,Y):=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
-$$
+\end{equation}
 over $X$ in a subset $\mathcal{X}$ of $\mathbb{R}^{n\times p}$ and $Y$ in a subset
 $\mathcal{Y}$ of $\mathbb{R}^{m\times p}$. Here $d(x_i,y_j)$ is the Euclidean distance
 between row $i$ of $X$ and row $j$ of $Y$.
@@ -617,29 +701,31 @@ the function of $Y$ minimized in the second ALS step.
 
 We derive the update formula for $X$, the one for $Y$ follows by symmetry.
 First expand stress
-$$
+\begin{equation}
 \sigma(X,Y)=C-2\ \sum_{i=1}^n\sum_{j=1}^mw_{ij}\delta_{ij}d(x_i,y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}d_{ij}^2(x_i,y_j)
-$$
+\end{equation}
 Here $C$ is used as a generic term that does not depend on $X$. So $C$ can mean
 different things in different formulas.
 
 Suppose $\tilde X$ and $\tilde Y$ are our current values of $X$ and $Y$. Then by the CS-inequality
-$$
+\begin{equation}
 d(x_i,\tilde y_j)\geq\frac{1}{d(\tilde x_i,\tilde y_j)}(x_i-\tilde y_j)(\tilde x_i-\tilde y_j)
-$$
+\end{equation}
 Define 
-$$
+\begin{equation}
 \tilde b_{ij}:=w_{ij}\frac{\delta_{ij}}{d(x_i,y_j)}
-$$
+\end{equation}
 Then
-$$
+\begin{subequations}
+\begin{equation}
 \sigma(X,\tilde Y)\leq\eta(X,\tilde X,\tilde Y)
-$$
+\end{equation}
 with
-$$
+\begin{equation}
 \eta(X,\tilde X,\tilde Y):=
 C-2\ \sum_{i=1}^n\sum_{j=1}^m\tilde b_{ij}(x_i-\tilde y_j)'(\tilde x_i-\tilde y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}(x_i-\tilde y_j)'(x_i-\tilde y_j)
-$$
+\end{equation}
+\end{subequations}
 
 Now
 $$
@@ -660,13 +746,15 @@ $$
 $$
 
 By symmetry
-$$
+\begin{subequations}
+\begin{equation}
 \eta(Y,\tilde X, \tilde Y)=\text{tr}\ (Y-\overline Y)'W_c(Y-\overline Y)+C
-$$
+\end{equation}
 with
-$$
+\begin{equation}
 \overline {Y}=W_c^{-1}(\tilde B_c\tilde Y-(\tilde B-W)'\tilde X)
-$$
+\end{equation}
+\end{subequations}
 using the diagonal matrices $W_c$ and $B_c$ of column sums.
 
 The algorithm to minimize stress is thus as follows. Our current best values in
@@ -677,6 +765,7 @@ $$
 $$
 Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{(k+1)}))
 $$
+
 \sectionbreak
 
 # References

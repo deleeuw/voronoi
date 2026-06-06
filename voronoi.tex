@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 5, 2026}
+\date{June 6, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -512,7 +512,7 @@ somehow have to deal with the fact that in VHA the minimum of loss
 function \eqref{eq-loss1} is always zero. The trivial solution, in which
 all points and regions collapse into a single point and all \(\Delta_j\)
 are zero, is always available and not excluded by the constraints. But,
-perhaps more urgently, we have to deal with the types of trivial
+perhaps more urgently, we have to deal with the types of degenerate
 solutions familiar from multidimensional unfolding (Heiser
 (\citeproc{ref-heiser_81}{1981}), De Leeuw
 (\citeproc{ref-deleeuw_R_83}{1983}), Busing
@@ -522,6 +522,13 @@ object-points on a sphere with the category-point at its center. Then
 all distances between category and object-points are the same and we can
 choose all disparities equal to that distance value and obtain loss
 zero.
+
+We will use some constraints that tend to counteract degeneracy. Also,
+we always start our iterations with the HGA analysis, which in most
+cases already has small loss. Then we perform iterations until either
+the distances do not change from one iteration to the next (up to some
+epsilon) or the loss becomes zero (up to some epsilon) or we have
+reached the maximum number of iterations allowed.
 
 \sectionbreak
 
@@ -549,13 +556,15 @@ by itself. Thus the second substep \eqref{eq-als2} consists of a finite
 number of \emph{inner iterations} within the second substep of a single
 ALS \emph{outer iteration}.
 
+\subsection{Initial Configuration}\label{initial-configuration}
+
 \subsection{Monotone Regression}\label{monotone-regression}
 
 The \(nm\) monotone regressions are applied for each object \(i\) and
-each variable \(j\). Forgetting about all these indices for a moment we
-need to minimize the sum of squares \(\|\delta-d\|^2\) over \(\delta\),
-where one of the elements, say \(\delta_\nu\), must be smaller than or
-equal to all others.
+each variable \(j\). Forgetting about all these indices for the moment
+we need to minimize the sum of squares \(\|\delta-d\|^2\) over
+\(\delta\), where one of the elements, say \(\delta_\nu\), must be
+smaller than or equal to all others.
 
 This can be solved by using monotone regression with the primary
 approach to ties (Kruskal (\citeproc{ref-kruskal_64b}{1964b}), De Leeuw
@@ -599,114 +608,15 @@ w_{\star\ell}^jy_\ell^j=b_{\star\ell}^j(X,\tilde Y_j)\tilde y_\ell^j-\sum_{i=1}^
 
 \subsection{Regression Constraints}\label{regression-constraints}
 
-In this paper we use the constraint \begin{equation}
-\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=c_j,\label{eq-norm}
-\end{equation} with \(\overline{\delta}_{ij}\) the mean of the
-\(\delta_{i\ell}^j\) and with \(c_j\) constants. For instance we could
-choose \(c_j=1\) or \(c_j=k_j\) for all \(j\). In addition, of course,
-the \(\delta_{i\ell}^j\) must satisfy the ordinal constraints.
-Constraint \eqref{eq-norm} explicitly excludes the possibility that the
-\(\delta_{i\ell}^j\) for given \(i\) and \(j\) are equal for all
+In this paper we use the constraints \begin{equation}
+\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=w_{i\star}^j,\label{eq-norm}
+\end{equation} for all \(I\) and \(j\), with
+\(\smash{\overline{\delta}_{ij}}\) the weighted mean of the
+\(\smash{\delta_{i\ell}^j}\). In addition, of course, the
+\(\delta_{i\ell}^j\) must satisfy the ordinal constraints. Constraint
+\eqref{eq-norm} explicitly excludes the possibility that the
+\(\smash{\delta_{i\ell}^j}\) for given \(i\) and \(j\) are equal for all
 \(\ell\).
-
-Consider the cone of all vectors \(\delta\) in \(\mathbb{R}^n\) for
-which \(\delta_i\leq\delta_\ell\) for all \(i\neq \ell\) and
-\(e'\delta=0\). The extreme rays of the cone will be the \(n-1\) vectors
-of the form \(\alpha e_i+\beta(e-e_i)\) with \(i\neq \ell\). Thus
-element \(i\) is equal to \(\alpha\) and all other elements (including
-\(\delta_\ell\)) are equal to \(\beta\). Thus we must have
-\(\alpha>\beta\). The sum of the elements is \(\alpha+(n-1)\beta\),
-which must be zero. Thus \(\alpha=-(n-1)\beta\), which implies
-\(\beta<0\) and \(\alpha>0\). The extreme rays are positive multiples of
-the vectors \(e_i-n^{-1}e\) with \(i\neq\ell\) and the cone is the set
-of all weighted sums with non-negative weights of these \(n-1\) vectors.
-Here is a small example.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{a }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{cbind}\NormalTok{(}\DecValTok{1}\NormalTok{, }\SpecialCharTok{{-}}\FunctionTok{diag}\NormalTok{(}\DecValTok{4}\NormalTok{))}
-\NormalTok{b }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{diag}\NormalTok{(}\DecValTok{5}\NormalTok{)}\SpecialCharTok{{-}}\NormalTok{(}\DecValTok{1} \SpecialCharTok{/} \DecValTok{5}\NormalTok{))[, }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
-\FunctionTok{print}\NormalTok{(a)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-     [,1] [,2] [,3] [,4] [,5]
-[1,]   -1    1    0    0    0
-[2,]   -1    0    1    0    0
-[3,]   -1    0    0    1    0
-[4,]   -1    0    0    0    1
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{(b)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-     [,1] [,2] [,3] [,4]
-[1,] -0.2 -0.2 -0.2 -0.2
-[2,]  0.8 -0.2 -0.2 -0.2
-[3,] -0.2  0.8 -0.2 -0.2
-[4,] -0.2 -0.2  0.8 -0.2
-[5,] -0.2 -0.2 -0.2  0.8
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{print}\NormalTok{(a }\SpecialCharTok{\%*\%}\NormalTok{ b)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-     [,1] [,2] [,3] [,4]
-[1,]    1    0    0    0
-[2,]    0    1    0    0
-[3,]    0    0    1    0
-[4,]    0    0    0    1
-\end{verbatim}
-
-For later reference the sum of squares of the vectors \(e_i-n^{-1}e\) is
-\((n-1)/n\), so the vectors \(\sqrt{n/(n-1)}(e_i-n^{-1}e)\) are the
-vectors of length 1 on the extreme rays.
-
-Suppose \(y\) is a vector with \(n\) elements. The problem we study is
-to minimixe the sum of squares \(\sigma(x):=\|x-y\|^2\) over \(x\in K\)
-and \(x'Jx=1\). Here
-
-\begin{itemize}
-\tightlist
-\item
-  \(K\) is the cone of vectors with
-  \(\smash{x_1\leq x_2\leq\cdots\leq x_n}\),
-\item
-  \(J\) is the centering matrix \(\smash{J:=I-n^{-1}ee'}\), where
-\item
-  \(e\) is the vector with all \(n\) elements equal to one.
-\end{itemize}
-
-Change variables to \(\tilde x=Jx\). Then \(x'Jx=\tilde x'\tilde x\) and
-\(x\in K\) if and only if \(\tilde x\in K\). Also \(\tilde x = Jx\) if
-and only if \(x=\tilde x+\beta e\). So the transformed problem is to
-minimize \(\|\tilde x+\beta e-y\|^2\) over \(\beta\) and
-\(\tilde x\in K\), with \(e'\tilde x=0\) and \(\tilde x'\tilde x=1\).
-The minimizer for \(\beta\) is \(\overline{y}:=n^{-1}e'y\), and thus the
-problem becomes minimizing \(\|\tilde x- Jy\|^2\) over
-\(\tilde x\in K\), \(\tilde x'\tilde x=1\), and \(e'\tilde x=0\).
-
-Forget about the constraint \(e'\tilde x=0\). If \(M\) is the monotone
-regression operator it follows that the solution for \(\tilde x\) is
-\(M(Jy)/\|M(Jy)\|\), which automatically satisfies \(e'\tilde x=0\).
-Thus the solution of our original problem is \[
-\hat x=\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}.
-\] \(M(y-\overline{y})=M(y)-\overline{y}\) and thus
-\(\|M(y-\overline y)\|^2=\|M(y)\|^2+n\overline{y}^2-2\overline{y}e'M(y)\)
-nor \(e'M(y)=e'y=n\overline{y}\). Thus
-\(\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2\) \[
-\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
-\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
-\]
 
 \subsection{Configuration Constraints}\label{configuration-constraints}
 
@@ -792,30 +702,59 @@ The loss component for the variable is \[
 
 \section{Software}\label{software}
 
+\subsection{Main}\label{main}
+
+The main program voronoiHomogeneityAnalysis(), aliased as vha(), has the
+following arguments (with default values).
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{source}\NormalTok{(}\StringTok{"mca.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"mals.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"monotone.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"auxiliaries.R"}\NormalTok{)}
-
-\NormalTok{voronoiHomogeneityAnalysis }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x,}
-                                       \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+\NormalTok{voronoiHomogeneityAnalysis }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(theData,  }\CommentTok{\# n x m matrix with categorical variables}
+                                       \AttributeTok{ndim =} \DecValTok{2}\NormalTok{, }\CommentTok{\# dimensionality}
                                        \AttributeTok{wght =} \ConstantTok{NULL}\NormalTok{,}
-                                       \AttributeTok{inmax =} \DecValTok{5}\NormalTok{,}
-                                       \AttributeTok{ips =} \FloatTok{1e{-}6}\NormalTok{,}
-                                       \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
-                                       \AttributeTok{eps =} \FloatTok{1e{-}6}\NormalTok{,}
-                                       \AttributeTok{aps =} \FloatTok{1e{-}6}\NormalTok{,}
                                        \AttributeTok{dnorm =} \ConstantTok{FALSE}\NormalTok{,}
                                        \AttributeTok{xcent =} \ConstantTok{FALSE}\NormalTok{,}
                                        \AttributeTok{xnorm =} \ConstantTok{FALSE}\NormalTok{,}
                                        \AttributeTok{yrank =}\NormalTok{ ndim,}
+                                       \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                                       \AttributeTok{eps =} \FloatTok{1e{-}6}\NormalTok{,}
+                                       \AttributeTok{aps =} \FloatTok{1e{-}6}\NormalTok{,}
                                        \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{)}
-
-\NormalTok{vha }\OtherTok{\textless{}{-}}\NormalTok{ voronoiHomogeneityAnalysis}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{theData} is an \(n\times m\) matrix with \(n\) observations on
+  \(m\)categorical variables.
+\item
+  \emph{ndim} is the number of dimensions of the solution.
+\item
+  \emph{wght} is either NULL or a list of \(n\times k_j\) matrices. If
+  wght is NULL all weights are one.
+\item
+  \emph{dnorm} if TRUE the monotone regression is normalized.
+\item
+  \emph{xcent} if TRUE object scores are W-centered.
+\item
+  \emph{xnorm} if TRUE object scores are W-orthonormal.
+\item
+  \emph{yrank} rank restrictions on category quantifications. If the
+  length of yrank is one it is expanded to a vector of length \(m\).
+\item
+  \emph{itmax} is the maximum number of iterations.
+\item
+  \emph{eps} is the cutoff for the change in distances from one
+  iteration to another.
+\item
+  \emph{aps} is the cutoff for the loss function value. If loss is
+  smaller than \emph{aps} the program stops.
+\item
+  \emph{verbose} if TRUE iteration information is printed to stdout.
+\end{itemize}
+
+The value returned by the program is a list.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -825,6 +764,8 @@ The loss component for the variable is \[
       \AttributeTok{ymat =}\NormalTok{ ynew,}
       \AttributeTok{dmat =}\NormalTok{ dnew,}
       \AttributeTok{dhat =}\NormalTok{ dhat,}
+      \AttributeTok{xini =}\NormalTok{ xini,}
+      \AttributeTok{yini =}\NormalTok{ yini,}
       \AttributeTok{itel =}\NormalTok{ itel,}
       \AttributeTok{loss =}\NormalTok{ snew,}
       \AttributeTok{indi =}\NormalTok{ indi,}
@@ -834,6 +775,42 @@ The loss component for the variable is \[
 \NormalTok{  )}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{xmat} object scores, an \(n\times p\) matrix, with \(p\) equal
+  to \emph{ndim}.
+\item
+  \emph{ymat} category quantifications, a list of \emph{m} matrices of
+  dimension \(k_j\times p\).
+\item
+  \emph{dmat} distances, a list of \emph{m} matrices of dimension
+  \(n\times k_j\).
+\item
+  \emph{dhat} disparities, a list of \emph{m} matrices of dimension
+  \(n\times k_j\).
+\item
+  \emph{xini} the HGA solution for the object scores,
+\item
+  \emph{yini} the HGA solution for the category quantifications,
+\item
+  \emph{itel} number of iterations.
+\item
+  \emph{loss} final value of stress.
+\item
+  \emph{indi} indicators, a list of \emph{m} matrices of dimension
+  \(n\times k_j\).
+\item
+  \emph{ncat} number of categories of the \(m\) variables.
+\item
+  \emph{wght} weights, a list of \emph{m} matrices of dimension
+  \(n\times k_j\).
+\end{itemize}
+
+\subsection{Subroutines}\label{subroutines}
+
+\subsection{Plots}\label{plots}
 
 \sectionbreak
 
@@ -865,9 +842,68 @@ all other points. one containing all other.
 
 \subsection{Cetacea}\label{cetacea}
 
+Vescia (\citeproc{ref-vescia_85}{1985}), Van der Burg
+(\citeproc{ref-vanderburg_85}{1985}), Guttman
+(\citeproc{ref-guttman_85}{1985})
+
+Loss is 0.0000964861 after 1000 iterations.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_d_dhat-1.pdf}}
+
+}
+
+\caption{Cetacea D-Dhat Plot}
+
+\end{figure}%
+
+\begin{verbatim}
+                       dim1        dim2 freq
+small           -0.03818351 -0.01752341   12
+large and short -0.03733462 -0.03078551    9
+medium size      0.18051305  0.15151239    9
+long and narrow -0.08505766  0.10777249    6
+\end{verbatim}
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetcea_flippers-1.pdf}}
+
+}
+
+\caption{Cetacea Flippers}
+
+\end{figure}%
+
 \subsection{GALO}\label{galo}
 
+Peschar (\citeproc{ref-peschar_75}{1975})
+
 Loss is 0.0000822431 after 1000 iterations.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_d_dhat-1.pdf}}
+
+}
+
+\caption{Galo D-Dhat Plot}
+
+\end{figure}%
+
+\begin{verbatim}
+         dim1          dim2 freq
+1 -0.03553746  0.0038880728    5
+2 -0.02705014 -0.0491979141   17
+3 -0.02706848 -0.0427161834  121
+4 -0.02290326 -0.0006407875  234
+5 -0.02289332 -0.0006177473  390
+6  0.02214894  0.0203047326  244
+7  0.02214964  0.0203062961  197
+8  0.05468072 -0.0480390328   63
+9  0.06483531 -0.0642790494   19
+\end{verbatim}
 
 \begin{figure}[H]
 
@@ -879,6 +915,17 @@ Loss is 0.0000822431 after 1000 iterations.
 
 \end{figure}%
 
+\begin{verbatim}
+            dim1         dim2 freq
+Agr   0.01404992  0.017829325   12
+Ext  -0.01986526 -0.048716507  161
+Gen   0.01405059  0.017820355  407
+Grls  0.01404991  0.017829417   18
+Man  -0.01580560  0.003987254  509
+None -0.01934282 -0.051316476   11
+Uni   0.05803742 -0.032080114  172
+\end{verbatim}
+
 \begin{figure}[H]
 
 {\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_ADV-1.pdf}}
@@ -889,18 +936,78 @@ Loss is 0.0000822431 after 1000 iterations.
 
 \end{figure}%
 
+The Voronoi diagram is messed up because the category quantifications
+for Agr, Gen, Grls are the same, as are those for Ext, None. If we pool
+those categories we get a well-behaved Voronoi diagram.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_ADV2-1.pdf}}
+
+}
+
+\caption{Galo ADV Corrected}
+
+\end{figure}%
+
 \sectionbreak
 
-\section{Appendix: Majorized Alternating Least Squares
-(MALS)}\label{appendix-majorized-alternating-least-squares-mals}
+\section{Appendix A: Normalized Monotone
+Regression}\label{appendix-a-normalized-monotone-regression}
 
-Consider the following problem: minimize the loss function \[
+Suppose \(y\) is a vector with \(n\) elements. The problem we study is
+to minimize the sum of squares \(\sigma(x):=\|x-y\|^2\) over \(x\in K\)
+and \(x'Jx\) is equal to some constant \(c\). Here
+
+\begin{itemize}
+\tightlist
+\item
+  \(K\) is the cone of vectors with
+  \(\smash{x_1\leq x_2\leq\cdots\leq x_n}\),
+\item
+  \(J\) is the centering matrix \(\smash{J:=I-n^{-1}ee'}\), where
+\item
+  \(e\) is the vector with all \(n\) elements equal to one.
+\end{itemize}
+
+Change variables to \(\tilde x=Jx\). Then \(x'Jx=\tilde x'\tilde x\) and
+\(x\in K\) if and only if \(\tilde x\in K\). Also \(\tilde x = Jx\) if
+and only if \(x=\tilde x+\beta e\). So the transformed problem is to
+minimize \(\|\tilde x+\beta e-y\|^2\) over \(\beta\) and
+\(\tilde x\in K\), with \(e'\tilde x=0\) and \(\tilde x'\tilde x=n\).
+The minimizer for \(\beta\) is \(\overline{y}:=n^{-1}e'y\), and thus the
+equivalent ``reduced'' problem becomes minimizing \(\|\tilde x- Jy\|^2\)
+over \(\tilde x\in K\), \(\tilde x'\tilde x=c\), and \(e'\tilde x=0\).
+
+Forget about the constraint \(e'\tilde x=0\) for now. If \(M\) is the
+monotone regression operator it follows that the solution for
+\(\tilde x\) is \(\sqrt{c}M(Jy)/\|M(Jy)\|\), which automatically
+satisfies \(e'\tilde x=0\) (Bauschke et al.
+(\citeproc{ref-bauschke_bui_wang_18}{2018})). Thus the solution of our
+original problem is \[
+\hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}e.
+\] This can be rewritten in a perhaps more revealing way. Now
+\(M(y-\overline{y}e)=M(y)-\overline{y}e\) and
+\(e'M(y)=e'y=n\overline{y}\). Thus
+\(\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2\) so that \[
+\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
+\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
+\]
+
+\sectionbreak
+
+\section{Appendix B: Majorized Alternating Least Squares
+(MALS)}\label{appendix-b-majorized-alternating-least-squares-mals}
+
+Consider the following problem: minimize the loss function
+\begin{equation}
 \sigma(X,Y):=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
-\] over \(X\) in a subset \(\mathcal{X}\) of \(\mathbb{R}^{n\times p}\)
-and \(Y\) in a subset \(\mathcal{Y}\) of \(\mathbb{R}^{m\times p}\).
-Here \(d(x_i,y_j)\) is the Euclidean distance between row \(i\) of \(X\)
-and row \(j\) of \(Y\). The weights \(w_{ij}\) and the dissimilarities
-\(\delta_{ij}\) are given non-negative numbers.
+\end{equation} over \(X\) in a subset \(\mathcal{X}\) of
+\(\mathbb{R}^{n\times p}\) and \(Y\) in a subset \(\mathcal{Y}\) of
+\(\mathbb{R}^{m\times p}\). Here \(d(x_i,y_j)\) is the Euclidean
+distance between row \(i\) of \(X\) and row \(j\) of \(Y\). The weights
+\(w_{ij}\) and the dissimilarities \(\delta_{ij}\) are given
+non-negative numbers.
 
 Heiser and De Leeuw (\citeproc{ref-heiser_deleeuw_A_79}{1979})
 
@@ -912,22 +1019,26 @@ of \(X\) minimized in the first ALS step and to the function of \(Y\)
 minimized in the second ALS step.
 
 We derive the update formula for \(X\), the one for \(Y\) follows by
-symmetry. First expand stress \[
+symmetry. First expand stress \begin{equation}
 \sigma(X,Y)=C-2\ \sum_{i=1}^n\sum_{j=1}^mw_{ij}\delta_{ij}d(x_i,y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}d_{ij}^2(x_i,y_j)
-\] Here \(C\) is used as a generic term that does not depend on \(X\).
-So \(C\) can mean different things in different formulas.
+\end{equation} Here \(C\) is used as a generic term that does not depend
+on \(X\). So \(C\) can mean different things in different formulas.
 
 Suppose \(\tilde X\) and \(\tilde Y\) are our current values of \(X\)
-and \(Y\). Then by the CS-inequality \[
+and \(Y\). Then by the CS-inequality \begin{equation}
 d(x_i,\tilde y_j)\geq\frac{1}{d(\tilde x_i,\tilde y_j)}(x_i-\tilde y_j)(\tilde x_i-\tilde y_j)
-\] Define \[
+\end{equation} Define \begin{equation}
 \tilde b_{ij}:=w_{ij}\frac{\delta_{ij}}{d(x_i,y_j)}
-\] Then \[
+\end{equation} Then \begin{subequations}
+\begin{equation}
 \sigma(X,\tilde Y)\leq\eta(X,\tilde X,\tilde Y)
-\] with \[
+\end{equation}
+with
+\begin{equation}
 \eta(X,\tilde X,\tilde Y):=
 C-2\ \sum_{i=1}^n\sum_{j=1}^m\tilde b_{ij}(x_i-\tilde y_j)'(\tilde x_i-\tilde y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}(x_i-\tilde y_j)'(x_i-\tilde y_j)
-\]
+\end{equation}
+\end{subequations}
 
 Now \[
 \sum_{i=1}^nx_i'\sum_{j=1}^m\tilde b_{ij}(\tilde x_i-\tilde y_j)=\text{tr}\ X'(\tilde B_r\tilde X-\tilde B\tilde Y)+C
@@ -943,11 +1054,16 @@ terms gives \[
 \overline {X}=W_r^{-1}(\tilde B_r\tilde X-(\tilde B-W)\tilde Y)
 \]
 
-By symmetry \[
+By symmetry \begin{subequations}
+\begin{equation}
 \eta(Y,\tilde X, \tilde Y)=\text{tr}\ (Y-\overline Y)'W_c(Y-\overline Y)+C
-\] with \[
+\end{equation}
+with
+\begin{equation}
 \overline {Y}=W_c^{-1}(\tilde B_c\tilde Y-(\tilde B-W)'\tilde X)
-\] using the diagonal matrices \(W_c\) and \(B_c\) of column sums.
+\end{equation}
+\end{subequations} using the diagonal matrices \(W_c\) and \(B_c\) of
+column sums.
 
 The algorithm to minimize stress is thus as follows. Our current best
 values in iteration \(k\) are \(\smash{X^{(k)}}\) and
@@ -955,7 +1071,9 @@ values in iteration \(k\) are \(\smash{X^{(k)}}\) and
 X^{(k+1)}=\text{proj}_r(W_r^{-1}(\tilde B_r^{(k,k)}X^{(k)}-(B^{(k,k)}-W)Y^{(k)}))
 \] \[
 Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{(k+1)}))
-\] \sectionbreak
+\]
+
+\sectionbreak
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -965,6 +1083,11 @@ Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{
 \bibitem[\citeproctext]{ref-aurenhammer_klein_lee_13}
 Aurenhammer, Franz, Rolf Klein, and Der-Tsai Lee. 2013. \emph{Voronoi
 Diagrams and Delaunay Triangulations}. World Scientific Publishing Co.
+
+\bibitem[\citeproctext]{ref-bauschke_bui_wang_18}
+Bauschke, Heinz H., Minh N. Bui, and Xianfu Wang. 2018. {``{Projecting
+onto the Intersection of a Cone and a Sphere}.''} \emph{SIAM Journal on
+Optimization} 28: 2158--88.
 
 \bibitem[\citeproctext]{ref-bekker_deleeuw_C_88}
 Bekker, Paul, and Jan De Leeuw. 1988. {``Relation Between Variants of
@@ -1023,6 +1146,13 @@ Gifi, Albert. 1990. \emph{Nonlinear Multivariate Analysis}. Wiley.
 Greenacre, Michael J., and Jorg Blasius. 2006. \emph{{Multiple
 Correspondence Analysis and Related Methods}}. Chapman; Hall.
 
+\bibitem[\citeproctext]{ref-guttman_85}
+Guttman, L. 1985. {``{Multidimensional Structuple Analysis (MSA-I) for
+the Classification of Cetacea: Whales, Porpoises and Dolphins}.''} In
+\emph{Data Analysis in Real Life Environment: Ins and Outs of Solving
+Problems}, edited by J.-F. Marcotorchino, J. M. Proth, and J. Janssen.
+North-Holland.
+
 \bibitem[\citeproctext]{ref-guttman_41}
 Guttman, Louis. 1941. {``{The Quantification of a Class of Attributes: A
 Theory and Method of Scale Construction}.''} In \emph{The Prediction of
@@ -1066,11 +1196,26 @@ Okabe, Atsuyuki, Barry Boots, Kokichi Sugihara, and Chiu Sung-Nok. 2000.
 \emph{Spatial Tessellations: Concepts and Applications of Voronoi
 Diagrams}. Second Edition. Wiley.
 
+\bibitem[\citeproctext]{ref-peschar_75}
+Peschar, J. L. 1975. \emph{{School, Milieu, Beroep}}. Tjeek Willink.
+
 \bibitem[\citeproctext]{ref-tenenhaus_young_85}
 Tenenhaus, Michel, and Forest W. Young. 1985. {``{An Analysis and
 Synthesis of Multiple Correspondence Analysis, Optimal Scaling, Dual
 Scaling, Homogeneity Analysis and Other Methods for Quantifying
 Categorical Multivariate Data}.''} \emph{Psychometrika} 50: 91--119.
+
+\bibitem[\citeproctext]{ref-vanderburg_85}
+Van der Burg, E. 1985. {``HOMALS Classification of Whales, Porpoises and
+Dolphins.''} In \emph{Data Analysis in Real Life Environment: Ins and
+Outs of Solving Problems}, edited by J.-F. Marcotorchino, J. M. Proth,
+and J. Janssen. North-Holland.
+
+\bibitem[\citeproctext]{ref-vescia_85}
+Vescia, G. 1985. {``Descriptive Classification of Cetacea: Whales,
+Porpoises and Dolphins.''} In \emph{Data Analysis in Real Life
+Environment: Ins and Outs of Solving Problems}, edited by J.-F.
+Marcotorchino, J. M. Proth, and J. Janssen. North-Holland.
 
 \end{CSLReferences}
 

@@ -3,7 +3,7 @@ source("mals.R")
 source("monotone.R")
 source("auxiliaries.R")
 
-voronoiHomogeneityAnalysis <- function(x,
+voronoiHomogeneityAnalysis <- function(theData,
                                        ndim = 2,
                                        wght = NULL,
                                        inmax = 5,
@@ -16,12 +16,12 @@ voronoiHomogeneityAnalysis <- function(x,
                                        xnorm = FALSE,
                                        yrank = ndim,
                                        verbose = TRUE) {
-  nobj <- nrow(x)
-  nvar <- ncol(x)
+  nobj <- nrow(theData)
+  nvar <- ncol(theData)
   ncat <- rep(0, nvar)
   indi <- rep(list(0), nvar)
   for (j in 1:nvar) {
-    indi[[j]] <- makeIndicator(x[, j])
+    indi[[j]] <- makeIndicator(theData[, j])
     ncat[j] <- ncol(indi[[j]])
   }
   if (is.null(wght)) {
@@ -32,8 +32,8 @@ voronoiHomogeneityAnalysis <- function(x,
   }
   wsum <- rowSums(sapply(wght, rowSums))
   haux <- mca(indi, ncat, ndim)
-  xold <- haux$xmat
-  yold <- haux$ymat
+  xini <- xold <- haux$xmat
+  yini <- yold <- haux$ymat
   dold <- rep(list(0), nvar)
   dhat <- rep(list(0), nvar)
   sold <- 0.0
@@ -107,6 +107,8 @@ voronoiHomogeneityAnalysis <- function(x,
       ymat = ynew,
       dmat = dnew,
       dhat = dhat,
+      xini = xini,
+      yini = yini,
       itel = itel,
       loss = snew,
       indi = indi,
