@@ -583,11 +583,39 @@ text(hcetacea$xmat, cetacea_cats[[6]][hcetacea$indi[[6]]%*%1:4], col = "BLUE", c
 
 ## GALO
 
-@peschar_75
+@peschar_75 @deleeuw_mair_A_09a
 
-```{r galovha, echo = FALSE, verbose = FALSE, cache = TRUE}
+```{r galovha, echo = FALSE, verbose = FALSE, cache = FALSE}
 hgalo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
 ```
+
+```{r galo_bnds_hga, echo = FALSE}
+gmax <- max(c(max(hgalo$xini), sapply(hgalo$yini, max)))
+gmin <- min(c(min(hgalo$xini), sapply(hgalo$yini, min)))
+```
+
+```{r galo_d_dhat_hga, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot",  main = ""}
+dold <- rep(list(0), 4)
+dhat <- rep(list(0), 4)
+for (j in 1:4) {
+    dold[[j]] <- makeDmat(hgalo$xini, hgalo$yini[[j]])
+    dhat[[j]] <- monotone(dold[[j]], hgalo$ncat[j], hgalo$indi[[j]])
+  }
+dmatmat <- makeMatrixFromList(dold)
+dhatmat <- makeMatrixFromList(dhat)
+par(pty = "s")
+dmatmat <- makeMatrixFromList(dold)
+dhatmat <- makeMatrixFromList(dhat)
+plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
+```
+
+```{r galo_IQ_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ HGA",  main = ""}
+par(pty = "s")
+plot(voronoi(hgalo$yini[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hgalo$yini[[2]], as.character(1:9), col = "RED", cex = 1.5)
+text(hgalo$xini, as.character(galo[, 2]), col = "BLUE")
+```
+
 ```{r galo_bnds, echo = FALSE}
 gmax <- max(c(max(hgalo$xmat), sapply(hgalo$ymat, max)))
 gmin <- min(c(min(hgalo$xmat), sapply(hgalo$ymat, min)))
@@ -616,6 +644,14 @@ text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE")
 ```
 
 
+
+```{r galo_ADV_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV HGA",  main = ""}
+par(pty = "s")
+plot(voronoi(hgalo$yini[[3]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hgalo$yini[[3]], sort(lab3), col = "RED", cex = 1.5)
+text(hgalo$xini, as.character(galo[, 2]), col = "BLUE")
+```
+
 ```{r galo_y3, echo = FALSE}
 y <- hgalo$ymat[[3]]
 rownames(y) <- lab3
@@ -630,6 +666,7 @@ plot(voronoi(hgalo$ymat[[3]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
 text(hgalo$ymat[[3]], sort(lab3), col = "RED", cex = 1.5)
 text(hgalo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .75)
 ```
+
 The Voronoi diagram is messed up because the category quantifications for Agr, Gen, Grls
 are the same, as are those for Ext, None. If we pool those categories we get a well-behaved
 Voronoi diagram.

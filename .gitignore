@@ -9,9 +9,9 @@
 *.so
 *.log
 *.toc
-*cache/
+voronoi_cache/
 !README.md
-*._files
-._libs
+voronoi_files/
+voronoi_libs/
 /.quarto/
 .positai
