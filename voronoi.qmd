@@ -92,6 +92,7 @@ variables have the same carrier. Each object maps into a unique category, and ea
 contains a subset of objects from the carrier. We also say that a category has a number of objects that "belong to" the category.
 
 Here is a small example with $n=10$ and $m=3$, taken from @gifi_B_90, page 65.
+In the github voronoi repository these data are in data/small.R.
 ```{r small, echo = FALSE}
 print(small)
 ```
@@ -289,6 +290,11 @@ second substep of a single ALS *outer iteration*.
 
 ## Initial Configuration
 
+In all our analysis we use HGA as the initial configuration for both
+object-scores and category-scores. The algorithm for HGA is the
+ALS method used in @gifi_B_90 to compute the truncated SVD. The
+repository includes mca.R
+
 ## Monotone Regression
 
 The $nm$ monotone regressions are applied for each object $i$ and
@@ -304,39 +310,12 @@ with $\ell\neq\nu$ as ties.
 
 ## Majorization
 
-For the inner iterations we use standard *smacof* majorization steps
+For the inner iterations we use *smacof* majorization steps
 (@deleeuw_C_77). Because of the structure of the problem it is
 advantageous to decompose a majorization step into two substeps:
 updating $X$ for $Y_j$ fixed at its current values and updating
 the $Y_j$ for $X$ fixed at its current value. This could be
-called *Alternating Majorization*.
-
-Let's first update $X$. The majorization equality we use, for current fixed $Y_j$
-and a current value $\tilde X$ for $X$, is a version of Cauchy-Schwartz.
-\begin{equation}
-d_{i\ell}^j(X,Y_j)\geq\frac{1}{d_{i\ell}^j(\tilde X,Y_j)}(x_i-y_\ell^j)'(\tilde x_i- y_\ell^j).
-\end{equation}
-If we define 
-\begin{equation}
-b_{i\ell}^j(\tilde X,Y_j):=w_{i\ell}^j\frac{\delta_{i\ell}^j}{d_{i\ell}^j(\tilde X,Y_j)}
-\end{equation}
-then
-\begin{align}
-\sigma_j(X,Y_j)\leq C_j&-2\sum_{i=1}^n\sum_{\ell=1}^{k_j}b_{i\ell}^j(\tilde X,Y_j)(x_i-y_\ell^j)'(\tilde x_i- y_\ell^j)\notag\\&+\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(x_i-y_\ell^j)'(x_i-y_\ell^j),\label{eq-majx1}
-\end{align}
-where $C_j$ does not depend of $X$. The right-hand-side of \eqref{eq-majx1} must be 
-minimized over $X$. Use the symbol $\star$ to replace a subscript or 
-superscript over which we have summed. The stationary equations are\
-\begin{subequations}
-\begin{equation}
-w_{i\star}^\star x_i=b_{i\star}^\star(\tilde X,Y_j)\tilde x_i-\sum_{j=1}^m\sum_{\ell=1}^{k_j}(b_{i\ell}^j(\tilde X,Y_j)-w_{i\ell}^j)y_\ell^j.
-\end{equation}
-In the same way we can update $\tilde Y_j$. By symmetry
-\begin{equation}
-w_{\star\ell}^jy_\ell^j=b_{\star\ell}^j(X,\tilde Y_j)\tilde y_\ell^j-\sum_{i=1}^n(b_{i\ell}^j(X,\tilde Y_j)-w_{i\ell}^j)x_i
-\end{equation}
-\end{subequations}
-
+called *Alternating Majorization*. Details are in Appendix B.
  
 \sectionbreak
 
@@ -354,24 +333,13 @@ $\delta_{i\ell}^j$ must satisfy the ordinal constraints. Constraint
 \eqref{eq-norm} explicitly excludes the possibility that the
 $\smash{\delta_{i\ell}^j}$ for given $i$ and $j$ are equal for all $\ell$.
 
-
-
 ## Configuration Constraints
 
-If there are constraints on $X$ and/or $Y$ we use majorization 
-theory for restricted MDS( from (@deleeuw_heiser_C_80). Suppose 
-$$
-\tilde Z:=\begin{bmatrix}\tilde X\\\tilde Y\end{bmatrix}
-$$
-is the unrestricted Guttman transform. In the majorization step we minimize (or decrease)
-\begin{equation}
-\text{tr}\ (Z-\tilde Z)'V(Z-\tilde Z)=m\|X-\tilde X\|^2+n\|Y-\tilde Y\|^2-2\ \text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)\label{eq-partition}
-\end{equation}
-over $X$ and $Y$ satisfying the constraints.
+Separation
 
 ### Column-Centering
 
-If we require $X'W_re=0$ then the stationarty equations are
+If we require $X'W_re=0$ then the stationary equations are
 $W_r(X-\overline X)=W_re\lambda'$ and thus
 $X=\overline X+e\lambda'$ with $\lambda'=-e'W_r\overline X/e'W_re$
 or
@@ -402,7 +370,7 @@ $$X=\text{procrustus}((I-\frac{ee'W_r}{e'W_re})\overline X)$$
 
 ### Rank Constraints
 
-One of the main themes in @gifi_B_90 is that the $k_j\times p$ matrices of category quantifications can be constrained to be of rank $r<p$. We will
+One of the main themes in @gifi_B_90 is that the $k_j\times p$ matrices of category-scores can be constrained to be of rank $r<p$. We will
 restrict ourselves in this paper to $r=1$, which defines what Gifi calls
 *single quantifications*. If all variables are restricted to have
 single quantifications then a HGA becomes equivalent
@@ -467,7 +435,7 @@ voronoiHomogeneityAnalysis <- function(theData,  # n x m matrix with categorical
 * *dnorm* if TRUE the monotone regression is normalized.
 * *xcent* if TRUE object scores are W-centered.
 * *xnorm* if TRUE object scores are W-orthonormal.
-* *yrank* rank restrictions on category quantifications. If the length of yrank 
+* *yrank* rank restrictions on category-scores. If the length of yrank 
 is one it is expanded to a vector of length $m$.
 * *itmax* is the maximum number of iterations.
 * *eps* is the cutoff for the change in distances from one iteration to another.
@@ -496,11 +464,11 @@ The value returned by the program is a list.
 ```
 
 * *xmat* object scores, an $n\times p$ matrix, with $p$ equal to *ndim*.
-* *ymat* category quantifications, a list of *m* matrices of dimension $k_j\times p$.
+* *ymat* category-scores, a list of *m* matrices of dimension $k_j\times p$.
 * *dmat* distances, a list of *m* matrices of dimension $n\times k_j$.
 * *dhat* disparities, a list of *m* matrices of dimension $n\times k_j$.
 * *xini* the HGA solution for the object scores,
-* *yini* the HGA solution for the category quantifications,
+* *yini* the HGA solution for the category-scores,
 * *itel* number of iterations.
 * *loss* final value of stress.
 * *indi* indicators, a list of *m* matrices of dimension $n\times k_j$.
@@ -546,26 +514,200 @@ one containing all other.
 ```{r redo, echo = FALSE, fig.align = "center"}
 plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], 23, xlab = small[, 2], ylab = c("p r", "q"), pdf = FALSE)
 ```
+## GALO
+
+Our next example use the GALO data from @peschar_75. In the github voronoi repository the
+data are in data/galo.R. Subjects are 1290 children who in 1959/1960 were in sixth grade of primary school in the city of Groningen. Variables are SEX, IQ (in nine ordered categories), ADV (sixth grade teachers advice on the form of secondary education appropriate for the student), and SES. The categories of ADV are as follows (alphabetically).
+
+* *Agr*  Agricultural.
+* *Ext*  Extended primary (like middle school).
+* *Gen*  General (like high school).
+* *Grls* Extended primary for girls (like middle school).
+* *Man*  Vocational, including housekeeping.
+* *None* No secondary education. 
+
+The categories of SES are as follows (again alphabetically).
+
+* *LowWC* Lower white collar.
+* *MidWC* Middle white collar.
+* *Prof*  Professional. 
+* *Shop*  Shopkeepers.
+* *Skil*  Skilled manual. 
+* *Unsk*  Unskilled Manual.
+
+We start with an HGA of the galo data. The initial value of the
+loss function is 0.3158339145. The loss function value is computed by using
+\begin{equation}
+\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-losshga}
+\end{equation}
+where $X$ and the $Y_j$ are the HGA solution, and where the minimum over the $\Delta_j$ is computed by requiring that $\smash{\delta_{i\nu}^j\leq\delta_{i\ell}^j}$ if $\smash{g_{i\nu}^j=1}$. This is *not* the HGA loss function \eqref{eq-loss2},
+in which the minimum over the $\Delta_j$ is computed by requiring that $\delta_{i\ell}^j=0$
+whenever $g_{i\ell}^j=1$. Thus we evaluate the HGA solution using the VGA loss function.
+
+For any HGA or VGA solution we can compute a Shepard diagram by plotting the distances and
+disparities, pooled over all objects (individuals) and variables. The weak 
+regression requirements imply that many disparities will be equal to the corresponding 
+distances. This is illustrated by the diagonal of @fig-galo_d_dhat_hga.
+
+```{r galovha, echo = FALSE, verbose = FALSE, cache = TRUE}
+hgalo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
+```
+
+```{r galo_bnds_hga, echo = FALSE}
+gmax <- max(c(max(hgalo$xini), sapply(hgalo$yini, max)))
+gmin <- min(c(min(hgalo$xini), sapply(hgalo$yini, min)))
+```
+
+```{r fig-galo_d_dhat_hga, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot HGA",  main = ""}
+dold <- rep(list(0), 4)
+dhat <- rep(list(0), 4)
+for (j in 1:4) {
+    dold[[j]] <- makeDmat(hgalo$xini, hgalo$yini[[j]])
+    dhat[[j]] <- monotone(dold[[j]], hgalo$ncat[j], hgalo$indi[[j]])
+  }
+dmatmat <- makeMatrixFromList(dold)
+dhatmat <- makeMatrixFromList(dhat)
+par(pty = "s")
+dmatmat <- makeMatrixFromList(dold)
+dhatmat <- makeMatrixFromList(dhat)
+plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
+```
+
+The HGA solution can also be used to produce Voronoi plots, which are given in @fig-galo_IQ_HGA for IQ. We see the familiar horseshoe shape of the object score cloud (the Guttman effect, see
+@deleeuw_C_23). The category-scores are largely in order along the horseshoe, and
+as a consequence the Voronoi regions are unbounded and emanate from a point inside the 
+horseshoe. There are some relatively monor deviations from that pattern.  Specifically
+category 1 does not fit the pattern, but that is not too serious because there are only five individuals in that category. There are
+quite a few misclassifications, i.e. objects in the "wrong" Voronoi region. 
+
+```{r fig-galo_IQ_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ HGA",  main = ""}
+par(pty = "s")
+plot(voronoi(hgalo$yini[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hgalo$yini[[2]], as.character(1:9), col = "RED", cex = 1.5)
+text(hgalo$xini, as.character(galo[, 2]), col = "BLUE")
+```
+
+```{r galo_bnds, echo = FALSE}
+gmax <- max(c(max(hgalo$xmat), sapply(hgalo$ymat, max)))
+gmin <- min(c(min(hgalo$xmat), sapply(hgalo$ymat, min)))
+```
+
+The VHA solution has loss equal to `r formatC(hgalo$loss, digits = 10, format = "f")` after `r hgalo$itel` iterations. The voronoi function stopped because the maximum number of iterations was reached. The $d-\hat d$ plot in @fig-galo_d_dhat shows a near-perfect fit.
+
+```{r fig-galo_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot VHA",  main = ""}
+par(pty = "s")
+dmatmat <- makeMatrixFromList(hgalo$dmat)
+dhatmat <- makeMatrixFromList(hgalo$dhat)
+plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
+```
+
+
+
+```{r fig-galo_IQ, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ VHA",  main = ""}
+par(pty = "s")
+plot(voronoi(hgalo$ymat[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hgalo$ymat[[2]], as.character(1:9), col = "RED", cex = 1.5)
+text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE")
+```
+
+@fig-galo_IQ shows some characteristic properties of Voronoi plots. If the objects in 
+two categories are not well separated the object-points will be on the perpendicular
+bisector of the category pair. This is partial degeneracy due to requiring weak 
+monotonicity. The algorithm cannot impose strict monotonicity by placing an object
+in the interior of its Voronoi region, and compromises by putting it on
+the boundary. Thus the VHA plot will show object-points on lines. 
+Some category scores are very close, which makes the Voronoi diagram unstable.
+The solution for the category-scores for IQ is
+```{r galo_y2, echo = FALSE}
+y <- hgalo$ymat[[2]]
+rownames(y) <- lab2
+y <- cbind(y, colSums(hgalo$indi[[2]]))
+colnames(y) <- c("dim1", "dim2", "freq")
+print(y)
+```
+
+We see that categories 2 and 3 map into basically the same point. The same is true for categories 4 and 5, and for categories 6 and 7. So instead of nine points there are really only six. We can clean up the Voronoi diagram by using only those six categories. Note that
+we do not recode the data and redo the analysis, we just use the same plot with the same
+object-scores and just change the diagram. The result is in @fig-galo_IQ2.
+
+```{r fig-galo_IQ2, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ Corrected VHA",  main =""}
+par(pty = "s")
+ycor <- hgalo$ymat[[2]][c(1, 2, 4, 6, 8, 9), ]
+plot(voronoi(ycor, ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(ycor, c("1", "2 3", "4 5", "6 7", "8", "9"), col = "RED", cex = 1.5)
+text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE", cex = .75)
+```
+
 
 ## Cetacea
 
-@vescia_85, @vanderburg_85, @guttman_85
+The data in @vescia_85  describe 36 whales, porpoises and dolphins using 
+15 categorical variables. In the github voronoi repository the
+data are in data/cetacea.R. Appendix C gives the common names of the
+36 species and the names of the variables.
+
+The variables are mostly physical characteristics, but
+they also include habitat and feeding. The average number of
+categories per variable is about four, and almost all variables are
+"nominal" (i.e. not "ordinal" and not "numerical").
+In the same book @vanderburg_85 presents a secondary analysis of the data
+with HGA and @guttman_85 applies his MSA-I technique (which uses HGA as an
+initial configuration for its iterations). 
+
+We start with an HGA of the cetacea data. The initial value of the
+loss function ... is 0.9945577132.
 
 ```{r cetaceavha, echo = FALSE, verbose = FALSE, cache = TRUE}
 hcetacea <- vha(cetacea, itmax = 1000, verbose = FALSE)
 ```
+
+```{r cetacea_bnds_hga, echo = FALSE}
+gmax <- max(c(max(hcetacea$xini), sapply(hcetacea$yini, max)))
+gmin <- min(c(min(hcetacea$xini), sapply(hcetacea$yini, min)))
+```
+
+```{r cetacea_d_dhat_hga, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot HGA",  main = ""}
+dold <- rep(list(0), 15)
+dhat <- rep(list(0), 15)
+for (j in 1:15) {
+    dold[[j]] <- makeDmat(hcetacea$xini, hcetacea$yini[[j]])
+    dhat[[j]] <- monotone(dold[[j]], hcetacea$ncat[j], hcetacea$indi[[j]])
+  }
+dmatmat <- makeMatrixFromList(dold)
+dhatmat <- makeMatrixFromList(dhat)
+par(pty = "s")
+dmatmat <- makeMatrixFromList(dold)
+dhatmat <- makeMatrixFromList(dhat)
+plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
+```
+
+```{r cetacea_xmat_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Object Scores HGA",  main = ""}
+par(pty = "s")
+plot(hcetacea$xini, xlim = 1.1 * c(gmin, gmax), ylim = 1.1 * c(gmin, gmax), xlab = "dim 1", ylab = "dim 2", type = "n")
+text(hcetacea$xini, rownames(cetacea), col = "RED", cex = 1.00)
+```
+
+```{r cetacea_flippers_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Flippers HGA",  main = ""}
+par(pty = "s")
+plot(voronoi(hcetacea$yini[[6]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hcetacea$yini[[6]], cetacea_cats[[6]], col = "RED", cex = 1.5)
+text(hcetacea$xini, cetacea_cats[[6]][hcetacea$indi[[6]] %*% 1:4], col = "BLUE", cex = .75)
+```
+
 ```{r cetacea_bnds, echo = FALSE}
 gmax <- max(c(max(hcetacea$xmat), sapply(hcetacea$ymat, max)))
 gmin <- min(c(min(hcetacea$xmat), sapply(hcetacea$ymat, min)))
 ```
+
 Loss is `r formatC(hcetacea$loss, digits = 10, format = "f")` after `r hcetacea$itel` iterations.
 
-```{r cetacea_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot",  main = ""}
+```{r cetacea_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot VHA",  main = ""}
 par(pty = "s")
 dmatmat <- makeMatrixFromList(hcetacea$dmat)
 dhatmat <- makeMatrixFromList(hcetacea$dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
+
 ```{r cetacea_y6, echo = FALSE}
 y <- hcetacea$ymat[[6]]
 rownames(y) <- cetacea_cats[[6]]
@@ -581,102 +723,30 @@ text(hcetacea$ymat[[6]], cetacea_cats[[6]], col = "RED", cex = 1.5)
 text(hcetacea$xmat, cetacea_cats[[6]][hcetacea$indi[[6]]%*%1:4], col = "BLUE", cex = .75)
 ```
 
-## GALO
-
-@peschar_75 @deleeuw_mair_A_09a
-
-```{r galovha, echo = FALSE, verbose = FALSE, cache = FALSE}
-hgalo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
+```{r cetaceavhacc, echo = FALSE, verbose = FALSE, cache = TRUE}
+hcetaceacc <- vha(cetacea, itmax = 1000, verbose = FALSE, xcent = TRUE, xnorm = TRUE)
 ```
 
-```{r galo_bnds_hga, echo = FALSE}
-gmax <- max(c(max(hgalo$xini), sapply(hgalo$yini, max)))
-gmin <- min(c(min(hgalo$xini), sapply(hgalo$yini, min)))
-```
+Loss is `r formatC(hcetaceacc$loss, digits = 10, format = "f")` after `r hcetaceacc$itel` iterations.
 
-```{r galo_d_dhat_hga, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot",  main = ""}
-dold <- rep(list(0), 4)
-dhat <- rep(list(0), 4)
-for (j in 1:4) {
-    dold[[j]] <- makeDmat(hgalo$xini, hgalo$yini[[j]])
-    dhat[[j]] <- monotone(dold[[j]], hgalo$ncat[j], hgalo$indi[[j]])
-  }
-dmatmat <- makeMatrixFromList(dold)
-dhatmat <- makeMatrixFromList(dhat)
+
+```{r cetacea_d_dhat_tt, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot VHA XX",  main = ""}
 par(pty = "s")
-dmatmat <- makeMatrixFromList(dold)
-dhatmat <- makeMatrixFromList(dhat)
+dmatmat <- makeMatrixFromList(hcetaceacc$dmat)
+dhatmat <- makeMatrixFromList(hcetaceacc$dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
-```{r galo_IQ_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ HGA",  main = ""}
+```{r cetacea_bnds_tt, echo = FALSE}
+gmax <- max(c(max(hcetaceacc$xmat), sapply(hcetaceacc$ymat, max)))
+gmin <- min(c(min(hcetaceacc$xmat), sapply(hcetaceacc$ymat, min)))
+```
+
+```{r cetcea_flippers_tt, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Flippers VHA XX",  main = ""}
 par(pty = "s")
-plot(voronoi(hgalo$yini[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
-text(hgalo$yini[[2]], as.character(1:9), col = "RED", cex = 1.5)
-text(hgalo$xini, as.character(galo[, 2]), col = "BLUE")
-```
-
-```{r galo_bnds, echo = FALSE}
-gmax <- max(c(max(hgalo$xmat), sapply(hgalo$ymat, max)))
-gmin <- min(c(min(hgalo$xmat), sapply(hgalo$ymat, min)))
-```
-Loss is `r formatC(hgalo$loss, digits = 10, format = "f")` after `r hgalo$itel` iterations.
-
-```{r galo_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot",  main = ""}
-par(pty = "s")
-dmatmat <- makeMatrixFromList(hgalo$dmat)
-dhatmat <- makeMatrixFromList(hgalo$dhat)
-plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
-```
-
-```{r galo_y2, echo = FALSE}
-y <- hgalo$ymat[[2]]
-rownames(y) <- as.character(1:9)
-y <- cbind(y, colSums(hgalo$indi[[2]]))
-colnames(y) <- c("dim1", "dim2", "freq")
-print(y)
-```
-```{r galo_IQ, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ",  main = ""}
-par(pty = "s")
-plot(voronoi(hgalo$ymat[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
-text(hgalo$ymat[[2]], as.character(1:9), col = "RED", cex = 1.5)
-text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE")
-```
-
-
-
-```{r galo_ADV_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV HGA",  main = ""}
-par(pty = "s")
-plot(voronoi(hgalo$yini[[3]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
-text(hgalo$yini[[3]], sort(lab3), col = "RED", cex = 1.5)
-text(hgalo$xini, as.character(galo[, 2]), col = "BLUE")
-```
-
-```{r galo_y3, echo = FALSE}
-y <- hgalo$ymat[[3]]
-rownames(y) <- lab3
-y <- cbind(y, colSums(hgalo$indi[[3]]))
-colnames(y) <- c("dim1", "dim2", "freq")
-print(y)
-```
-
-```{r galo_ADV, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV",  main =""}
-par(pty = "s")
-plot(voronoi(hgalo$ymat[[3]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
-text(hgalo$ymat[[3]], sort(lab3), col = "RED", cex = 1.5)
-text(hgalo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .75)
-```
-
-The Voronoi diagram is messed up because the category quantifications for Agr, Gen, Grls
-are the same, as are those for Ext, None. If we pool those categories we get a well-behaved
-Voronoi diagram.
-
-```{r galo_ADV2, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo ADV Corrected",  main =""}
-par(pty = "s")
-ycor <- hgalo$ymat[[3]][c(1, 2, 5, 7), ]
-plot(voronoi(ycor, ext = 1.1 * c(gmin, gmax, gmin, gmax)))
-text(ycor, c("AgrGenGrls", "ExtNone", "Man", "Uni"), col = "RED", cex = 1.5)
-text(hgalo$xmat, as.character(galo[, 3]), col = "BLUE", cex = .75)
+plot(voronoi(hcetaceacc$ymat[[6]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
+text(hcetaceacc$ymat[[6]], cetacea_cats[[6]], col = "RED", cex = 1.5)
+text(hcetaceacc$xmat, cetacea_cats[[6]][hcetaceacc$indi[[6]]%*%1:4], col = "BLUE", cex = .75)
 ```
 
 \sectionbreak 
@@ -804,5 +874,20 @@ Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{
 $$
 
 \sectionbreak
+
+# Appendix C: Cetacea
+
+```{r cetacea_rownames, echo = FALSE}
+r <- noquote(rownames(cetacea))
+print(r, right = TRUE)
+```
+
+```{r cetacea_colnames, echo = FALSE}
+r <- noquote(colnames(cetacea))
+print(r, right = TRUE)
+```
+
+\sectionbreak
+
 
 # References

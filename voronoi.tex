@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 6, 2026}
+\date{June 8, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -335,7 +335,8 @@ category contains a subset of objects from the carrier. We also say that
 a category has a number of objects that ``belong to'' the category.
 
 Here is a small example with \(n=10\) and \(m=3\), taken from Gifi
-(\citeproc{ref-gifi_B_90}{1990}), page 65.
+(\citeproc{ref-gifi_B_90}{1990}), page 65. In the github voronoi
+repository these data are in data/small.R.
 
 \begin{verbatim}
       [,1] [,2] [,3]
@@ -558,6 +559,11 @@ ALS \emph{outer iteration}.
 
 \subsection{Initial Configuration}\label{initial-configuration}
 
+In all our analysis we use HGA as the initial configuration for both
+object-scores and category-scores. The algorithm for HGA is the ALS
+method used in Gifi (\citeproc{ref-gifi_B_90}{1990}) to compute the
+truncated SVD. The repository includes mca.R
+
 \subsection{Monotone Regression}\label{monotone-regression}
 
 The \(nm\) monotone regressions are applied for each object \(i\) and
@@ -573,34 +579,12 @@ approach to ties (Kruskal (\citeproc{ref-kruskal_64b}{1964b}), De Leeuw
 
 \subsection{Majorization}\label{majorization}
 
-For the inner iterations we use standard \emph{smacof} majorization
-steps (De Leeuw (\citeproc{ref-deleeuw_C_77}{1977a})). Because of the
-structure of the problem it is advantageous to decompose a majorization
-step into two substeps: updating \(X\) for \(Y_j\) fixed at its current
-values and updating the \(Y_j\) for \(X\) fixed at its current value.
-This could be called \emph{Alternating Majorization}.
-
-Let's first update \(X\). The majorization equality we use, for current
-fixed \(Y_j\) and a current value \(\tilde X\) for \(X\), is a version
-of Cauchy-Schwartz. \begin{equation}
-d_{i\ell}^j(X,Y_j)\geq\frac{1}{d_{i\ell}^j(\tilde X,Y_j)}(x_i-y_\ell^j)'(\tilde x_i- y_\ell^j).
-\end{equation} If we define \begin{equation}
-b_{i\ell}^j(\tilde X,Y_j):=w_{i\ell}^j\frac{\delta_{i\ell}^j}{d_{i\ell}^j(\tilde X,Y_j)}
-\end{equation} then \begin{align}
-\sigma_j(X,Y_j)\leq C_j&-2\sum_{i=1}^n\sum_{\ell=1}^{k_j}b_{i\ell}^j(\tilde X,Y_j)(x_i-y_\ell^j)'(\tilde x_i- y_\ell^j)\notag\\&+\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(x_i-y_\ell^j)'(x_i-y_\ell^j),\label{eq-majx1}
-\end{align} where \(C_j\) does not depend of \(X\). The right-hand-side
-of \eqref{eq-majx1} must be minimized over \(X\). Use the symbol
-\(\star\) to replace a subscript or superscript over which we have
-summed. The stationary equations are\\
-\begin{subequations}
-\begin{equation}
-w_{i\star}^\star x_i=b_{i\star}^\star(\tilde X,Y_j)\tilde x_i-\sum_{j=1}^m\sum_{\ell=1}^{k_j}(b_{i\ell}^j(\tilde X,Y_j)-w_{i\ell}^j)y_\ell^j.
-\end{equation}
-In the same way we can update $\tilde Y_j$. By symmetry
-\begin{equation}
-w_{\star\ell}^jy_\ell^j=b_{\star\ell}^j(X,\tilde Y_j)\tilde y_\ell^j-\sum_{i=1}^n(b_{i\ell}^j(X,\tilde Y_j)-w_{i\ell}^j)x_i
-\end{equation}
-\end{subequations}
+For the inner iterations we use \emph{smacof} majorization steps (De
+Leeuw (\citeproc{ref-deleeuw_C_77}{1977a})). Because of the structure of
+the problem it is advantageous to decompose a majorization step into two
+substeps: updating \(X\) for \(Y_j\) fixed at its current values and
+updating the \(Y_j\) for \(X\) fixed at its current value. This could be
+called \emph{Alternating Majorization}. Details are in Appendix B.
 
 \sectionbreak
 
@@ -620,18 +604,11 @@ In this paper we use the constraints \begin{equation}
 
 \subsection{Configuration Constraints}\label{configuration-constraints}
 
-If there are constraints on \(X\) and/or \(Y\) we use majorization
-theory for restricted MDS( from (De Leeuw and Heiser
-(\citeproc{ref-deleeuw_heiser_C_80}{1980})). Suppose \[
-\tilde Z:=\begin{bmatrix}\tilde X\\\tilde Y\end{bmatrix}
-\] is the unrestricted Guttman transform. In the majorization step we
-minimize (or decrease) \begin{equation}
-\text{tr}\ (Z-\tilde Z)'V(Z-\tilde Z)=m\|X-\tilde X\|^2+n\|Y-\tilde Y\|^2-2\ \text{tr}\ (X-\tilde X)'ee'(Y-\tilde Y)\label{eq-partition}
-\end{equation} over \(X\) and \(Y\) satisfying the constraints.
+Separation
 
 \subsubsection{Column-Centering}\label{column-centering}
 
-If we require \(X'W_re=0\) then the stationarty equations are
+If we require \(X'W_re=0\) then the stationary equations are
 \(W_r(X-\overline X)=W_re\lambda'\) and thus \(X=\overline X+e\lambda'\)
 with \(\lambda'=-e'W_r\overline X/e'W_re\) or \[
 X=(I-\frac{ee'W_r}{e'W_re})\overline X
@@ -661,12 +638,11 @@ If we require both \(X'W_rX=I\) and \(X'W_re=0\) we have
 \subsubsection{Rank Constraints}\label{rank-constraints}
 
 One of the main themes in Gifi (\citeproc{ref-gifi_B_90}{1990}) is that
-the \(k_j\times p\) matrices of category quantifications can be
-constrained to be of rank \(r<p\). We will restrict ourselves in this
-paper to \(r=1\), which defines what Gifi calls \emph{single
-quantifications}. If all variables are restricted to have single
-quantifications then a HGA becomes equivalent to a PCA of the
-transformed variables.
+the \(k_j\times p\) matrices of category-scores can be constrained to be
+of rank \(r<p\). We will restrict ourselves in this paper to \(r=1\),
+which defines what Gifi calls \emph{single quantifications}. If all
+variables are restricted to have single quantifications then a HGA
+becomes equivalent to a PCA of the transformed variables.
 
 In VHA the Voronoi regions of single variables become parallel strips.
 The category-points of a variable are on a line through the origin, and
@@ -740,8 +716,8 @@ following arguments (with default values).
 \item
   \emph{xnorm} if TRUE object scores are W-orthonormal.
 \item
-  \emph{yrank} rank restrictions on category quantifications. If the
-  length of yrank is one it is expanded to a vector of length \(m\).
+  \emph{yrank} rank restrictions on category-scores. If the length of
+  yrank is one it is expanded to a vector of length \(m\).
 \item
   \emph{itmax} is the maximum number of iterations.
 \item
@@ -782,8 +758,8 @@ The value returned by the program is a list.
   \emph{xmat} object scores, an \(n\times p\) matrix, with \(p\) equal
   to \emph{ndim}.
 \item
-  \emph{ymat} category quantifications, a list of \emph{m} matrices of
-  dimension \(k_j\times p\).
+  \emph{ymat} category-scores, a list of \emph{m} matrices of dimension
+  \(k_j\times p\).
 \item
   \emph{dmat} distances, a list of \emph{m} matrices of dimension
   \(n\times k_j\).
@@ -793,7 +769,7 @@ The value returned by the program is a list.
 \item
   \emph{xini} the HGA solution for the object scores,
 \item
-  \emph{yini} the HGA solution for the category quantifications,
+  \emph{yini} the HGA solution for the category-scores,
 \item
   \emph{itel} number of iterations.
 \item
@@ -840,78 +816,143 @@ all other points. one containing all other.
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/redo-1.pdf}}
 \end{center}
 
-\subsection{Cetacea}\label{cetacea}
-
-Vescia (\citeproc{ref-vescia_85}{1985}), Van der Burg
-(\citeproc{ref-vanderburg_85}{1985}), Guttman
-(\citeproc{ref-guttman_85}{1985})
-
-Loss is 0.0000964845 after 1000 iterations.
-
-\begin{figure}[H]
-
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_d_dhat-1.pdf}}
-
-}
-
-\caption{Cetacea D-Dhat Plot}
-
-\end{figure}%
-
-\begin{verbatim}
-                       dim1        dim2 freq
-small           -0.03818559 -0.01751641   12
-large and short -0.03733614 -0.03078533    9
-medium size      0.18051370  0.15150771    9
-long and narrow -0.08505423  0.10776433    6
-\end{verbatim}
-
-\begin{figure}[H]
-
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetcea_flippers-1.pdf}}
-
-}
-
-\caption{Cetacea Flippers}
-
-\end{figure}%
-
 \subsection{GALO}\label{galo}
 
-Peschar (\citeproc{ref-peschar_75}{1975}) De Leeuw and Mair
-(\citeproc{ref-deleeuw_mair_A_09a}{2009})
+Our next example use the GALO data from Peschar
+(\citeproc{ref-peschar_75}{1975}). In the github voronoi repository the
+data are in data/galo.R. Subjects are 1290 children who in 1959/1960
+were in sixth grade of primary school in the city of Groningen.
+Variables are SEX, IQ (in nine ordered categories), ADV (sixth grade
+teachers advice on the form of secondary education appropriate for the
+student), and SES. The categories of ADV are as follows
+(alphabetically).
 
-\begin{figure}[H]
+\begin{itemize}
+\tightlist
+\item
+  \emph{Agr} Agricultural.
+\item
+  \emph{Ext} Extended primary (like middle school).
+\item
+  \emph{Gen} General (like high school).
+\item
+  \emph{Grls} Extended primary for girls (like middle school).
+\item
+  \emph{Man} Vocational, including housekeeping.
+\item
+  \emph{None} No secondary education.
+\end{itemize}
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_d_dhat_hga-1.pdf}}
+The categories of SES are as follows (again alphabetically).
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{LowWC} Lower white collar.
+\item
+  \emph{MidWC} Middle white collar.
+\item
+  \emph{Prof} Professional.
+\item
+  \emph{Shop} Shopkeepers.
+\item
+  \emph{Skil} Skilled manual.
+\item
+  \emph{Unsk} Unskilled Manual.
+\end{itemize}
+
+We start with an HGA of the galo data. The initial value of the loss
+function is 0.3158339145. The loss function value is computed by using
+\begin{equation}
+\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-losshga}
+\end{equation} where \(X\) and the \(Y_j\) are the HGA solution, and
+where the minimum over the \(\Delta_j\) is computed by requiring that
+\(\smash{\delta_{i\nu}^j\leq\delta_{i\ell}^j}\) if
+\(\smash{g_{i\nu}^j=1}\). This is \emph{not} the HGA loss function
+\eqref{eq-loss2}, in which the minimum over the \(\Delta_j\) is computed
+by requiring that \(\delta_{i\ell}^j=0\) whenever \(g_{i\ell}^j=1\).
+Thus we evaluate the HGA solution using the VGA loss function.
+
+For any HGA or VGA solution we can compute a Shepard diagram by plotting
+the distances and disparities, pooled over all objects (individuals) and
+variables. The weak regression requirements imply that many disparities
+will be equal to the corresponding distances. This is illustrated by the
+diagonal of Figure~\ref{fig-galo_d_dhat_hga}.
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_d_dhat_hga-1.pdf}}
 
 }
 
-\caption{Galo D-Dhat Plot}
+\caption{\label{fig-galo_d_dhat_hga}Galo D-Dhat Plot HGA}
 
 \end{figure}%
 
-\begin{figure}[H]
+The HGA solution can also be used to produce Voronoi plots, which are
+given in Figure~\ref{fig-galo_IQ_HGA} for IQ. We see the familiar
+horseshoe shape of the object score cloud (the Guttman effect, see De
+Leeuw (\citeproc{ref-deleeuw_C_23}{2023})). The category-scores are
+largely in order along the horseshoe, and as a consequence the Voronoi
+regions are unbounded and emanate from a point inside the horseshoe.
+There are some relatively monor deviations from that pattern.
+Specifically category 1 does not fit the pattern, but that is not too
+serious because there are only five individuals in that category. There
+are quite a few misclassifications, i.e.~objects in the ``wrong''
+Voronoi region.
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_IQ_HGA-1.pdf}}
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_IQ_HGA-1.pdf}}
 
 }
 
-\caption{Galo IQ HGA}
+\caption{\label{fig-galo_IQ_HGA}Galo IQ HGA}
 
 \end{figure}%
 
-Loss is 0.0000822448 after 1000 iterations.
+The VHA solution has loss equal to 0.0000822448 after 1000 iterations.
+The voronoi function stopped because the maximum number of iterations
+was reached. The \(d-\hat d\) plot in Figure~\ref{fig-galo_d_dhat} shows
+a near-perfect fit.
 
-\begin{figure}[H]
+\begin{figure}
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_d_dhat-1.pdf}}
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_d_dhat-1.pdf}}
 
 }
 
-\caption{Galo D-Dhat Plot}
+\caption{\label{fig-galo_d_dhat}Galo D-Dhat Plot VHA}
 
 \end{figure}%
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_IQ-1.pdf}}
+
+}
+
+\caption{\label{fig-galo_IQ}Galo IQ VHA}
+
+\end{figure}%
+
+Figure~\ref{fig-galo_IQ} shows some characteristic properties of Voronoi
+plots. If the objects in two categories are not well separated the
+object-points will be on the perpendicular bisector of the category
+pair. This is partial degeneracy due to requiring weak monotonicity. The
+algorithm cannot impose strict monotonicity by placing an object in the
+interior of its Voronoi region, and compromises by putting it on the
+boundary. Thus the VHA plot will show object-points on lines. Some
+category scores are very close, which makes the Voronoi diagram
+unstable. The solution for the category-scores for IQ is
 
 \begin{verbatim}
          dim1          dim2 freq
@@ -926,58 +967,124 @@ Loss is 0.0000822448 after 1000 iterations.
 9  0.06483530 -0.0642790174   19
 \end{verbatim}
 
-\begin{figure}[H]
+We see that categories 2 and 3 map into basically the same point. The
+same is true for categories 4 and 5, and for categories 6 and 7. So
+instead of nine points there are really only six. We can clean up the
+Voronoi diagram by using only those six categories. Note that we do not
+recode the data and redo the analysis, we just use the same plot with
+the same object-scores and just change the diagram. The result is in
+Figure~\ref{fig-galo_IQ2}.
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_IQ-1.pdf}}
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_IQ2-1.pdf}}
 
 }
 
-\caption{Galo IQ}
+\caption{\label{fig-galo_IQ2}Galo IQ Corrected VHA}
+
+\end{figure}%
+
+\subsection{Cetacea}\label{cetacea}
+
+The data in Vescia (\citeproc{ref-vescia_85}{1985}) describe 36 whales,
+porpoises and dolphins using 15 categorical variables. In the github
+voronoi repository the data are in data/cetacea.R. Appendix C gives the
+common names of the 36 species and the names of the variables.
+
+The variables are mostly physical characteristics, but they also include
+habitat and feeding. The average number of categories per variable is
+about four, and almost all variables are ``nominal'' (i.e.~not
+``ordinal'' and not ``numerical''). In the same book Van der Burg
+(\citeproc{ref-vanderburg_85}{1985}) presents a secondary analysis of
+the data with HGA and Guttman (\citeproc{ref-guttman_85}{1985}) applies
+his MSA-I technique (which uses HGA as an initial configuration for its
+iterations).
+
+We start with an HGA of the cetacea data. The initial value of the loss
+function \ldots{} is 0.9945577132.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_d_dhat_hga-1.pdf}}
+
+}
+
+\caption{Cetacea D-Dhat Plot HGA}
 
 \end{figure}%
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_ADV_HGA-1.pdf}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_xmat_HGA-1.pdf}}
 
 }
 
-\caption{Galo ADV HGA}
+\caption{Cetacea Object Scores HGA}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_flippers_HGA-1.pdf}}
+
+}
+
+\caption{Cetacea Flippers HGA}
+
+\end{figure}%
+
+Loss is 0.0000964845 after 1000 iterations.
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_d_dhat-1.pdf}}
+
+}
+
+\caption{Cetacea D-Dhat Plot VHA}
 
 \end{figure}%
 
 \begin{verbatim}
-            dim1        dim2 freq
-Agr   0.01404991  0.01782918   12
-Ext  -0.01986522 -0.04871639  161
-Gen   0.01405059  0.01782021  407
-Grls  0.01404991  0.01782927   18
-Man  -0.01580552  0.00398715  509
-None -0.01934281 -0.05131641   11
-Uni   0.05803731 -0.03208013  172
+                       dim1        dim2 freq
+small           -0.03818545 -0.01751669   12
+large and short -0.03733595 -0.03078537    9
+medium size      0.18051318  0.15150860    9
+long and narrow -0.08505451  0.10776396    6
 \end{verbatim}
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_ADV-1.pdf}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetcea_flippers-1.pdf}}
 
 }
 
-\caption{Galo ADV}
+\caption{Cetacea Flippers}
 
 \end{figure}%
 
-The Voronoi diagram is messed up because the category quantifications
-for Agr, Gen, Grls are the same, as are those for Ext, None. If we pool
-those categories we get a well-behaved Voronoi diagram.
+Loss is 0.0003024927 after 1000 iterations.
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/galo_ADV2-1.pdf}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_d_dhat_tt-1.pdf}}
 
 }
 
-\caption{Galo ADV Corrected}
+\caption{Cetacea D-Dhat Plot VHA XX}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetcea_flippers_tt-1.pdf}}
+
+}
+
+\caption{Cetacea Flippers VHA XX}
 
 \end{figure}%
 
@@ -1106,6 +1213,42 @@ Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{
 
 \sectionbreak
 
+\section{Appendix C: Cetacea}\label{appendix-c-cetacea}
+
+\begin{verbatim}
+ [1]            Bowhead whales                  Rorquals
+ [3]                Blue whale Giant bottle-nosed whales
+ [5]      Commerson's Dolphins              White whales
+ [7]           Common dolphins               Grey whales
+ [9]              Right whales              Pilot whales
+[11]          Risso's dolphins       Bottle-nosed whales
+[13]           Amazon dolphins        Pygmy sperm whales
+[15]      White-sided dolphins    Chinese river dolphins
+[17]      Right whale dolphins           Humpback whales
+[19]          Sowerby's whales                  Narwhals
+[21]        Pygmy right whales   Finless black porpoises
+[23]          Irawady dolphins             Killer whales
+[25]          Common porpoises              Sperm whales
+[27]         Gangetic dolphins       False killer whales
+[29]   Guyanian river dolphins       Cameroun's dolphins
+[31]          Spotted dolphins    Rough toothed dolphins
+[33]       La Plata's dolphins  Shepherd's beaked whales
+[35]     Bottle-nosed dolphins          Goosebeak whales
+\end{verbatim}
+
+\begin{verbatim}
+ [1]                               NECK                   FORM OF THE HEAD
+ [3]                   SIZE OF THE HEAD                               BEAK
+ [5]                         DORSAL FIN                           FLIPPERS
+ [7]                       SET OF TEETH                            FEEDING
+ [9]                          BLOW HOLE                              COLOR
+[11]                 CERVICAL VERTEBRAE           LACRYMAL AND JUGAL BONES
+[13]                            HABITAT LONGITUDINAL FURROWS ON THE THROAT
+[15]                         HEAD BONES
+\end{verbatim}
+
+\sectionbreak
+
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
@@ -1157,20 +1300,9 @@ Analysis.''} Chap. 22 in \emph{Analysis of Categorical Data from
 Historical Perspectives. Essays in Honour of Shizuhiko Nishisato.},
 edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel. Springer.
 
-\bibitem[\citeproctext]{ref-deleeuw_heiser_C_80}
-De Leeuw, Jan, and Willem J. Heiser. 1980. {``Multidimensional Scaling
-with Restrictions on the Configuration.''} In \emph{Multivariate
-Analysis, Volume {V}}, edited by P. R. Krishnaiah. North Holland
-Publishing Company.
-
-\bibitem[\citeproctext]{ref-deleeuw_mair_A_09a}
-De Leeuw, J., and P. Mair. 2009. {``{Homogeneity Analysis in {R}: the
-Package homals}.''} \emph{Journal of Statistical Software} 31 (4):
-1--21. \url{https://www.jstatsoft.org/v31/i04/}.
-
 \bibitem[\citeproctext]{ref-deleeuw_michailidis_C_00}
-De Leeuw, J., and G. Michailidis. 2000. {``Graph Layout Techniques and
-Multidimensional Data Analysis.''} In \emph{Game Theory. Optimal
+De Leeuw, Jan, and George Michailidis. 2000. {``Graph Layout Techniques
+and Multidimensional Data Analysis.''} In \emph{Game Theory. Optimal
 Stopping, Probability and Statistcs}, edited by F. T. Bruss and L.
 LeCam. Lecture Notes -- Monographs 35. Institute of Mathematical
 Statistics.
@@ -1182,18 +1314,18 @@ Gifi, Albert. 1990. \emph{Nonlinear Multivariate Analysis}. Wiley.
 Greenacre, Michael J., and Jorg Blasius. 2006. \emph{{Multiple
 Correspondence Analysis and Related Methods}}. Chapman; Hall.
 
-\bibitem[\citeproctext]{ref-guttman_85}
-Guttman, L. 1985. {``{Multidimensional Structuple Analysis (MSA-I) for
-the Classification of Cetacea: Whales, Porpoises and Dolphins}.''} In
-\emph{Data Analysis in Real Life Environment: Ins and Outs of Solving
-Problems}, edited by J.-F. Marcotorchino, J. M. Proth, and J. Janssen.
-North-Holland.
-
 \bibitem[\citeproctext]{ref-guttman_41}
 Guttman, Louis. 1941. {``{The Quantification of a Class of Attributes: A
 Theory and Method of Scale Construction}.''} In \emph{The Prediction of
 Personal Adjustment}, edited by Paul Horst. Social Science Research
 Council.
+
+\bibitem[\citeproctext]{ref-guttman_85}
+Guttman, Louis. 1985. {``{Multidimensional Structuple Analysis (MSA-I)
+for the Classification of Cetacea: Whales, Porpoises and Dolphins}.''}
+In \emph{Data Analysis in Real Life Environment: Ins and Outs of Solving
+Problems}, edited by J.-F. Marcotorchino, J. M. Proth, and J. Janssen.
+North-Holland.
 
 \bibitem[\citeproctext]{ref-heiser_81}
 Heiser, Willem J. 1981. {``Unfolding Analysis of Proximity Data.''} PhD
@@ -1233,7 +1365,8 @@ Okabe, Atsuyuki, Barry Boots, Kokichi Sugihara, and Chiu Sung-Nok. 2000.
 Diagrams}. Second Edition. Wiley.
 
 \bibitem[\citeproctext]{ref-peschar_75}
-Peschar, J. L. 1975. \emph{{School, Milieu, Beroep}}. Tjeek Willink.
+Peschar, Julien L. 1975. \emph{{School, Milieu, Beroep}}. Tjeek Willink.
+\url{https://pure.rug.nl/ws/portalfiles/portal/14528340/peschar.PDF}.
 
 \bibitem[\citeproctext]{ref-tenenhaus_young_85}
 Tenenhaus, Michel, and Forest W. Young. 1985. {``{An Analysis and

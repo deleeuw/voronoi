@@ -27,7 +27,7 @@ makeListfromMatrix <- function(y, k) {
   ylist <- list(1:nmat)
   ksum <- 0
   for (j in 1:nmat) {
-    ylist[[j]] <- y[ , ksum + 1:k[j]]
+    ylist[[j]] <- y[, ksum + 1:k[j]]
     ksum <- ksum + k[j]
   }
   return(ylist)
