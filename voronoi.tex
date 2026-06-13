@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 8, 2026}
+\date{June 13, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -388,8 +388,10 @@ function (Kruskal (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
 Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
-\end{equation} with \(d(x_i,y_\ell^j)\) the Euclidean distance between
-row \(i\) of \(X\) and row \(\ell\) of \(Y_j\).
+\end{equation} with \(d(x_i,y_\ell^j)\) the \emph{Euclidean distance}
+between row \(i\) of \(X\) and row \(\ell\) of \(Y_j\) and
+\(\delta_{i\ell}^j\) the corresponding \emph{disparity}. Disparities are
+required to satisfy the measurement restrictions implied by the data.
 
 HGA minimizes \eqref{eq-loss1} over all \(n\times p\) configurations
 \(X\) satisfying \(X'X=I\), over all \(Y_j\), and over all \(\Delta_j\)
@@ -397,24 +399,39 @@ that satisfy \(\smash{\delta_{i\ell}^j=0}\) whenever
 \(\smash{g_{i\ell}^j=1}\). All other elements of the \(\Delta_j\) are
 only constrained to be non-negative.
 
-geometry, disparities
-
-If \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-loss2}
-\end{equation} then \begin{equation}
+Define \begin{equation}
+\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m).\label{eq-loss2}
+\end{equation} The minimizing disparity \(\delta_{i\ell}^j\) is equal to
+zero if \(g_{i\ell}^j=1\) and equal to \(d(x_i,y_\ell^j)\) otherwise.
+Consequently \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^jd^2(x_i,y_\ell^j).\label{eq-loss3}
-\end{equation} Next define \begin{equation}
+\end{equation} We can make a graphical representation of
+\eqref{eq-loss3}. For variable \(j\) we plot the \(n\) points \(x_i\)
+and the \(k_j\) points \(y_\ell^j\) in a joint plot (or biplot). We then
+connect, with straight lines, each category point with the object points
+that belong to it. For each category this defines a figure in the plot
+which we call a \emph{star}. The \emph{size} of a star is the sum of
+squares of the length of its lines. The loss function \eqref{eq-loss3}
+for variable \(j\) is the sum of squares of the length of all \(n\)
+lines in this plot, or equivalently the sum of the sizes of the \(k_j\)
+stars. The total loss is the sum of star-sizes over all \(m\) plots.
+Thus HGA aims to place the object-points and category-points in space in
+such a way that the stars are as small as possible, i.e.~objects are as
+close as possible to the categories they belong to.
+
+Next define \begin{equation}
 \sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss4}
 \end{equation} The minimum of \eqref{eq-loss3} over the \(Y_j\) is
-attained at the centroids \(\hat Y_j:=D_j^{-1}G_j'X\), and if we
-substitute these optimal \(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see
-that \(\sigma_{\star\star}(X)\) is indeed equal to the sum of squares of
-all lines defining the stars. Minimizing \(\sigma_{\star\star}(X)\) over
+attained at \(\hat Y_j:=D_j^{-1}G_j'X\). Category-points are the
+centroids of the object-points belonging to the category. This makes the
+stars more star-like/ If we substitute these optimal
+\(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see that
+\(\sigma_{\star\star}(X)\) is indeed equal to the sum of squares of all
+lines defining the stars. Minimizing \(\sigma_{\star\star}(X)\) over
 \(X'X=I\), and thus minimizing \eqref{eq-loss1} over
-\((X, Y_j,\Delta_j)\), defines HGA. Actually computing the solution
-turns out to be a straightforward eigenvalue-eigenvector problem. The
-details are in the publications we referenced at the beginning of this
-section.
+\((X, Y_j,\Delta_j)\), defines HGA. Computing the solution turns out to
+be a straightforward eigenvalue-eigenvector problem. The details are in
+the publications we referenced at the beginning of this section.
 
 A HGA in two dimensions produces of our small example the following
 three star plots. Objects are numbered and in BLUE, categories have
@@ -434,7 +451,8 @@ and De Leeuw (\citeproc{ref-michailidis_deleeuw_A_01}{2001})).
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/mca-1.pdf}}
 \end{center}
 
-\subsection{Voronoi Analysis}\label{voronoi-analysis}
+\subsection{Voronoi Homogeneity
+Analysis}\label{voronoi-homogeneity-analysis}
 
 Although using loss function \eqref{eq-loss1} makes HGA a form of
 non-metric multidimensional scaling there are some important differences
@@ -574,17 +592,139 @@ smaller than or equal to all others.
 
 This can be solved by using monotone regression with the primary
 approach to ties (Kruskal (\citeproc{ref-kruskal_64b}{1964b}), De Leeuw
-(\citeproc{ref-deleeuw_A_77}{1977b})), treating all \(\delta_\ell\) with
+(\citeproc{ref-deleeuw_A_77}{1977})), treating all \(\delta_\ell\) with
 \(\ell\neq\nu\) as ties.
 
 \subsection{Majorization}\label{majorization}
 
-For the inner iterations we use \emph{smacof} majorization steps (De
-Leeuw (\citeproc{ref-deleeuw_C_77}{1977a})). Because of the structure of
-the problem it is advantageous to decompose a majorization step into two
-substeps: updating \(X\) for \(Y_j\) fixed at its current values and
-updating the \(Y_j\) for \(X\) fixed at its current value. This could be
-called \emph{Alternating Majorization}. Details are in Appendix B.
+We study the off-diagonal smacof algorithm for MDS, without taking into
+account that the loss function \eqref{eq-loss1} comes from \(n\)
+observations on \(m\) categorical variables. This improves and
+generalizes the smacof treatment of the metric unfolding problem in
+Heiser and De Leeuw (\citeproc{ref-heiser_deleeuw_A_79}{1979}).
+
+We rewrite stress as \begin{equation}
+\sigma(X,Y):=\sum_{i=1}^n\sum_{k=1}^Kw_{ik}(\delta_{ik}-d(x_i,y_k))^2.\label{eq-ploss}
+\end{equation} The distance is \begin{equation}
+d(x_i,y_k)=\sqrt{(X'e_i-Y'e_k)'(X'e_i-Y'e_k)}.
+\end{equation} We will construct a majorization of \eqref{eq-ploss} at
+\(\tilde X\) and \(\tilde Y\). Think of \(\tilde X\) and \(\tilde Y\) as
+the current best estimates in a sequence of iterations. By
+Cauchy-Schwartz, \begin{equation}
+d(x_i,y_k)\geq\frac{1}{d(\tilde x_i,\tilde y_k)}(X'e_i-Y'e_k)'(\tilde X'e_i-\tilde Y'e_k).
+\end{equation} Define the \(n\times K\) matrix-valued function
+\(B(X,Y)\) by \begin{equation}
+b_{ik}(X,Y):=\begin{cases}w_{ik}\frac{\delta_{ik}}{d(x_i,y_k)}&\text{ if }d(x_i,y_k)>0,\\
+0&\text{ if }d(x_i,y_k)=0.\end{cases}
+\end{equation} Also define the diagonal matrices \(B_{\star}(X,Y)\) with
+the row-sums of \(B(X,Y)\) and \(B^{\star}(X,Y)\) with the column-sums.
+
+If we define, as we usually do in smacof, \begin{subequations}
+\begin{equation}
+\rho(X,Y):=\sum_{i=1}^n\sum_{k=1}^Kw_{ij}\delta_{ij}d_{ij}(x_i,y_k)
+\end{equation}
+hen $\rho(X,Y)\geq\rho(X,Y;\tilde X,\tilde Y)$, where
+\begin{equation}
+\rho(X,Y;\tilde X,\tilde Y):=\text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X-\text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y-\text{tr}\ Y'B'(\tilde X, \tilde Y)\tilde X+\text{tr}\ Y'B^\star(\tilde X,\tilde Y)\tilde Y.
+\end{equation}
+Also define
+\begin{equation}
+\eta^2(X,Y):=\sum_{i=1}^n\sum_{k=1}^Kw_{ik}\delta_{ij}d_{ij}^2(x_i,y_k)=\text{tr}\ X'W_\star X-2\ \text{tr}\ X'WY+\text{tr}\ Y'W^\star Y,
+\end{equation}
+with $W_\star$ and $W^\star$ the diagonal matrices with row-sums and column-sums of
+$W$, as well as the constant
+\begin{equation}
+C:=\sum_{i=1}^n\sum_{k=1}^Kw_{ik}\delta_{ik}^2
+\end{equation}
+\end{subequations}
+
+With these definitions \begin{equation}
+\sigma(X,Y)=C-2\ \rho(X,Y)+\eta^2(X,Y),
+\end{equation} and \(\sigma(X,Y)\leq\sigma(X,Y;\tilde X, \tilde Y)\),
+where \begin{equation}
+\sigma(X,Y;\tilde X, \tilde Y):= C-2\ \rho(X,Y;\tilde X,\tilde Y)+\eta^2(X,Y),
+\end{equation} with equality if \(X=\tilde X\) and \(Y=\tilde Y\). In a
+majorization (or MM) iteration we minimize
+\(\sigma(X,Y;\tilde X, \tilde Y)\) over \(X\) and \(Y\). If the minimum
+is attained at \(\tilde X\) and \(\tilde Y\) we stop the algorithm,
+because we have found a stationary point. If not we have found updates
+\(X^+\) and \(Y^+\) such that \begin{equation}
+\sigma(X^+,Y^+)\leq\sigma(X^+,Y^+;\tilde X, \tilde Y)<
+\sigma(\tilde X,\tilde Y;\tilde X, \tilde Y)=\sigma(\tilde X,\tilde Y).
+\end{equation}
+
+The stationary equations for minimizing
+\(\sigma(X,Y;\tilde X, \tilde Y)\) are \begin{subequations}
+\begin{align}
+X&=W_\star^{-1}(WY+B_\star(\tilde X,\tilde Y)\tilde X-B(\tilde X,\tilde Y)\tilde Y),\label{eq-xy1}\\
+Y&=\{W^\star\}^{-1}(W'X+B^\star(\tilde X,\tilde Y)\tilde Y-B'(\tilde X, \tilde Y)\tilde X).\label{eq-xy2}
+\end{align}
+\end{subequations} Alternatively \begin{equation}
+\begin{bmatrix}
+W_\star&-W\\
+-W'&W^\star
+\end{bmatrix}
+\begin{bmatrix}
+X\\Y
+\end{bmatrix}=
+\begin{bmatrix}
+B_\star(\tilde X,\tilde Y)&-B(\tilde X,\tilde Y)\\
+-B'(\tilde X, \tilde Y)&B^\star(\tilde X,\tilde Y)
+\end{bmatrix}
+\begin{bmatrix}
+\tilde X\\\tilde Y
+\end{bmatrix}\label{eq-xy3}
+\end{equation}
+
+The next step in each iteration could be to directly solve the system
+\eqref{eq-xy3} for \(X\) and \(Y\). This approach has the disadvantage
+that the order is \(n+m\), which can be quite large in applications. We
+also have to take into account that the coefficient matrix of
+\eqref{eq-xy3} is singular. Alternatively we can substitute the
+expression for \(X\) from \eqref{eq-xy1} in \eqref{eq-xy2} and then
+solve the resulting equation for \(Y\). Or we can solve the system in
+\eqref{eq-xy1} and \eqref{eq-xy2} iteratively by ALS. Choose a \(Y\),
+then compute \(X\) from \eqref{eq-xy1}, then use that \(X\) in
+\eqref{eq-xy2} to find a new \(Y\), and so on.
+
+In this paper we use an approach similar to ALS, which could be called
+MALS for Majorization by Alternating Least Squares. In the first step of
+a MALS cycle we majorize \(\sigma(X,\tilde Y)\) and minimize
+\(\sigma(X,\tilde Y;\tilde X,\tilde Y)\). Thus we treat the loss as a
+function of \(X\) only, and by the earlier results in this section we
+have \begin{subequations}
+\begin{equation}
+X^+=W_\star^{-1}(W\tilde Y+B_\star(\tilde X,\tilde Y)\tilde X-B(\tilde X,\tilde Y)\tilde Y).\label{eq-xy4}
+\end{equation}
+The next step, in the same MALS iteration, is to us this new $X^+$ and minimize
+$\sigma(X^+,Y;X^+,\tilde Y)$ over $Y$, giving
+\begin{equation}
+Y^+=\{W^\star\}^{-1}(W'X^+)+B^\star(X^+,\tilde Y)\tilde Y-B'(X^+, \tilde Y)X^+)
+\end{equation}
+\end{subequations} Then proceed to the next two-step MALS iteration,
+using the new \(X^+\) and \(Y^+\).
+
+One advantage of MALS, shared with ALS, is that the only matrix
+inversion needed is of thee diagonal weight marginals. Also there is no
+need to work with square symmetric matrices of order \(n+m\). But the
+main advantage of MALS is that it can easioly incorporate various
+constraints on \(X\) and \(Y\). Remember that \begin{equation}
+\sigma(X, \tilde Y;\tilde X,\tilde Y)=\text{tr}\ X'W_\star X-2\ \text{tr}\ X'\{W\tilde Y-\text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X+\text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y\}+C,
+\end{equation} where \(C\) is now used generically for terms not
+involving \(X\). Define \begin{equation}
+\overline X:=W\tilde Y-\text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X+\text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y
+\end{equation} Then, after completing the square, \begin{subequations}
+\begin{equation}
+\sigma(X, \tilde Y;\tilde X,\tilde Y)=\text{tr}\ (X-\overline X)'W_\star(X-\overline X)+C.
+\end{equation}
+Thus minimizing $\sigma(X, \tilde Y;\tilde X,\tilde Y)$ over $X$ that must
+satisfy some constraints means projecting $\overline X$ in the diagonal
+$W_\star$ metric on the set defined by the constraints. Of course in the
+same way
+\begin{equation}
+\sigma(\tilde X, Y;\tilde X,\tilde Y)=\text{tr}\ (Y-\overline Y)'W^\star(Y-\overline Y)+C.
+\end{equation}
+\end{subequations}
 
 \sectionbreak
 
@@ -592,15 +732,60 @@ called \emph{Alternating Majorization}. Details are in Appendix B.
 
 \subsection{Regression Constraints}\label{regression-constraints}
 
-In this paper we use the constraints \begin{equation}
+In this paper we (optionally) use the constraints \begin{equation}
 \sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=w_{i\star}^j,\label{eq-norm}
-\end{equation} for all \(I\) and \(j\), with
+\end{equation} for all \(i\) and \(j\), with
 \(\smash{\overline{\delta}_{ij}}\) the weighted mean of the
 \(\smash{\delta_{i\ell}^j}\). In addition, of course, the
 \(\delta_{i\ell}^j\) must satisfy the ordinal constraints. Constraint
 \eqref{eq-norm} explicitly excludes the possibility that the
 \(\smash{\delta_{i\ell}^j}\) for given \(i\) and \(j\) are equal for all
 \(\ell\).
+
+Suppose \(y\) is a vector with \(n\) elements. The problem we study is
+to minimize \(\sigma(x):=\|x-y\|_W^2\) over \(x\in K\) and
+\(\|x-\overline x e\|_W^2\) is equal to some constant \(c\). Here
+
+\begin{itemize}
+\tightlist
+\item
+  \(K\) is the cone of vectors defined by a number of inequalities of
+  the form \(x_i\leq x_j\),
+\item
+  \(e\) is the vector with all \(n\) elements equal to one,
+\item
+  \(W\) is a diagonal matrix of weights,
+\item
+  \(\|x\|^2_W=x'Wx\) is the square of the \(W\)-norm of \(x\),
+\item
+  \(\overline x\) is the weighted mean \(e'Wx/e'We\).
+\end{itemize}
+
+Define \(J:=I-ee'W/(e'We)\) and \(\tilde x=Jx\). Then
+\(Jx=x-\overline x e\). Then \(x'Jx=\tilde x'W\tilde x\) and \(x\in K\)
+if and only if \(\tilde x\in K\). Also \(\tilde x= Jx\) if and only if
+\(x=\tilde x+\beta e\). So the transformed problem is to minimize
+\(\|\tilde x+\beta e-y\|_W\) over \(\beta\) and \(\tilde x\in K\), with
+\(e'W\tilde x=0\) and \(\tilde x'W\tilde x=c\). The minimizer for
+\(\beta\) is \(\overline{y}:=e'Wy/e'We\), and thus the equivalent
+``reduced'' problem becomes minimizing \(\|\tilde x- Jy\|_W^2\) over
+\(\tilde x\in K\), \(\tilde x'W\tilde x=c\), and \(e'W\tilde x=0\).
+
+Forget about the constraint \(e'W\tilde x=0\) for now. If \(M\) is the
+monotone regression operator it follows that the solution for
+\(\tilde x\) is \(\sqrt{c}M(Jy)/\|M(Jy)\|_W\), which automatically
+satisfies \(e'W\tilde x=0\) (Bauschke et al.
+(\citeproc{ref-bauschke_bui_wang_18}{2018})). Thus the solution of our
+original problem is \[
+\hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|_W}+\overline{y}e.
+\] This can be rewritten in a perhaps more revealing way. Now
+\(M(y-\overline{y}e)=M(y)-\overline{y}e\) and
+\(e'WM(y)=e'Wy=e'We\overline{y}\). Thus
+\(\|M(y-\overline y)\|_W^2=\|M(y)\|_W^2-e'We\overline{M(y)}^2\) so that
+\[
+\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|_W}+\overline{y}e=
+\frac{1}{\|M(y-\overline{y})\|_W}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|_W}\right\}\overline{y}e
+\]
 
 \subsection{Configuration Constraints}\label{configuration-constraints}
 
@@ -621,19 +806,15 @@ we subtract the column-means of \(\tilde X\) from both \(\tilde X\) and
 Thus the distances in all iterations, and consequently the loss function
 values, are the same with or without this type of centering.
 
-In general it is advantagous to require \(e'X=0\) because the third term
-in equation \eqref{eq-partition} becomes independent of \(X\), and thus
-the \((X,Y)\) minimization step is separable (can be solved for \(X\)
-and \(Y\) separately).
-
 \subsubsection{Orthogonality}\label{orthogonality}
 
-If we require \(X'W_rX=I\) we have ther staionary equations
+If we require \(X'W_\star X=I\) we have the stationary equations
 \(\overline X=XM\), with \(M\) a symmetric matrix of Lagrange
-multipliers. Thus
-\[X=\text{procrustus}(\overline X):=\overline X(\overline X'W_r\overline X)^{-\frac12}\].
-If we require both \(X'W_rX=I\) and \(X'W_re=0\) we have
-\[X=\text{procrustus}((I-\frac{ee'W_r}{e'W_re})\overline X)\]
+multipliers. Thus \[
+X=\text{procrustus}(\overline X):=\overline X(\overline X'W_\star \overline X)^{-\frac12}.
+\] If we require both \(X'W_\star X=I\) and \(X'W_\star e=0\) we have \[
+X=\text{procrustus}((I-\frac{ee'W_\star }{e'W_\star e})\overline X)
+\]
 
 \subsubsection{Rank Constraints}\label{rank-constraints}
 
@@ -671,7 +852,12 @@ d_{il}^2&=t't=\text{tr}\ X'rr'X,
 \end{subequations} with \(\tilde t:=\tilde X'r\).
 
 The loss component for the variable is \[
-\sigma_j(X)=\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}(\delta_{i\ell}-d_{ij}(X))^2
+\sigma_j(X)\leq
+C-2\ \text{tr}\ X'\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}\frac{\delta_{i\ell}}{d_{i\ell}}r_{i\ell}r_{i\ell}'\right\}\tilde X
++\text{tr}\ X'\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}r_{i\ell}r_{i\ell}'\right\}X
+\] \[
+\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}r_{i\ell}r_{i\ell}'=\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}(e_i-d_\ell^{-1}g_\ell)(e_i-d_\ell^{-1}g_\ell)'=\\
+\sum_{i=1}^nw_{i\star}e_ie_i'-2\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}e_id_\ell^{-1}g_\ell'+\sum_{\ell=1}^{k_j}w_{\star\ell}d_\ell^{-2}g_\ell g_\ell'
 \]
 
 \sectionbreak
@@ -1090,130 +1276,7 @@ Loss is 0.0003024927 after 1000 iterations.
 
 \sectionbreak
 
-\section{Appendix A: Normalized Monotone
-Regression}\label{appendix-a-normalized-monotone-regression}
-
-Suppose \(y\) is a vector with \(n\) elements. The problem we study is
-to minimize the sum of squares \(\sigma(x):=\|x-y\|^2\) over \(x\in K\)
-and \(x'Jx\) is equal to some constant \(c\). Here
-
-\begin{itemize}
-\tightlist
-\item
-  \(K\) is the cone of vectors with
-  \(\smash{x_1\leq x_2\leq\cdots\leq x_n}\),
-\item
-  \(J\) is the centering matrix \(\smash{J:=I-n^{-1}ee'}\), where
-\item
-  \(e\) is the vector with all \(n\) elements equal to one.
-\end{itemize}
-
-Change variables to \(\tilde x=Jx\). Then \(x'Jx=\tilde x'\tilde x\) and
-\(x\in K\) if and only if \(\tilde x\in K\). Also \(\tilde x = Jx\) if
-and only if \(x=\tilde x+\beta e\). So the transformed problem is to
-minimize \(\|\tilde x+\beta e-y\|^2\) over \(\beta\) and
-\(\tilde x\in K\), with \(e'\tilde x=0\) and \(\tilde x'\tilde x=n\).
-The minimizer for \(\beta\) is \(\overline{y}:=n^{-1}e'y\), and thus the
-equivalent ``reduced'' problem becomes minimizing \(\|\tilde x- Jy\|^2\)
-over \(\tilde x\in K\), \(\tilde x'\tilde x=c\), and \(e'\tilde x=0\).
-
-Forget about the constraint \(e'\tilde x=0\) for now. If \(M\) is the
-monotone regression operator it follows that the solution for
-\(\tilde x\) is \(\sqrt{c}M(Jy)/\|M(Jy)\|\), which automatically
-satisfies \(e'\tilde x=0\) (Bauschke et al.
-(\citeproc{ref-bauschke_bui_wang_18}{2018})). Thus the solution of our
-original problem is \[
-\hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|}+\overline{y}e.
-\] This can be rewritten in a perhaps more revealing way. Now
-\(M(y-\overline{y}e)=M(y)-\overline{y}e\) and
-\(e'M(y)=e'y=n\overline{y}\). Thus
-\(\|M(y-\overline y)\|^2=\|M(y)\|^2-n\overline{M(y)}^2\) so that \[
-\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|}+\overline{y}e=
-\frac{1}{\|M(y-\overline{y})\|}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|}\right\}\overline{y}e
-\]
-
-\sectionbreak
-
-\section{Appendix B: Majorized Alternating Least Squares
-(MALS)}\label{appendix-b-majorized-alternating-least-squares-mals}
-
-Consider the following problem: minimize the loss function
-\begin{equation}
-\sigma(X,Y):=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
-\end{equation} over \(X\) in a subset \(\mathcal{X}\) of
-\(\mathbb{R}^{n\times p}\) and \(Y\) in a subset \(\mathcal{Y}\) of
-\(\mathbb{R}^{m\times p}\). Here \(d(x_i,y_j)\) is the Euclidean
-distance between row \(i\) of \(X\) and row \(j\) of \(Y\). The weights
-\(w_{ij}\) and the dissimilarities \(\delta_{ij}\) are given
-non-negative numbers.
-
-Heiser and De Leeuw (\citeproc{ref-heiser_deleeuw_A_79}{1979})
-
-The algorithm we propose in this appendix alternates between decreasing
-loss by modifying \(X\) for fixed \(Y\) and decreasing loss by modifying
-\(Y\) for fixed \(X\). This is the alternating least squares (ALS)
-component of our algorithm. Majorization is applied to both the function
-of \(X\) minimized in the first ALS step and to the function of \(Y\)
-minimized in the second ALS step.
-
-We derive the update formula for \(X\), the one for \(Y\) follows by
-symmetry. First expand stress \begin{equation}
-\sigma(X,Y)=C-2\ \sum_{i=1}^n\sum_{j=1}^mw_{ij}\delta_{ij}d(x_i,y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}d_{ij}^2(x_i,y_j)
-\end{equation} Here \(C\) is used as a generic term that does not depend
-on \(X\). So \(C\) can mean different things in different formulas.
-
-Suppose \(\tilde X\) and \(\tilde Y\) are our current values of \(X\)
-and \(Y\). Then by the CS-inequality \begin{equation}
-d(x_i,\tilde y_j)\geq\frac{1}{d(\tilde x_i,\tilde y_j)}(x_i-\tilde y_j)(\tilde x_i-\tilde y_j)
-\end{equation} Define \begin{equation}
-\tilde b_{ij}:=w_{ij}\frac{\delta_{ij}}{d(x_i,y_j)}
-\end{equation} Then \begin{subequations}
-\begin{equation}
-\sigma(X,\tilde Y)\leq\eta(X,\tilde X,\tilde Y)
-\end{equation}
-with
-\begin{equation}
-\eta(X,\tilde X,\tilde Y):=
-C-2\ \sum_{i=1}^n\sum_{j=1}^m\tilde b_{ij}(x_i-\tilde y_j)'(\tilde x_i-\tilde y_j)+\sum_{i=1}^n\sum_{j=1}^mw_{ij}(x_i-\tilde y_j)'(x_i-\tilde y_j)
-\end{equation}
-\end{subequations}
-
-Now \[
-\sum_{i=1}^nx_i'\sum_{j=1}^m\tilde b_{ij}(\tilde x_i-\tilde y_j)=\text{tr}\ X'(\tilde B_r\tilde X-\tilde B\tilde Y)+C
-\] with \(\tilde B_r\) the diagonal matrix of row sums of \(\tilde B\).
-Also
-
-\[
-\sum_{i=1}^n\sum_{j=1}^mw_{ij}(x_i-\tilde y_j)'(x_i-\tilde y_j)=\text{tr}\ X'W_r X-2\ \text{tr}\ X'W\tilde Y+C
-\] with \(W_r\) the diagonal matrix of row sums of \(W\). Gathering
-terms gives \[
-\eta(X,\tilde X, \tilde Y)=\text{tr}\ (X-\overline X)'W_r(X-\overline X)+C
-\] with \[
-\overline {X}=W_r^{-1}(\tilde B_r\tilde X-(\tilde B-W)\tilde Y)
-\]
-
-By symmetry \begin{subequations}
-\begin{equation}
-\eta(Y,\tilde X, \tilde Y)=\text{tr}\ (Y-\overline Y)'W_c(Y-\overline Y)+C
-\end{equation}
-with
-\begin{equation}
-\overline {Y}=W_c^{-1}(\tilde B_c\tilde Y-(\tilde B-W)'\tilde X)
-\end{equation}
-\end{subequations} using the diagonal matrices \(W_c\) and \(B_c\) of
-column sums.
-
-The algorithm to minimize stress is thus as follows. Our current best
-values in iteration \(k\) are \(\smash{X^{(k)}}\) and
-\(\smash{Y^{(k)}}\). \[
-X^{(k+1)}=\text{proj}_r(W_r^{-1}(\tilde B_r^{(k,k)}X^{(k)}-(B^{(k,k)}-W)Y^{(k)}))
-\] \[
-Y^{(k+1)}=\text{proj}_c(W_c^{-1}(\tilde B_c^{(k+1,k)}Y^{(k)}-(B^{(k+1,k)}-W)'X^{(k+1)}))
-\]
-
-\sectionbreak
-
-\section{Appendix C: Cetacea}\label{appendix-c-cetacea}
+\section{Appendix: Cetacea}\label{appendix-cetacea}
 
 \begin{verbatim}
  [1]            Bowhead whales                  Rorquals
@@ -1279,15 +1342,9 @@ Busing, Frank M. T. A. 2010. {``Advances in Multidimensional
 Unfolding.''} PhD thesis, Leiden University.
 \url{https://scholarlypublications.universiteitleiden.nl/access/item\%3A2837800/view}.
 
-\bibitem[\citeproctext]{ref-deleeuw_C_77}
-De Leeuw, Jan. 1977a. {``Applications of Convex Analysis to
-Multidimensional Scaling.''} In \emph{Recent Developments in
-Statistics}, edited by J. R. Barra, F. Brodeau, G. Romier, and B. Van
-Cutsem. North Holland Publishing Company.
-
 \bibitem[\citeproctext]{ref-deleeuw_A_77}
-De Leeuw, Jan. 1977b. {``Correctness of Kruskal's Algorithms for
-Monotone Regression with Ties.''} \emph{Psychometrika} 42: 141--44.
+De Leeuw, Jan. 1977. {``Correctness of Kruskal's Algorithms for Monotone
+Regression with Ties.''} \emph{Psychometrika} 42: 141--44.
 
 \bibitem[\citeproctext]{ref-deleeuw_R_83}
 De Leeuw, Jan. 1983. \emph{{On Degenerate Multidimensional Unfolding
