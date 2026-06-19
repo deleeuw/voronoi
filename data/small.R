@@ -5,6 +5,8 @@ small <- matrix(c(
   "p", "q", "r", "p", "p", "p", "p", "p", "p", "p",
   "u", "v", "v", "u", "v", "v", "u", "v", "v", "v"), 10, 3)
 
+small <- as.data.frame(small)
+
 ncat_small <- c(3, 3, 2) 
 
 labs_small <- list(c("a", "b", "c"), c("p", "q", "r"), c("u", "v"))

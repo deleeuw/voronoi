@@ -30,8 +30,12 @@ voronoiHomogeneityAnalysis <- function(theData,
       wght[[j]] <- matrix(1, nobj, ncat[j])
     }
   }
-  wsum <- rowSums(sapply(wght, rowSums))
+  csum <- sapply(wght, colSums)
+  rsum <- lapply(wght, rowSums)
+  wsum <- rowSums(sapply(rsum, cbind))
+  # make mca with weights
   haux <- mca(indi, ncat, ndim)
+  # look for yrank constraints
   xini <- xold <- haux$xmat
   yini <- yold <- haux$ymat
   dold <- rep(list(0), nvar)
@@ -54,6 +58,8 @@ voronoiHomogeneityAnalysis <- function(theData,
       dnew[[j]] <- makeDmat(xnew, ynew[[j]])
       smid <- smid + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
       dhat[[j]] <- monotone(dnew[[j]], ncat[j], indi[[j]])
+      if (dnorm) {
+      }
       snew <- snew + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
       daps <- max(daps, max(abs(dold[[j]] - dnew[[j]])))
     }

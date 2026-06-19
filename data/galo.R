@@ -1,6 +1,6 @@
 data(galo, package = "homals")
 
-galo <- galo[, 1:4]
+galo <- as.data.frame(galo[, 1:4])
 
 ncat_galo <- apply(galo, 2, function(x) length(unique(x)))
 

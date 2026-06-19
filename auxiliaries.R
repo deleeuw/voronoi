@@ -32,3 +32,7 @@ makeListfromMatrix <- function(y, k) {
   }
   return(ylist)
 }
+
+ei <- function(i, n) {
+  return(ifelse(i == 1:n, 1, 0))
+}

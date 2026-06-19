@@ -1,15 +1,15 @@
 ---
 title: Voronoi Homogeneity Analysis of Categorical Data
-author: 
-    - name: Jan de Leeuw
-      orcid: 0000-0003-1420-1797
-      email: jan@deleeuwpdx.net
-      affiliation: 
-        - name: University of California Los Angeles
-          city: Los Angeles
-          state: CA
-          url: www.ucla.edu
-      license: "CC0"
+author:
+  - name: Jan de Leeuw
+    orcid: 0000-0003-1420-1797
+    email: jan@deleeuwpdx.net
+    affiliation:
+      - name: University of California Los Angeles
+        city: Los Angeles
+        state: CA
+        url: www.ucla.edu
+    license: "CC0"
 date: last-modified
 date-format: long
 bibliography: [mypubs.bib, total.bib]
@@ -17,18 +17,18 @@ number-sections: true
 pdf-engine: lualatex
 keep-tex: true
 format:
-   pdf:
+  pdf:
     fontsize: 12pt
-    include-in-header: 
-     - preamble.tex
+    include-in-header:
+      - preamble.tex
     keep-tex: true
     link-citations: true
     documentclass: scrartcl
     number-sections: true
-   html:
+  html:
     fontsize: 12pt
-    include-in-header: 
-     - preamble.css
+    include-in-header:
+      - preamble.css
     keep-md: true
     number-sections: true
 toc: true
@@ -41,7 +41,10 @@ mainfont: Times New Roman
 abstract: TBD
 ---
 
-```{r loadpackages, echo = FALSE}
+```{r}
+#| label: loadpackages
+#| echo: false
+
 suppressPackageStartupMessages(library(knitr, quietly = TRUE))
 suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
 suppressPackageStartupMessages(library(MASS, quietly = TRUE))
@@ -50,7 +53,10 @@ suppressPackageStartupMessages(library(deldir, quietly = TRUE))
 suppressPackageStartupMessages(library(dismo, quietly = TRUE))
 ```
 
-```{r sourcecode, echo = FALSE}
+```{r}
+#| label: sourcecode
+#| echo: false
+
 source("data/small.R")
 source("data/galo.R")
 source("data/cetacea.R")
@@ -65,10 +71,10 @@ source("plotVHA.R")
 \sectionbreak 
 
 **Note:** This is a working manuscript which will be expanded/updated
-frequently. All suggestions for improvement are welcome. All Rmd, tex,
-html, pdf, R, and C files are in the public domain. Attribution will be
-appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw/voronoi> 
+frequently. All suggestions for improvement are welcome. All Rmd, tex, html,
+pdf, R, and C files are in the public domain. Attribution will be appreciated,
+but is not required. The files can be found at
+<https://github.com/deleeuw/voronoi>
 
 \sectionbreak
 
@@ -76,38 +82,51 @@ appreciated, but is not required. The files can be found at
 
 ## Homogeneity Analysis
 
-*Homogeneity Analysis (HGA)*, a.k.a. *Multiple Correspondence Analysis (MCA)*, can be introduced and implemented in many different ways\footnote{Since PCA and MCA have three-letter
-acronyms I added the G of Gifi to the HA of Homogeneity Analysis.}. We refer to
-@guttman_41, @tenenhaus_young_85, @bekker_deleeuw_C_88, @gifi_B_90, @greenacre_blasius_06, @leroux_rouanet_10, @husson_josse_saporta_16, and @deleeuw_C_23 for a bouquet of
-discussions and interpretations of the equations and algorithms
-defining the HGA technique.
+*Homogeneity Analysis (HGA)*, a.k.a. *Multiple Correspondence Analysis (MCA)*,
+can be introduced and implemented in many different
+ways\footnote{Since PCA and MCA have three-letter
+acronyms I added the G of Gifi to the HA of Homogeneity Analysis.}.
+We refer to @guttman_41, @tenenhaus_young_85, @bekker_deleeuw_C_88, @gifi_B_90,
+@greenacre_blasius_06, @leroux_rouanet_10, @husson_josse_saporta_16, and
+@deleeuw_C_23 for a bouquet of discussions and interpretations of the equations
+and algorithms defining the HGA technique.
 
-A *variable* is a function that maps on a (finite or infinite) domain of *objects*
-into a (finite or infinite) codomain of *values*.
-In HGA the data are the values of $m$ variables on the same *carrier*, a 
-finite subset the domain consisting of $n$ objects. 
-Each variable $j$ has a finite number $k_j$ of *categories*.  The categories
-constitute the *range* of the variable for the $n$ objects in the carrier. Note that all
-variables have the same carrier. Each object maps into a unique category, and each category 
-contains a subset of objects from the carrier. We also say that a category has a number of objects that "belong to" the category.
+A *variable* is a function that maps on a (finite or infinite) domain of
+*objects* into a (finite or infinite) codomain of *values*. In HGA the data are
+the values of $m$ variables on the same *carrier*, a finite subset the domain
+consisting of $n$ objects. Each variable $j$ has a finite number $k_j$ of
+*categories*. The categories constitute the *range* of the variable for the $n$
+objects in the carrier. Note that all variables have the same carrier. Each
+object maps into a unique category, and each category contains a subset of
+objects from the carrier. We also say that a category has a number of objects
+that "belong to" the category.
 
 Here is a small example with $n=10$ and $m=3$, taken from @gifi_B_90, page 65.
 In the github voronoi repository these data are in data/small.R.
-```{r small, echo = FALSE}
+
+```{r}
+#| label: small
+#| echo: false
+
 print(small)
 ```
 
-The key mathematical object in HGA is the
-*indicator matrix*, a classical way to code categorical data\footnote{Since the indicator matrix is the core of the Gifi 
+The key mathematical object in HGA is the *indicator matrix*, a classical way to
+code categorical
+data\footnote{Since the indicator matrix is the core of the Gifi 
 system we avoid the irreverent alternative "dummy coding".}.
-For a variable $j$ with $k_j$ categories it is an $n\times k_j$ binary
-matrix $G_j$ in which each row $i$ contains a single element equal to one,
-indicating into which category the object $i$ maps for variable $j$.
-The cross product $D_j:=G_j'G_j$ is diagonal, with the *marginal
-frequencies* of the categories on the diagonal. For two different variables the crossproduct $C_{j\ell}=G_j'G_\ell$ is the $k_j\times k_\ell$ *cross table* or *contingency table* of the two variables. Here are the three 
-indicator matrices of our small example, next to each other.
+For a variable $j$ with $k_j$ categories it is an $n\times k_j$ binary matrix
+$G_j$ in which each row $i$ contains a single element equal to one, indicating
+into which category the object $i$ maps for variable $j$. The cross product
+$G_j'G_j$ is diagonal, with the *marginal frequencies* of the categories on the
+diagonal. For two different variables the crossproduct $G_j'G_\ell$ is the
+$k_j\times k_\ell$ *cross table* or *contingency table* of the two variables.
+Here are the three indicator matrices of our small example, next to each other.
 
-```{r indi, echo = FALSE}
+```{r}
+#| label: indi
+#| echo: false
+
 g1 <- makeIndicator(small[, 1])
 g2 <- makeIndicator(small[, 2])
 g3 <- makeIndicator(small[, 3])
@@ -119,55 +138,89 @@ colnames(gg) <- c("", "a", "b", "c", "", "p", "q", "r", "", "u", "v", "")
 print(gg)
 ```
 
-We now deviate from the usual Gifi and French approaches (@husson_josse_saporta_16) and define HGA as a form of non-metric multidimensional scaling, using the *stress* loss function (@kruskal_64a, @kruskal_64b). Define\footnote{The symbol $:=$ is used for definitions}
+We now deviate from the usual Gifi and French approaches
+(@husson_josse_saporta_16) and define HGA as a form of non-metric
+multidimensional scaling, using the *stress* loss function (@kruskal_64a,
+@kruskal_64b). Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
 \end{equation}
-with $d(x_i,y_\ell^j)$ the *Euclidean distance* between row $i$ of $X$ and row $\ell$ of $Y_j$
-and $\delta_{i\ell}^j$ the corresponding *disparity*. Disparities are required to satisfy the measurement restrictions implied by the data.
+with $w_{i\ell}^j$ given non-negative weights, $d(x_i,y_\ell^j)$ the *Euclidean
+distance* between row $i$ of $X$ and row $\ell$ of $Y_j$, and
+$\smash{\delta_{i\ell}^j}$ the corresponding *disparity*. Disparities are
+required to satisfy the measurement restrictions implied by the data. In HGA
+this means that we require that $\smash{\delta_{i\ell}^j=0}$ whenever
+$\smash{g_{i\ell}^j=1}$, or, using the elementwise product $\circledast$ of
+matries, $\Delta_j\circledast G_j=0$.
 
-HGA minimizes \eqref{eq-loss1} over all $n\times p$ configurations $X$ satisfying $X'X=I$, over all $Y_j$, and over all $\Delta_j$ that satisfy $\smash{\delta_{i\ell}^j=0}$ whenever $\smash{g_{i\ell}^j=1}$. All other elements of the $\Delta_j$ are only constrained to be non-negative. 
+HGA minimizes \eqref{eq-loss1} over the $n\times p$ configurations $X$
+satisfying $X'X=I$, over the $Y_j$, and over the $\Delta_j$ that satisfy the
+measurement restrictions.
 
 Define
 \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m).\label{eq-loss2}
 \end{equation}
-The minimizing disparity $\delta_{i\ell}^j$ is equal to zero if $g_{i\ell}^j=1$ and equal to
-$d(x_i,y_\ell^j)$ otherwise. Consequently
+The minimizing disparity $\delta_{i\ell}^j$ is equal to zero if $g_{i\ell}^j=1$
+and equal to $d(x_i,y_\ell^j)$ otherwise. Consequently
 \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}g_{i\ell}^jd^2(x_i,y_\ell^j).\label{eq-loss3}
+\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jg_{i\ell}^jd^2(x_i,y_\ell^j).\label{eq-loss3}
 \end{equation}
-We can make a graphical representation of \eqref{eq-loss3}. For variable $j$ we plot
-the $n$ points $x_i$ and the $k_j$ points $y_\ell^j$ in a joint plot (or biplot).
-We then connect, with straight lines, each category point with the object points
-that belong to it. For each category this defines a figure in the plot which we call
-a *star*. The *size* of a star is the sum of squares of the length of its
-lines. The loss function \eqref{eq-loss3} for variable $j$
-is the sum of squares of the length of all $n$ lines in this plot, or equivalently
-the sum of the sizes of the $k_j$ stars. The total loss
-is the sum of star-sizes over all $m$ plots. Thus HGA aims to place
-the object-points and category-points in space in such a way that the
-stars are as small as possible, i.e. objects are as close as possible 
-to the categories they belong to.
+Note that the value of \eqref{eq-loss3} does not depend on the $w_{i\ell}^j$ for
+which $g_{i\ell}^j=0$.
 
-Next define 
+We can make a graphical representation of \eqref{eq-loss3}. For variable $j$ we
+plot the $n$ points $x_i$ and the $k_j$ points $y_\ell^j$ in a joint plot (or
+biplot). We then connect, with straight lines, each category point with the
+object points that belong to it. For each category this defines a figure in the
+plot which we call a *star*. The *size* of a star is the weighted sum of squares
+of the length of its lines. The loss function \eqref{eq-loss3} for variable $j$
+is the weighted sum of squares of the length of all $n$ lines in this plot, or
+equivalently the sum of the sizes of the $k_j$ stars. The total loss is the sum
+of star-sizes over all $m$ plots. Thus HGA aims to place the object-points and
+category-points in space in such a way that the stars are as small as possible,
+i.e. objects are as close as possible to the categories they belong to.
+
+$$
+\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'M_j X-2\ X'\tilde G_jY_j+ Y_j'D_jY_j\}
+$$
+Here $\tilde G_j$ is the elementwise product $W_j\circledast G_j$, $D_j$ is the
+diagonal matrix of column-sums of $\tilde G_j$, and $M_j$ is the diagonal matrix
+of row-sums of $\tilde G_j$.
+
+Next define
 \begin{equation}
 \sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss4}
 \end{equation}
-The minimum of \eqref{eq-loss3} over the $Y_j$ is attained at  $\hat Y_j:=D_j^{-1}G_j'X$. Category-points are the centroids of the object-points belonging to the category. This
-makes the stars more star-like/
-If we substitute these optimal $\smash{\hat Y_j}$
-in \eqref{eq-loss3} we see that $\sigma_{\star\star}(X)$ is indeed equal to the sum of squares of all lines defining the stars. Minimizing $\sigma_{\star\star}(X)$ over $X'X=I$, and thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$, defines HGA. 
-Computing the solution turns out to be a straightforward eigenvalue-eigenvector problem. The details are in the publications we referenced at the beginning of this section.
+The minimum of \eqref{eq-loss3} over the $Y_j$ is attained at
+$\hat Y_j:=D_j^{-1}\tilde G_j'X$. Category-points are the weighted centroids of the
+object-points belonging to the category. This makes the stars actually look like
+stars. If we substitute these optimal $\smash{\hat Y_j}$ in \eqref{eq-loss3} we
+see that $\sigma_{\star\star}(X)$ is indeed equal to the weighted sum of squares of all
+lines defining the stars. Minimizing $\sigma_{\star\star}(X)$ over $X'X=I$, and
+thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$, defines HGA.
 
-A HGA in two dimensions produces of our small example the following three star plots. Objects
-are numbered and in BLUE, categories have bigger labels and are in RED. 
-Note that there are ten objects, but the sets of objects $(1,4,7)$, $(8,10)$, and $(6,9)$
-have the same *profile* and consequently get mapped into the same object-point.
-Thus there are at most six different object-points. The analysis minimizes the sum of squares of the length of all black lines in the three plots, under the condition that the matrix of object scores is column-centered and orthonormal. We can think of the results as a form
-of *graph drawing*, where the graph is the union of the $m$ bipartite graphs of all $m$ "belonging to" relations (@deleeuw_michailidis_C_00, @michailidis_deleeuw_A_01).
 
-```{r mca, echo = FALSE, fig.align = "center"}
+Computing the solution turns out to be a straightforward eigenvalue-eigenvector
+problem. The details are in the publications we referenced at the beginning of
+this section.
+
+A HGA in two dimensions produces of our small example the following three star
+plots. Objects are numbered and in BLUE, categories have bigger labels and are
+in RED. Note that there are ten objects, but the sets of objects $(1,4,7)$,
+$(8,10)$, and $(6,9)$ have the same *profile* and consequently get mapped into
+the same object-point. Thus there are at most six different object-points. The
+analysis minimizes the sum of squares of the length of all black lines in the
+three plots, under the condition that the matrix of object scores is
+column-centered and orthonormal. We can think of the results as a form of *graph
+drawing*, where the graph is the union of the $m$ bipartite graphs of all $m$
+"belonging to" relations (@deleeuw_michailidis_C_00, @michailidis_deleeuw_A_01).
+
+```{r}
+#| label: mca
+#| echo: false
+#| fig-align: "center"
+
 haux <- mca(list(g1, g2, g3), c(3, 3, 2), 2)
 y1 <- haux$ymat[[1]]
 y2 <- haux$ymat[[2]]
@@ -200,135 +253,142 @@ for (i in 1:10) {
 }
 ```
 
-
 ## Voronoi Homogeneity Analysis
 
-Although using loss function \eqref{eq-loss1} makes HGA a form of non-metric multidimensional scaling there are some important differences with the more familiar MDS versions minimizing stress. There is no local minima problem in HGA, because it turns out to be a symmetric eigenvalue problem. In HGA, unlike in MDS, we impose the constraint $X'X=I$. Also, and perhaps most importantly, in HGA we do not really expect the minimum loss function value to be zero, or even close
-to zero. The loss function measures deviations from a very unrealistic
-"model". Zero loss would imply all object-points coincide with 
-all category-points they belong to. This
-can only be realized, except in trivial cases, if all object and category-points map into a single point, which is prohibited by the orthonormality constraint on the object scores. Thus we get a perfectly determinate and stable solution, at low computational cost, but by imposing strong constraints on the disparities and a rather arbitrary normalization. We can get around this 
-seemingly unfortunate situation by admitting we are not fitting or
-testing a "model", but we are creating "best" drawings of the bipartite graphs 
-that constitute the data.
+Although using loss function \eqref{eq-loss1} makes HGA a form of non-metric
+multidimensional scaling there are some important differences with the more
+familiar MDS versions minimizing stress. There is no local minima problem in
+HGA, because it turns out to be a symmetric eigenvalue problem. In HGA, unlike
+in MDS, we impose the constraint $X'X=I$. Also, and perhaps most importantly, in
+HGA we do not really expect the minimum loss function value to be zero, or even
+close to zero. The loss function measures deviations from a very unrealistic
+"model". Zero loss would imply all object-points coincide with all
+category-points they belong to. This can only be realized, except in trivial
+cases, if all object and category-points map into a single point, which is
+prohibited by the orthonormality constraint on the object scores. Thus we get a
+perfectly determinate and stable solution, at low computational cost, but by
+imposing strong constraints on the disparities and a rather arbitrary
+normalization. We can get around this seemingly unfortunate situation by
+admitting we are not fitting or testing a "model", but we are creating "best"
+drawings of the bipartite graphs that constitute the data.
 
-The lack of a realistic model makes it interesting to continue use the more general loss function \begin{equation}
+The lack of a realistic model makes it interesting to continue use the more
+general loss function
+\begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss2}
 \end{equation}
-with the constraints that
-if $g_{i\ell}^j=1$ then merely $\delta_{i\ell}^j\leq\delta_{i\nu}^j$ for all
-$\nu=1,\cdots,k_j$. This is significantly weaker than the HGA constraints, which require the $mn$ disparities $\smash{\delta_{i\ell}^j}$ to be zero.
-If object $i$ belongs to category $\ell$ of 
-variable $j$ we do no longer require the object-point to coincide
-with the category-point, but we merely require that the object-point
-is at least as close to category-point $\ell$ as to any of the
-other $k_j-1$ category-points of that variable.
+with the constraints that if $g_{i\ell}^j=1$ then merely
+$\delta_{i\ell}^j\leq\delta_{i\nu}^j$ for all $\nu=1,\cdots,k_j$. This is
+significantly weaker than the HGA constraints, which require the $mn$
+disparities $\smash{\delta_{i\ell}^j}$ to be zero. If object $i$ belongs to
+category $\ell$ of variable $j$ we do no longer require the object-point to
+coincide with the category-point, but we merely require that the object-point is
+at least as close to category-point $\ell$ as to any of the other $k_j-1$
+category-points of that variable.
 
-*Voronoi Homogeneity Analysis* (VHA) of categorical data minimizes
-loss function \eqref{eq-loss1} over $X$, over the $Y_j$ and
-over the $\Delta_j$ satisfying the relaxed ordinal constraints. It is consequently
-another form of non-metric (ordinal) multidimensional scaling. To be 
-more precise, we have $m$ linked non-metric multidimensional unfolding
-problems for the binary matrices $G_j$, which are "linked" because they share 
-the same $X$. 
+*Voronoi Homogeneity Analysis* (VHA) of categorical data minimizes loss function
+\eqref{eq-loss1} over $X$, over the $Y_j$ and over the $\Delta_j$ satisfying the
+relaxed ordinal constraints. It is consequently another form of non-metric
+(ordinal) multidimensional scaling. To be more precise, we have $m$ linked
+non-metric multidimensional unfolding problems for the binary matrices $G_j$,
+which are "linked" because they share the same $X$.
 
-Because of the different ordinal constraints on the disparities, the plots corresponding with this analysis are different. As in HGA there is a plot for each variable $j$ with both $n$ object-points and $k_j$ category-points. The $k_j$
-category-points are the *generators* of $k_j$ *Voronoi regions* that partition the
-space. Voronoi region $\smash{\mathcal{V}^j_\ell}$ is the region of space
-where the points are at least as close to generator $\smash{y_\ell^j}$ as to any of the other generators of variable $j$. And loss \eqref{eq-loss4} is zero (for a variable) if all object-points are in the "correct"
-Voronoi region, i.e. in the Voronoi region of the generator corresponding with the category they belong to. 
+Because of the different ordinal constraints on the disparities, the plots
+corresponding with this analysis are different. As in HGA there is a plot for
+each variable $j$ with both $n$ object-points and $k_j$ category-points. The
+$k_j$ category-points are the *generators* of $k_j$ *Voronoi regions* that
+partition the space. Voronoi region $\smash{\mathcal{V}^j_\ell}$ is the region
+of space where the points are at least as close to generator $\smash{y_\ell^j}$
+as to any of the other generators of variable $j$. And loss \eqref{eq-loss4} is
+zero (for a variable) if all object-points are in the "correct" Voronoi region,
+i.e. in the Voronoi region of the generator corresponding with the category they
+belong to.
 
-One (inefficient, but conceptually easy) way of constructing
-Voronoi regions in the plane is to draw the perpendicular bisectors of 
-the (hypothetical) lines connecting all pairs of category-points of a variable. In higher dimensions $p>2$ the bisectors are planes of dimension $p-1$. The convex polyhedral regions thus formed, some bounded and some 
-unbounded, define the Voronoi regions\footnote{In the plane a Voronoi region is unbounded if and only if its generator is on the boundary of the convex hull of all generators.}.
-The literature on properties and computation of Voronoi regions 
-is large, and we refer to the textbooks of @okabe_boots_sugihara_chiu_00
-and @aurenhammer_klein_lee_13.
+One (inefficient, but conceptually easy) way of constructing Voronoi regions in
+the plane is to draw the perpendicular bisectors of the (hypothetical) lines
+connecting all pairs of category-points of a variable. In higher dimensions
+$p>2$ the bisectors are planes of dimension $p-1$. The convex polyhedral regions
+thus formed, some bounded and some unbounded, define the Voronoi
+regions\footnote{In the plane a Voronoi region is unbounded if and only if its generator is on the boundary of the convex hull of all generators.}.
+The literature on properties and computation of Voronoi regions is large, and we
+refer to the textbooks of @okabe_boots_sugihara_chiu_00 and
+@aurenhammer_klein_lee_13.
 
-Since the category-point itself is obviously in its own Voronoi
-region and since Voronoi regions are convex it follows that
-if we make stars by connecting category-points with object
-points as in HGA then we actually require
-each star to be in its Voronoi region. It is no longer 
-true that a category-point is the centroid of points of 
-the objects belonging to the category. The category-point can even be outside the 
-convex hull of the object-points belonging to the category.
+Since the category-point itself is obviously in its own Voronoi region and since
+Voronoi regions are convex it follows that if we make stars by connecting
+category-points with object points as in HGA then we actually require each star
+to be in its Voronoi region. It is no longer true that a category-point is the
+centroid of points of the objects belonging to the category. The category-point
+can even be outside the convex hull of the object-points belonging to the
+category.
 
-The constraint $X'X=I$ from HGA is no longer
-imposed directly, but we somehow have to deal with
-the fact that in VHA the minimum of loss function
-\eqref{eq-loss1} is always zero.
-The trivial solution, in which all
-points and regions collapse into a single point and all
-$\Delta_j$ are zero, is always available and not excluded by the constraints.
-But, perhaps more urgently, we have to deal
-with the types of degenerate solutions familiar from multidimensional
-unfolding (@heiser_81, @deleeuw_R_83, @busing_10). For example,
-we can collapse all category-points of a variable into a single point and 
-put all object-points on a sphere with the category-point
-at its center. Then all distances between category and
-object-points are the same and we can choose all disparities
-equal to that distance value and obtain loss zero. 
+The constraint $X'X=I$ from HGA is no longer imposed directly, but we somehow
+have to deal with the fact that in VHA the minimum of loss function
+\eqref{eq-loss1} is always zero. The trivial solution, in which all points and
+regions collapse into a single point and all $\Delta_j$ are zero, is always
+available and not excluded by the constraints. But, perhaps more urgently, we
+have to deal with the types of degenerate solutions familiar from
+multidimensional unfolding (@heiser_81, @deleeuw_R_83, @busing_10). For example,
+we can collapse all category-points of a variable into a single point and put
+all object-points on a sphere with the category-point at its center. Then all
+distances between category and object-points are the same and we can choose all
+disparities equal to that distance value and obtain loss zero.
 
-We will use some constraints that tend to counteract degeneracy. Also,
-we always start our iterations with the HGA analysis, which in most
-cases already has small loss. Then we perform iterations until
-either the distances do not change from one iteration to the next
-(up to some epsilon) or the loss becomes zero (up to some epsilon)
-or we have reached the maximum number of iterations allowed.
+We will use some constraints that tend to counteract degeneracy. Also, we always
+start our iterations with the HGA analysis, which in most cases already has
+small loss. Then we perform iterations until either the distances do not change
+from one iteration to the next (up to some epsilon) or the loss becomes zero (up
+to some epsilon) or we have reached the maximum number of iterations allowed.
 
 \sectionbreak
 
 # Algorithm
 
-We use an *Alternating Least Squares* or *ALS* algorithm, similar to the approach used in many
-other non-metric scaling methods, to minimize
-loss \eqref{eq-loss5}. For context, see @borg_groenen_05.
-We alternate minimization over $\Delta_1,\cdots,\Delta_m$
-for given $X$ and $Y_1\cdots Y_m$ with minimization over $X$ and $Y_1\cdots Y_m$ for
-given $\Delta_1,\cdots,\Delta_m$. Using superscript $(\mu)$ for the iteration index we can write for an ALS iteration
+We use an *Alternating Least Squares* or *ALS* algorithm, similar to the
+approach used in many other non-metric scaling methods, to minimize loss
+\eqref{eq-loss5}. For context, see @borg_groenen_05. We alternate minimization
+over $\Delta_1,\cdots,\Delta_m$ for given $X$ and $Y_1\cdots Y_m$ with
+minimization over $X$ and $Y_1\cdots Y_m$ for given $\Delta_1,\cdots,\Delta_m$.
+Using superscript $(\mu)$ for the iteration index we can write for an ALS
+iteration
 \begin{subequations}
 \begin{align}
 (\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)})&=\mathop{\text{argmin}}_{\Delta_1,\cdots,\Delta_m}\sigma(X^{(\mu)},Y_1^{(\mu)},\cdots,Y_m^{(\mu)},\Delta_1,\cdots,\Delta_m),\label{eq-als1}\\
 (X^{(\mu+1)},Y_1^{(\mu+1)},\cdots,Y_m^{(\mu+1)})&=\mathop{\text{argmin}}_{X,Y_1,\cdots,Y_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)}).\label{eq-als2}
 \end{align}
 \end{subequations}
-The first substep \eqref{eq-als1} of iteration $(\mu)$ solves
-a monotone regression problem for a simple partial order, in which
-one of $k_j$ elements must be smaller than the other $k_j-1$ elements.
-The second substep \eqref{eq-als2} solves a metric multidimensional scaling problem.
-This second subproblem cannot be solved completely, because it would need an 
-infinite iterative process by itself. Thus the second substep \eqref{eq-als2}
-consists of a finite number of *inner iterations* within the
-second substep of a single ALS *outer iteration*. 
+The first substep \eqref{eq-als1} of iteration $(\mu)$ solves a monotone
+regression problem for a simple partial order, in which one of $k_j$ elements
+must be smaller than the other $k_j-1$ elements. The second substep
+\eqref{eq-als2} solves a metric multidimensional scaling problem. This second
+subproblem cannot be solved completely, because it would need an infinite
+iterative process by itself. Thus the second substep \eqref{eq-als2} consists of
+a finite number of *inner iterations* within the second substep of a single ALS
+*outer iteration*.
 
 ## Initial Configuration
 
 In all our analysis we use HGA as the initial configuration for both
-object-scores and category-scores. The algorithm for HGA is the
-ALS method used in @gifi_B_90 to compute the truncated SVD. The
-repository includes mca.R
+object-scores and category-scores. The algorithm for HGA is the ALS method used
+in @gifi_B_90 to compute the truncated SVD. The repository includes mca.R
 
 ## Monotone Regression
 
-The $nm$ monotone regressions are applied for each object $i$ and
-each variable $j$. Forgetting about all these indices for the 
-moment we need to minimize the sum of squares
-$\|\delta-d\|^2$ over $\delta$, where one of the elements, 
-say $\delta_\nu$, must be smaller than or equal to all others.
+The $nm$ monotone regressions are applied for each object $i$ and each variable
+$j$. Forgetting about all these indices for the moment we need to minimize the
+sum of squares $\|\delta-d\|^2$ over $\delta$, where one of the elements, say
+$\delta_\nu$, must be smaller than or equal to all others.
 
-This can be solved by using monotone regression with the 
-primary approach to ties
-(@kruskal_64b, @deleeuw_A_77), treating all $\delta_\ell$
-with $\ell\neq\nu$ as ties.
+This can be solved by using monotone regression with the primary approach to
+ties (@kruskal_64b, @deleeuw_A_77), treating all $\delta_\ell$ with
+$\ell\neq\nu$ as ties.
 
 ## Majorization
 
 We study the off-diagonal smacof algorithm for MDS, without taking into account
-that the loss function \eqref{eq-loss1} comes from $n$ observations on $m$ categorical
-variables. This improves and generalizes the smacof treatment of the metric unfolding
-problem in @heiser_deleeuw_A_79. 
+that the loss function \eqref{eq-loss1} comes from $n$ observations on $m$
+categorical variables. This improves and generalizes the smacof treatment of the
+metric unfolding problem in @heiser_deleeuw_A_79.
 
 We rewrite stress as
 \begin{equation}
@@ -338,7 +398,9 @@ The distance is
 \begin{equation}
 d(x_i,y_k)=\sqrt{(X'e_i-Y'e_k)'(X'e_i-Y'e_k)}.
 \end{equation}
-We will construct a majorization of \eqref{eq-ploss} at $\tilde X$ and $\tilde Y$. Think of $\tilde X$ and $\tilde Y$ as the current best estimates in a sequence of iterations. By Cauchy-Schwartz,
+We will construct a majorization of \eqref{eq-ploss} at $\tilde X$ and
+$\tilde Y$. Think of $\tilde X$ and $\tilde Y$ as the current best estimates in
+a sequence of iterations. By Cauchy-Schwartz,
 \begin{equation}
 d(x_i,y_k)\geq\frac{1}{d(\tilde x_i,\tilde y_k)}(X'e_i-Y'e_k)'(\tilde X'e_i-\tilde Y'e_k).
 \end{equation}
@@ -347,9 +409,8 @@ Define the $n\times K$ matrix-valued function $B(X,Y)$ by
 b_{ik}(X,Y):=\begin{cases}w_{ik}\frac{\delta_{ik}}{d(x_i,y_k)}&\text{ if }d(x_i,y_k)>0,\\
 0&\text{ if }d(x_i,y_k)=0.\end{cases}
 \end{equation}
-Also define the diagonal
-matrices $B_{\star}(X,Y)$ with the row-sums of $B(X,Y)$ and $B^{\star}(X,Y)$
-with the column-sums. 
+Also define the diagonal matrices $B_{\star}(X,Y)$ with the row-sums of $B(X,Y)$
+and $B^{\star}(X,Y)$ with the column-sums.
 
 If we define, as we usually do in smacof,
 \begin{subequations}
@@ -371,7 +432,7 @@ C:=\sum_{i=1}^n\sum_{k=1}^Kw_{ik}\delta_{ik}^2
 \end{equation}
 \end{subequations}
 
-With these definitions 
+With these definitions
 \begin{equation}
 \sigma(X,Y)=C-2\ \rho(X,Y)+\eta^2(X,Y),
 \end{equation}
@@ -380,9 +441,10 @@ and $\sigma(X,Y)\leq\sigma(X,Y;\tilde X, \tilde Y)$, where
 \sigma(X,Y;\tilde X, \tilde Y):= C-2\ \rho(X,Y;\tilde X,\tilde Y)+\eta^2(X,Y),
 \end{equation}
 with equality if $X=\tilde X$ and $Y=\tilde Y$. In a majorization (or MM)
-iteration we minimize $\sigma(X,Y;\tilde X, \tilde Y)$ over $X$ and $Y$. If the minimum
-is attained at $\tilde X$ and $\tilde Y$ we stop the algorithm, because we have found
-a stationary point. If not we have found updates $X^+$ and $Y^+$ such that 
+iteration we minimize $\sigma(X,Y;\tilde X, \tilde Y)$ over $X$ and $Y$. If the
+minimum is attained at $\tilde X$ and $\tilde Y$ we stop the algorithm, because
+we have found a stationary point. If not we have found updates $X^+$ and $Y^+$
+such that
 \begin{equation}
 \sigma(X^+,Y^+)\leq\sigma(X^+,Y^+;\tilde X, \tilde Y)<
 \sigma(\tilde X,\tilde Y;\tilde X, \tilde Y)=\sigma(\tilde X,\tilde Y).
@@ -413,21 +475,21 @@ B_\star(\tilde X,\tilde Y)&-B(\tilde X,\tilde Y)\\
 \end{bmatrix}\label{eq-xy3}
 \end{equation}
 
-The next step in each iteration could be to directly solve the system \eqref{eq-xy3} for 
-$X$ and $Y$. This approach has the disadvantage that the order is $n+m$,
-which can be quite large in applications. We also have to take into
-account that the coefficient matrix of \eqref{eq-xy3} is singular.
-Alternatively we can substitute the expression for $X$ from \eqref{eq-xy1} in \eqref{eq-xy2}
-and then solve the resulting equation for $Y$. Or we can solve the system in
-\eqref{eq-xy1} and \eqref{eq-xy2} iteratively by ALS. Choose a $Y$, then compute $X$
-from \eqref{eq-xy1}, then use that $X$ in \eqref{eq-xy2} to find a new $Y$, 
-and so on.
+The next step in each iteration could be to directly solve the system
+\eqref{eq-xy3} for $X$ and $Y$. This approach has the disadvantage that the
+order is $n+m$, which can be quite large in applications. We also have to take
+into account that the coefficient matrix of \eqref{eq-xy3} is singular.
+Alternatively we can substitute the expression for $X$ from \eqref{eq-xy1} in
+\eqref{eq-xy2} and then solve the resulting equation for $Y$. Or we can solve
+the system in \eqref{eq-xy1} and \eqref{eq-xy2} iteratively by ALS. Choose a
+$Y$, then compute $X$ from \eqref{eq-xy1}, then use that $X$ in \eqref{eq-xy2}
+to find a new $Y$, and so on.
 
-In this paper we use an approach similar to ALS, which could be called MALS
-for Majorization by Alternating Least Squares. In the first step of a MALS
-cycle we majorize $\sigma(X,\tilde Y)$ and minimize $\sigma(X,\tilde Y;\tilde X,\tilde Y)$.
-Thus we treat the loss as a function of $X$ only, and by the earlier results in this
-section we have
+In this paper we use an approach similar to ALS, which could be called MALS for
+Majorization by Alternating Least Squares. In the first step of a MALS cycle we
+majorize $\sigma(X,\tilde Y)$ and minimize
+$\sigma(X,\tilde Y;\tilde X,\tilde Y)$. Thus we treat the loss as a function of
+$X$ only, and by the earlier results in this section we have
 \begin{subequations}
 \begin{equation}
 X^+=W_\star^{-1}(W\tilde Y+B_\star(\tilde X,\tilde Y)\tilde X-B(\tilde X,\tilde Y)\tilde Y).\label{eq-xy4}
@@ -441,10 +503,9 @@ Y^+=\{W^\star\}^{-1}(W'X^+)+B^\star(X^+,\tilde Y)\tilde Y-B'(X^+, \tilde Y)X^+)
 Then proceed to the next two-step MALS iteration, using the new $X^+$ and $Y^+$.
 
 One advantage of MALS, shared with ALS, is that the only matrix inversion needed
-is of thee diagonal weight marginals. Also there is no need to work with
-square symmetric matrices of order $n+m$. But the main advantage of MALS is
-that it can easioly incorporate various constraints on $X$ and $Y$.
-Remember that
+is of thee diagonal weight marginals. Also there is no need to work with square
+symmetric matrices of order $n+m$. But the main advantage of MALS is that it can
+easioly incorporate various constraints on $X$ and $Y$. Remember that
 \begin{equation}
 \sigma(X, \tilde Y;\tilde X,\tilde Y)=\text{tr}\ X'W_\star X-2\ \text{tr}\ X'\{W\tilde Y-\text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X+\text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y\}+C,
 \end{equation}
@@ -476,39 +537,41 @@ In this paper we (optionally) use the constraints
 \begin{equation}
 \sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=w_{i\star}^j,\label{eq-norm}
 \end{equation}
-for all $i$ and $j$, with $\smash{\overline{\delta}_{ij}}$ the weighted mean of the $\smash{\delta_{i\ell}^j}$.
-In addition, of course, the 
-$\delta_{i\ell}^j$ must satisfy the ordinal constraints. Constraint
-\eqref{eq-norm} explicitly excludes the possibility that the
-$\smash{\delta_{i\ell}^j}$ for given $i$ and $j$ are equal for all $\ell$.
+for all $i$ and $j$, with $\smash{\overline{\delta}_{ij}}$ the weighted mean of
+the $\smash{\delta_{i\ell}^j}$. In addition, of course, the $\delta_{i\ell}^j$
+must satisfy the ordinal constraints. Constraint \eqref{eq-norm} explicitly
+excludes the possibility that the $\smash{\delta_{i\ell}^j}$ for given $i$ and
+$j$ are equal for all $\ell$.
 
-Suppose $y$ is a vector with $n$ elements. The problem we study is 
-to minimize $\sigma(x):=\|x-y\|_W^2$ over
-$x\in K$ and $\|x-\overline x e\|_W^2$ is equal to some constant $c$. Here 
+Suppose $y$ is a vector with $n$ elements. The problem we study is to minimize
+$\sigma(x):=\|x-y\|_W^2$ over $x\in K$ and $\|x-\overline x e\|_W^2$ is equal to
+some constant $c$. Here
 
-* $K$ is the cone of vectors defined by a number of inequalities of the form $x_i\leq x_j$,
-* $e$ is the vector with all $n$ elements equal to one,
-* $W$ is a diagonal matrix of weights,
-* $\|x\|^2_W=x'Wx$ is the square of the $W$-norm of $x$,
-* $\overline x$ is the weighted mean $e'Wx/e'We$.
+- $K$ is the cone of vectors defined by a number of inequalities of the form
+  $x_i\leq x_j$,
+- $e$ is the vector with all $n$ elements equal to one,
+- $W$ is a diagonal matrix of weights,
+- $\|x\|^2_W=x'Wx$ is the square of the $W$-norm of $x$,
+- $\overline x$ is the weighted mean $e'Wx/e'We$.
 
-Define $J:=I-ee'W/(e'We)$ and $\tilde x=Jx$. Then $Jx=x-\overline x e$.
-Then $x'Jx=\tilde x'W\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also $\tilde x= Jx$
-if and only if $x=\tilde x+\beta e$. So the transformed problem is
-to minimize
-$\|\tilde x+\beta e-y\|_W$ over $\beta$ and $\tilde x\in K$, with
-$e'W\tilde x=0$ and $\tilde x'W\tilde x=c$. The minimizer for $\beta$ is $\overline{y}:=e'Wy/e'We$,
-and thus the equivalent "reduced" problem becomes minimizing
-$\|\tilde x- Jy\|_W^2$ over $\tilde x\in K$, $\tilde x'W\tilde x=c$, and $e'W\tilde x=0$. 
+Define $J:=I-ee'W/(e'We)$ and $\tilde x=Jx$. Then $Jx=x-\overline x e$. Then
+$x'Jx=\tilde x'W\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also
+$\tilde x= Jx$ if and only if $x=\tilde x+\beta e$. So the transformed problem
+is to minimize $\|\tilde x+\beta e-y\|_W$ over $\beta$ and $\tilde x\in K$, with
+$e'W\tilde x=0$ and $\tilde x'W\tilde x=c$. The minimizer for $\beta$ is
+$\overline{y}:=e'Wy/e'We$, and thus the equivalent "reduced" problem becomes
+minimizing $\|\tilde x- Jy\|_W^2$ over $\tilde x\in K$, $\tilde x'W\tilde x=c$,
+and $e'W\tilde x=0$.
 
-Forget about the constraint $e'W\tilde x=0$ for now. If $M$ is the monotone regression operator it follows that the solution for $\tilde x$ is $\sqrt{c}M(Jy)/\|M(Jy)\|_W$, which automatically
-satisfies $e'W\tilde x=0$ (@bauschke_bui_wang_18).
-Thus the solution of our original problem is 
+Forget about the constraint $e'W\tilde x=0$ for now. If $M$ is the monotone
+regression operator it follows that the solution for $\tilde x$ is
+$\sqrt{c}M(Jy)/\|M(Jy)\|_W$, which automatically satisfies $e'W\tilde x=0$
+(@bauschke_bui_wang_18). Thus the solution of our original problem is
 $$
 \hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|_W}+\overline{y}e.
 $$
-This can be rewritten in a perhaps more revealing way. Now $M(y-\overline{y}e)=M(y)-\overline{y}e$
-and $e'WM(y)=e'Wy=e'We\overline{y}$.
+This can be rewritten in a perhaps more revealing way. Now
+$M(y-\overline{y}e)=M(y)-\overline{y}e$ and $e'WM(y)=e'Wy=e'We\overline{y}$.
 Thus $\|M(y-\overline y)\|_W^2=\|M(y)\|_W^2-e'We\overline{M(y)}^2$ so that
 $$
 \hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|_W}+\overline{y}e=
@@ -522,26 +585,23 @@ Separation
 ### Column-Centering
 
 If we require $X'W_re=0$ then the stationary equations are
-$W_r(X-\overline X)=W_re\lambda'$ and thus
-$X=\overline X+e\lambda'$ with $\lambda'=-e'W_r\overline X/e'W_re$
-or
+$W_r(X-\overline X)=W_re\lambda'$ and thus $X=\overline X+e\lambda'$ with
+$\lambda'=-e'W_r\overline X/e'W_re$ or
 $$
 X=(I-\frac{ee'W_r}{e'W_re})\overline X
 $$
 
-This is different from updating $X$ as $J_n\tilde X$ and $Y$
-as $\tilde Y-n^{-1}ee'\tilde X$. With this alternative update, in which we
-subtract the column-means of $\tilde X$ from both $\tilde X$
-and $\tilde Y$, the distances are the same before and after
-centering. Thus the distances in all iterations, and consequently the
-loss function values, are the same with or without this 
-type of centering.
+This is different from updating $X$ as $J_n\tilde X$ and $Y$ as
+$\tilde Y-n^{-1}ee'\tilde X$. With this alternative update, in which we subtract
+the column-means of $\tilde X$ from both $\tilde X$ and $\tilde Y$, the
+distances are the same before and after centering. Thus the distances in all
+iterations, and consequently the loss function values, are the same with or
+without this type of centering.
 
 ### Orthogonality
 
-If we require $X'W_\star X=I$ we have the stationary equations
-$\overline X=XM$, with $M$ a symmetric matrix of Lagrange
-multipliers. Thus 
+If we require $X'W_\star X=I$ we have the stationary equations $\overline X=XM$,
+with $M$ a symmetric matrix of Lagrange multipliers. Thus
 $$
 X=\text{procrustus}(\overline X):=\overline X(\overline X'W_\star \overline X)^{-\frac12}.
 $$
@@ -552,36 +612,41 @@ $$
 
 ### Rank Constraints
 
-One of the main themes in @gifi_B_90 is that the $k_j\times p$ matrices of category-scores can be constrained to be of rank $r<p$. We will
-restrict ourselves in this paper to $r=1$, which defines what Gifi calls
-*single quantifications*. If all variables are restricted to have
-single quantifications then a HGA becomes equivalent
-to a PCA of the transformed variables. 
+One of the main themes in @gifi_B_90 is that the $k_j\times p$ matrices of
+category-scores can be constrained to be of rank $r<p$. We will restrict
+ourselves in this paper to $r=1$, which defines what Gifi calls *single
+quantifications*. If all variables are restricted to have single quantifications
+then a HGA becomes equivalent to a PCA of the transformed variables.
 
-In VHA the Voronoi regions of single variables
-become parallel strips. The category-points of a variable are on a line through the origin, and the Voronoi lines or planes are parallel and perpendicular to the line with the category-points.
+In VHA the Voronoi regions of single variables become parallel strips. The
+category-points of a variable are on a line through the origin, and the Voronoi
+lines or planes are parallel and perpendicular to the line with the
+category-points.
 
-$$\text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a$$
+$$
+\text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a
+$$
 
-So rank one approximation of $\tilde Y+n^{-1}ee'(X-\tilde X)$. If $X$ is 
+So rank one approximation of $\tilde Y+n^{-1}ee'(X-\tilde X)$. If $X$ is
 column-centered then of course $\tilde Y-ee'\tilde X)$.
 
-### Centroid 
+### Centroid
 
-A more complicated restriction is $Y=D^{-1}G'X$, possibly together with $X'X=I$ and $e'X=0$.
-The *centroid constraints* effectively eliminate the $Y_j$ from the optimization 
-problem. We have to adapt the majorization method to take the constraints into account.
+A more complicated restriction is $Y=D^{-1}G'X$, possibly together with $X'X=I$
+and $e'X=0$. Minimization over $X$ and the $Y_j$ is no longer separated. In
+fact, the *centroid constraints* effectively eliminate the $Y_j$ from the
+optimization problem. We have to adapt the majorization method to take these new
+constraints into account.
 
 Consider a single variable $j$ and the corresponding $n\times k_j$ distance
-matrix $D_j(X)$. We have $d_{i\ell}(X)=\|t\|$, where
-$t:=X'r$ and $r:=e_i-d_l^{-1}g_l$. Now
+matrix $D_j(X)$. We have $d_{i\ell}(X)=\|X'r_{i\ell}\|$ with
+$r_{i\ell}:=e_i-d_\ell^{-1}g_\ell$. Now
 \begin{subequations}
 \begin{align}
-d_{i\ell}&=\sqrt{t't}\geq\frac{1}{\sqrt{\tilde t'\tilde t}}\tilde t't=\frac{1}{\sqrt{\tilde t'\tilde t}}\tilde t'X'r=\text{tr}\ X'\frac{r\tilde t'}{\sqrt{\tilde t'\tilde t}},\\
-d_{il}^2&=t't=\text{tr}\ X'rr'X,
+d_{i\ell}(X)&\geq\text{tr}\ X'\left\{\frac{1}{d_{i\ell}(\tilde X)}r_{i\ell}r_{i\ell}'\right\}\tilde X,\\
+d_{il}^2(X)&=\text{tr}\ X'r_{i\ell}r_{i\ell}'X.
 \end{align}
 \end{subequations}
-with $\tilde t:=\tilde X'r$.
 
 The loss component for the variable is
 $$
@@ -589,9 +654,22 @@ $$
 C-2\ \text{tr}\ X'\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}\frac{\delta_{i\ell}}{d_{i\ell}}r_{i\ell}r_{i\ell}'\right\}\tilde X
 +\text{tr}\ X'\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}r_{i\ell}r_{i\ell}'\right\}X
 $$
+
+
 $$
-\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}r_{i\ell}r_{i\ell}'=\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}(e_i-d_\ell^{-1}g_\ell)(e_i-d_\ell^{-1}g_\ell)'=\\
-\sum_{i=1}^nw_{i\star}e_ie_i'-2\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}e_id_\ell^{-1}g_\ell'+\sum_{\ell=1}^{k_j}w_{\star\ell}d_\ell^{-2}g_\ell g_\ell'
+\{d_{i\ell}^j(X)\}^2=\text{tr}\ X'\left\{e_ie_i'-2\ \{d^j_\ell\}^{-1}g^j_\ell e_i'+\{d^j_\ell\}^{-2}g^j_\ell\{g^j_\ell\}'\right\}X
+$$
+$$
+d_{i\ell}^j(X)\geq\text{tr}\ X'\left\{\frac{e_ie_i'-2\ \{d^j_\ell\}^{-1}g^j_\ell e_i'+\{d^j_\ell\}^{-2}g^j_\ell\{g^j_\ell\}'}{d_{i\ell}^j(\tilde X)}\right\}\tilde X
+$$
+
+$$
+\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j\{d_{i\ell}^j(X)\}^2=
+\text{tr}\ X'\left\{R_W^j-2\ G_jD_j^{-1}W_j'+G_j(C_W^jD_j^{-2})G_j'\right\}X
+$$
+$$
+\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jd_{i\ell}^j(X)\geq
+\text{tr}\ X'\left\{R_B^j-2\ G_jD_j^{-1}B_j'+G_j(C_B^jD_j^{-2})G_j'\right\}\tilde X
 $$
 
 \sectionbreak
@@ -600,10 +678,13 @@ $$
 
 ## Main
 
-The main program voronoiHomogeneityAnalysis(), aliased as vha(), has the following arguments
-(with default values).
+The main program voronoiHomogeneityAnalysis(), aliased as vha(), has the
+following arguments (with default values).
 
-```{r arguments, eval = FALSE}
+```{r}
+#| label: arguments
+#| eval: false
+
 voronoiHomogeneityAnalysis <- function(theData,  # n x m matrix with categorical variables
                                        ndim = 2, # dimensionality
                                        wght = NULL,
@@ -617,23 +698,28 @@ voronoiHomogeneityAnalysis <- function(theData,  # n x m matrix with categorical
                                        verbose = TRUE)
 ```
 
-* *theData* is an $n\times m$ matrix with $n$ observations on $m$categorical variables.
-* *ndim* is the number of dimensions of the solution.
-* *wght* is either NULL or a list of $n\times k_j$ matrices. If wght is NULL all weights are one.
-* *dnorm* if TRUE the monotone regression is normalized.
-* *xcent* if TRUE object scores are W-centered.
-* *xnorm* if TRUE object scores are W-orthonormal.
-* *yrank* rank restrictions on category-scores. If the length of yrank 
-is one it is expanded to a vector of length $m$.
-* *itmax* is the maximum number of iterations.
-* *eps* is the cutoff for the change in distances from one iteration to another.
-* *aps* is the cutoff for the loss function value. If loss is smaller than *aps*
-the program stops.
-* *verbose* if TRUE iteration information is printed to stdout.
+- *theData* is an $n\times m$ matrix with $n$ observations on $m$categorical
+  variables.
+- *ndim* is the number of dimensions of the solution.
+- *wght* is either NULL or a list of $n\times k_j$ matrices. If wght is NULL all
+  weights are one.
+- *dnorm* if TRUE the monotone regression is normalized.
+- *xcent* if TRUE object scores are W-centered.
+- *xnorm* if TRUE object scores are W-orthonormal.
+- *yrank* rank restrictions on category-scores. If the length of yrank is one it
+  is expanded to a vector of length $m$.
+- *itmax* is the maximum number of iterations.
+- *eps* is the cutoff for the change in distances from one iteration to another.
+- *aps* is the cutoff for the loss function value. If loss is smaller than *aps*
+  the program stops.
+- *verbose* if TRUE iteration information is printed to stdout.
 
 The value returned by the program is a list.
 
-```{r output, eval = FALSE}
+```{r}
+#| label: output
+#| eval: false
+
   return(
     list(
       xmat = xnew,
@@ -651,102 +737,127 @@ The value returned by the program is a list.
   )
 ```
 
-* *xmat* object scores, an $n\times p$ matrix, with $p$ equal to *ndim*.
-* *ymat* category-scores, a list of *m* matrices of dimension $k_j\times p$.
-* *dmat* distances, a list of *m* matrices of dimension $n\times k_j$.
-* *dhat* disparities, a list of *m* matrices of dimension $n\times k_j$.
-* *xini* the HGA solution for the object scores,
-* *yini* the HGA solution for the category-scores,
-* *itel* number of iterations.
-* *loss* final value of stress.
-* *indi* indicators, a list of *m* matrices of dimension $n\times k_j$.
-* *ncat* number of categories of the $m$ variables.
-* *wght* weights, a list of *m* matrices of dimension $n\times k_j$.
+- *xmat* object scores, an $n\times p$ matrix, with $p$ equal to *ndim*.
+- *ymat* category-scores, a list of *m* matrices of dimension $k_j\times p$.
+- *dmat* distances, a list of *m* matrices of dimension $n\times k_j$.
+- *dhat* disparities, a list of *m* matrices of dimension $n\times k_j$.
+- *xini* the HGA solution for the object scores,
+- *yini* the HGA solution for the category-scores,
+- *itel* number of iterations.
+- *loss* final value of stress.
+- *indi* indicators, a list of *m* matrices of dimension $n\times k_j$.
+- *ncat* number of categories of the $m$ variables.
+- *wght* weights, a list of *m* matrices of dimension $n\times k_j$.
 
 ## Subroutines
 
-
-
-
 ## Plots
 
-
-
 \sectionbreak
-
 
 # Examples
 
 ## Small Example
 
-We start with the small example we used before to illustrate 
-HGA.
+We start with the small example we used before to illustrate HGA.
 
-```{r smallvha, fig.align = "center", echo = FALSE}
+```{r}
+#| label: smallvha
+#| fig-align: "center"
+#| echo: false
+
 h_small <- vha(small, itmax = 1000, eps = 1e-10, verbose = FALSE)
 par(mfrow = c(1, 3))
 plotVHA(h_small$xmat, h_small$ymat[[1]], h_small$indi[[1]], ncat_small[1], xlab = small[, 1], ylab = labs_small[[1]], pdf = FALSE)
 plotVHA(h_small$xmat, h_small$ymat[[2]], h_small$indi[[2]], h_small$ncat[2], xlab = small[, 2], ylab = labs_small[[2]], pdf = FALSE)
 plotVHA(h_small$xmat, h_small$ymat[[3]], h_small$indi[[3]], h_small$ncat[3], xlab = small[, 3], ylab = labs_small[[3]], pdf = FALSE)
 ```
-Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after `r h_small$itel` iterations. If we compare the plots from the Voronoi
-analysis with the star plots from the initial HGA for this example we see that the algorithm did not have to change much to obtain perfect fit. One thing that does change is that the iterations moves
-the category-points "p" and "r" for variable 2 very close to each other.
-At the point where we stop the iterations they are still distinguishable,
-and thus their perpendicular bisector is still a line in the Voronoi
-plot. If we would continue iterating "p" and "r" would coincide
-and there would only be two Voronoi regions: one containing category-point
-"q" and object-point 2, and one containing all other points.
-one containing all other.
+Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after
+`r h_small$itel` iterations. If we compare the plots from the Voronoi analysis
+with the star plots from the initial HGA for this example we see that the
+algorithm did not have to change much to obtain perfect fit. One thing that does
+change is that the iterations moves the category-points "p" and "r" for variable
+2 very close to each other. At the point where we stop the iterations they are
+still distinguishable, and thus their perpendicular bisector is still a line in
+the Voronoi plot. If we would continue iterating "p" and "r" would coincide and
+there would only be two Voronoi regions: one containing category-point "q" and
+object-point 2, and one containing all other points. one containing all other.
 
-```{r redo, echo = FALSE, fig.align = "center"}
+```{r}
+#| label: redo
+#| echo: false
+#| fig-align: "center"
+
 plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], 23, xlab = small[, 2], ylab = c("p r", "q"), pdf = FALSE)
 ```
+
 ## GALO
 
-Our next example use the GALO data from @peschar_75. In the github voronoi repository the
-data are in data/galo.R. Subjects are 1290 children who in 1959/1960 were in sixth grade of primary school in the city of Groningen. Variables are SEX, IQ (in nine ordered categories), ADV (sixth grade teachers advice on the form of secondary education appropriate for the student), and SES. The categories of ADV are as follows (alphabetically).
+Our next example use the GALO data from @peschar_75. In the github voronoi
+repository the data are in data/galo.R. Subjects are 1290 children who in
+1959/1960 were in sixth grade of primary school in the city of Groningen.
+Variables are SEX, IQ (in nine ordered categories), ADV (sixth grade teachers
+advice on the form of secondary education appropriate for the student), and SES.
+The categories of ADV are as follows (alphabetically).
 
-* *Agr*  Agricultural.
-* *Ext*  Extended primary (like middle school).
-* *Gen*  General (like high school).
-* *Grls* Extended primary for girls (like middle school).
-* *Man*  Vocational, including housekeeping.
-* *None* No secondary education. 
+- *Agr* Agricultural.
+- *Ext* Extended primary (like middle school).
+- *Gen* General (like high school).
+- *Grls* Extended primary for girls (like middle school).
+- *Man* Vocational, including housekeeping.
+- *None* No secondary education.
 
 The categories of SES are as follows (again alphabetically).
 
-* *LowWC* Lower white collar.
-* *MidWC* Middle white collar.
-* *Prof*  Professional. 
-* *Shop*  Shopkeepers.
-* *Skil*  Skilled manual. 
-* *Unsk*  Unskilled Manual.
+- *LowWC* Lower white collar.
+- *MidWC* Middle white collar.
+- *Prof* Professional.
+- *Shop* Shopkeepers.
+- *Skil* Skilled manual.
+- *Unsk* Unskilled Manual.
 
-We start with an HGA of the galo data. The initial value of the
-loss function is 0.3158339145. The loss function value is computed by using
+We start with an HGA of the galo data. The initial value of the loss function is
+0.3158339145. The loss function value is computed by using
 \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-losshga}
 \end{equation}
-where $X$ and the $Y_j$ are the HGA solution, and where the minimum over the $\Delta_j$ is computed by requiring that $\smash{\delta_{i\nu}^j\leq\delta_{i\ell}^j}$ if $\smash{g_{i\nu}^j=1}$. This is *not* the HGA loss function \eqref{eq-loss2},
-in which the minimum over the $\Delta_j$ is computed by requiring that $\delta_{i\ell}^j=0$
-whenever $g_{i\ell}^j=1$. Thus we evaluate the HGA solution using the VGA loss function.
+where $X$ and the $Y_j$ are the HGA solution, and where the minimum over the
+$\Delta_j$ is computed by requiring that
+$\smash{\delta_{i\nu}^j\leq\delta_{i\ell}^j}$ if $\smash{g_{i\nu}^j=1}$. This is
+*not* the HGA loss function \eqref{eq-loss2}, in which the minimum over the
+$\Delta_j$ is computed by requiring that $\delta_{i\ell}^j=0$ whenever
+$g_{i\ell}^j=1$. Thus we evaluate the HGA solution using the VGA loss function.
 
-For any HGA or VGA solution we can compute a Shepard diagram by plotting the distances and
-disparities, pooled over all objects (individuals) and variables. The weak 
-regression requirements imply that many disparities will be equal to the corresponding 
-distances. This is illustrated by the diagonal of @fig-galo_d_dhat_hga.
+For any HGA or VGA solution we can compute a Shepard diagram by plotting the
+distances and disparities, pooled over all objects (individuals) and variables.
+The weak regression requirements imply that many disparities will be equal to
+the corresponding distances. This is illustrated by the diagonal of
+@fig-galo_d_dhat_hga.
 
-```{r galovha, echo = FALSE, verbose = FALSE, cache = TRUE}
+```{r, verbose=FALSE}
+#| label: galovha
+#| echo: false
+#| cache: true
+
 hgalo <- vha(galo[, 1:4], itmax = 1000, verbose = FALSE)
 ```
 
-```{r galo_bnds_hga, echo = FALSE}
+```{r}
+#| label: galo_bnds_hga
+#| echo: false
+
 gmax <- max(c(max(hgalo$xini), sapply(hgalo$yini, max)))
 gmin <- min(c(min(hgalo$xini), sapply(hgalo$yini, min)))
 ```
 
-```{r fig-galo_d_dhat_hga, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot HGA",  main = ""}
+```{r}
+#| label: fig-galo_d_dhat_hga
+#| fig-align: "center"
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Galo D-Dhat Plot HGA"
+
 dold <- rep(list(0), 4)
 dhat <- rep(list(0), 4)
 for (j in 1:4) {
@@ -761,52 +872,85 @@ dhatmat <- makeMatrixFromList(dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
-The HGA solution can also be used to produce Voronoi plots, which are given in @fig-galo_IQ_HGA for IQ. We see the familiar horseshoe shape of the object score cloud (the Guttman effect, see
-@deleeuw_C_23). The category-scores are largely in order along the horseshoe, and
-as a consequence the Voronoi regions are unbounded and emanate from a point inside the 
-horseshoe. There are some relatively monor deviations from that pattern.  Specifically
-category 1 does not fit the pattern, but that is not too serious because there are only five individuals in that category. There are
-quite a few misclassifications, i.e. objects in the "wrong" Voronoi region. 
+The HGA solution can also be used to produce Voronoi plots, which are given in
+@fig-galo_IQ_HGA for IQ. We see the familiar horseshoe shape of the object score
+cloud (the Guttman effect, see @deleeuw_C_23). The category-scores are largely
+in order along the horseshoe, and as a consequence the Voronoi regions are
+unbounded and emanate from a point inside the horseshoe. There are some
+relatively monor deviations from that pattern. Specifically category 1 does not
+fit the pattern, but that is not too serious because there are only five
+individuals in that category. There are quite a few misclassifications, i.e.
+objects in the "wrong" Voronoi region.
 
-```{r fig-galo_IQ_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ HGA",  main = ""}
+```{r}
+#| label: fig-galo_IQ_HGA
+#| fig-align: "center"
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+#| fig-cap: "Galo IQ HGA"
+
 par(pty = "s")
 plot(voronoi(hgalo$yini[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
 text(hgalo$yini[[2]], as.character(1:9), col = "RED", cex = 1.5)
 text(hgalo$xini, as.character(galo[, 2]), col = "BLUE")
 ```
 
-```{r galo_bnds, echo = FALSE}
+```{r}
+#| label: galo_bnds
+#| echo: false
+
 gmax <- max(c(max(hgalo$xmat), sapply(hgalo$ymat, max)))
 gmin <- min(c(min(hgalo$xmat), sapply(hgalo$ymat, min)))
 ```
 
-The VHA solution has loss equal to `r formatC(hgalo$loss, digits = 10, format = "f")` after `r hgalo$itel` iterations. The voronoi function stopped because the maximum number of iterations was reached. The $d-\hat d$ plot in @fig-galo_d_dhat shows a near-perfect fit.
+The VHA solution has loss equal to
+`r formatC(hgalo$loss, digits = 10, format = "f")` after `r hgalo$itel`
+iterations. The voronoi function stopped because the maximum number of
+iterations was reached. The $d-\hat d$ plot in @fig-galo_d_dhat shows a
+near-perfect fit.
 
-```{r fig-galo_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Galo D-Dhat Plot VHA",  main = ""}
+```{r}
+#| label: fig-galo_d_dhat
+#| fig-align: "center"
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Galo D-Dhat Plot VHA"
+
 par(pty = "s")
 dmatmat <- makeMatrixFromList(hgalo$dmat)
 dhatmat <- makeMatrixFromList(hgalo$dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
+```{r}
+#| label: fig-galo_IQ
+#| fig-align: "center"
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+#| fig-cap: "Galo IQ VHA"
 
-
-```{r fig-galo_IQ, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ VHA",  main = ""}
 par(pty = "s")
 plot(voronoi(hgalo$ymat[[2]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
 text(hgalo$ymat[[2]], as.character(1:9), col = "RED", cex = 1.5)
 text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE")
 ```
 
-@fig-galo_IQ shows some characteristic properties of Voronoi plots. If the objects in 
-two categories are not well separated the object-points will be on the perpendicular
-bisector of the category pair. This is partial degeneracy due to requiring weak 
-monotonicity. The algorithm cannot impose strict monotonicity by placing an object
-in the interior of its Voronoi region, and compromises by putting it on
-the boundary. Thus the VHA plot will show object-points on lines. 
+@fig-galo_IQ shows some characteristic properties of Voronoi plots. If the
+objects in two categories are not well separated the object-points will be on
+the perpendicular bisector of the category pair. This is partial degeneracy due
+to requiring weak monotonicity. The algorithm cannot impose strict monotonicity
+by placing an object in the interior of its Voronoi region, and compromises by
+putting it on the boundary. Thus the VHA plot will show object-points on lines.
 Some category scores are very close, which makes the Voronoi diagram unstable.
 The solution for the category-scores for IQ is
-```{r galo_y2, echo = FALSE}
+
+```{r}
+#| label: galo_y2
+#| echo: false
+
 y <- hgalo$ymat[[2]]
 rownames(y) <- lab2
 y <- cbind(y, colSums(hgalo$indi[[2]]))
@@ -814,11 +958,21 @@ colnames(y) <- c("dim1", "dim2", "freq")
 print(y)
 ```
 
-We see that categories 2 and 3 map into basically the same point. The same is true for categories 4 and 5, and for categories 6 and 7. So instead of nine points there are really only six. We can clean up the Voronoi diagram by using only those six categories. Note that
-we do not recode the data and redo the analysis, we just use the same plot with the same
-object-scores and just change the diagram. The result is in @fig-galo_IQ2.
+We see that categories 2 and 3 map into basically the same point. The same is
+true for categories 4 and 5, and for categories 6 and 7. So instead of nine
+points there are really only six. We can clean up the Voronoi diagram by using
+only those six categories. Note that we do not recode the data and redo the
+analysis, we just use the same plot with the same object-scores and just change
+the diagram. The result is in @fig-galo_IQ2.
 
-```{r fig-galo_IQ2, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Galo IQ Corrected VHA",  main =""}
+```{r}
+#| label: fig-galo_IQ2
+#| fig-align: "center"
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+#| fig-cap: "Galo IQ Corrected VHA"
+
 par(pty = "s")
 ycor <- hgalo$ymat[[2]][c(1, 2, 4, 6, 8, 9), ]
 plot(voronoi(ycor, ext = 1.1 * c(gmin, gmax, gmin, gmax)))
@@ -826,35 +980,47 @@ text(ycor, c("1", "2 3", "4 5", "6 7", "8", "9"), col = "RED", cex = 1.5)
 text(hgalo$xmat, as.character(galo[, 2]), col = "BLUE", cex = .75)
 ```
 
-
 ## Cetacea
 
-The data in @vescia_85  describe 36 whales, porpoises and dolphins using 
-15 categorical variables. In the github voronoi repository the
-data are in data/cetacea.R. Appendix C gives the common names of the
-36 species and the names of the variables.
+The data in @vescia_85 describe 36 whales, porpoises and dolphins using 15
+categorical variables. In the github voronoi repository the data are in
+data/cetacea.R. Appendix C gives the common names of the 36 species and the
+names of the variables.
 
-The variables are mostly physical characteristics, but
-they also include habitat and feeding. The average number of
-categories per variable is about four, and almost all variables are
-"nominal" (i.e. not "ordinal" and not "numerical").
-In the same book @vanderburg_85 presents a secondary analysis of the data
-with HGA and @guttman_85 applies his MSA-I technique (which uses HGA as an
-initial configuration for its iterations). 
+The variables are mostly physical characteristics, but they also include habitat
+and feeding. The average number of categories per variable is about four, and
+almost all variables are "nominal" (i.e. not "ordinal" and not "numerical"). In
+the same book @vanderburg_85 presents a secondary analysis of the data with HGA
+and @guttman_85 applies his MSA-I technique (which uses HGA as an initial
+configuration for its iterations).
 
-We start with an HGA of the cetacea data. The initial value of the
-loss function ... is 0.9945577132.
+We start with an HGA of the cetacea data. The initial value of the loss function
+... is 0.9945577132.
 
-```{r cetaceavha, echo = FALSE, verbose = FALSE, cache = TRUE}
+```{r, verbose=FALSE}
+#| label: cetaceavha
+#| echo: false
+#| cache: true
+
 hcetacea <- vha(cetacea, itmax = 1000, verbose = FALSE)
 ```
 
-```{r cetacea_bnds_hga, echo = FALSE}
+```{r}
+#| label: cetacea_bnds_hga
+#| echo: false
+
 gmax <- max(c(max(hcetacea$xini), sapply(hcetacea$yini, max)))
 gmin <- min(c(min(hcetacea$xini), sapply(hcetacea$yini, min)))
 ```
 
-```{r cetacea_d_dhat_hga, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot HGA",  main = ""}
+```{r}
+#| label: cetacea_d_dhat_hga
+#| fig-align: "center"
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Cetacea D-Dhat Plot HGA"
+
 dold <- rep(list(0), 15)
 dhat <- rep(list(0), 15)
 for (j in 1:15) {
@@ -869,34 +1035,62 @@ dhatmat <- makeMatrixFromList(dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
-```{r cetacea_xmat_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Object Scores HGA",  main = ""}
+```{r}
+#| label: cetacea_xmat_HGA
+#| fig-align: "center"
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+#| fig-cap: "Cetacea Object Scores HGA"
+
 par(pty = "s")
 plot(hcetacea$xini, xlim = 1.1 * c(gmin, gmax), ylim = 1.1 * c(gmin, gmax), xlab = "dim 1", ylab = "dim 2", type = "n")
 text(hcetacea$xini, rownames(cetacea), col = "RED", cex = 1.00)
 ```
 
-```{r cetacea_flippers_HGA, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Flippers HGA",  main = ""}
+```{r}
+#| label: cetacea_flippers_HGA
+#| fig-align: "center"
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+#| fig-cap: "Cetacea Flippers HGA"
+
 par(pty = "s")
 plot(voronoi(hcetacea$yini[[6]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
 text(hcetacea$yini[[6]], cetacea_cats[[6]], col = "RED", cex = 1.5)
 text(hcetacea$xini, cetacea_cats[[6]][hcetacea$indi[[6]] %*% 1:4], col = "BLUE", cex = .75)
 ```
 
-```{r cetacea_bnds, echo = FALSE}
+```{r}
+#| label: cetacea_bnds
+#| echo: false
+
 gmax <- max(c(max(hcetacea$xmat), sapply(hcetacea$ymat, max)))
 gmin <- min(c(min(hcetacea$xmat), sapply(hcetacea$ymat, min)))
 ```
 
-Loss is `r formatC(hcetacea$loss, digits = 10, format = "f")` after `r hcetacea$itel` iterations.
+Loss is `r formatC(hcetacea$loss, digits = 10, format = "f")` after
+`r hcetacea$itel` iterations.
 
-```{r cetacea_d_dhat, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot VHA",  main = ""}
+```{r}
+#| label: cetacea_d_dhat
+#| fig-align: "center"
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Cetacea D-Dhat Plot VHA"
+
 par(pty = "s")
 dmatmat <- makeMatrixFromList(hcetacea$dmat)
 dhatmat <- makeMatrixFromList(hcetacea$dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
-```{r cetacea_y6, echo = FALSE}
+```{r}
+#| label: cetacea_y6
+#| echo: false
+
 y <- hcetacea$ymat[[6]]
 rownames(y) <- cetacea_cats[[6]]
 y <- cbind(y, colSums(hcetacea$indi[[6]]))
@@ -904,33 +1098,61 @@ colnames(y) <- c("dim1", "dim2", "freq")
 print(y)
 ```
 
-```{r cetcea_flippers, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Flippers",  main = ""}
+```{r}
+#| label: cetcea_flippers
+#| fig-align: "center"
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+#| fig-cap: "Cetacea Flippers"
+
 par(pty = "s")
 plot(voronoi(hcetacea$ymat[[6]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
 text(hcetacea$ymat[[6]], cetacea_cats[[6]], col = "RED", cex = 1.5)
 text(hcetacea$xmat, cetacea_cats[[6]][hcetacea$indi[[6]]%*%1:4], col = "BLUE", cex = .75)
 ```
 
-```{r cetaceavhacc, echo = FALSE, verbose = FALSE, cache = TRUE}
+```{r, verbose=FALSE}
+#| label: cetaceavhacc
+#| echo: false
+#| cache: true
+
 hcetaceacc <- vha(cetacea, itmax = 1000, verbose = FALSE, xcent = TRUE, xnorm = TRUE)
 ```
 
-Loss is `r formatC(hcetaceacc$loss, digits = 10, format = "f")` after `r hcetaceacc$itel` iterations.
+Loss is `r formatC(hcetaceacc$loss, digits = 10, format = "f")` after
+`r hcetaceacc$itel` iterations.
 
+```{r}
+#| label: cetacea_d_dhat_tt
+#| fig-align: "center"
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Cetacea D-Dhat Plot VHA XX"
 
-```{r cetacea_d_dhat_tt, fig.align = "center", echo = FALSE, fig.width = 10, fig.height = 10, fig.cap = "Cetacea D-Dhat Plot VHA XX",  main = ""}
 par(pty = "s")
 dmatmat <- makeMatrixFromList(hcetaceacc$dmat)
 dhatmat <- makeMatrixFromList(hcetaceacc$dhat)
 plot(dmatmat, dhatmat, col = "RED", pch = 16, xlab = "Distances", ylab = "Disparities")
 ```
 
-```{r cetacea_bnds_tt, echo = FALSE}
+```{r}
+#| label: cetacea_bnds_tt
+#| echo: false
+
 gmax <- max(c(max(hcetaceacc$xmat), sapply(hcetaceacc$ymat, max)))
 gmin <- min(c(min(hcetaceacc$xmat), sapply(hcetaceacc$ymat, min)))
 ```
 
-```{r cetcea_flippers_tt, fig.align = "center", fig.width = 10, fig.height = 10, echo = FALSE, fig.cap = "Cetacea Flippers VHA XX",  main = ""}
+```{r}
+#| label: cetcea_flippers_tt
+#| fig-align: "center"
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+#| fig-cap: "Cetacea Flippers VHA XX"
+
 par(pty = "s")
 plot(voronoi(hcetaceacc$ymat[[6]], ext = 1.1 * c(gmin, gmax, gmin, gmax)))
 text(hcetaceacc$ymat[[6]], cetacea_cats[[6]], col = "RED", cex = 1.5)
@@ -940,17 +1162,22 @@ text(hcetaceacc$xmat, cetacea_cats[[6]][hcetaceacc$indi[[6]]%*%1:4], col = "BLUE
 
 # Appendix: Cetacea
 
-```{r cetacea_rownames, echo = FALSE}
+```{r}
+#| label: cetacea_rownames
+#| echo: false
+
 r <- noquote(rownames(cetacea))
 print(r, right = TRUE)
 ```
 
-```{r cetacea_colnames, echo = FALSE}
+```{r}
+#| label: cetacea_colnames
+#| echo: false
+
 r <- noquote(colnames(cetacea))
 print(r, right = TRUE)
 ```
 
 \sectionbreak
-
 
 # References

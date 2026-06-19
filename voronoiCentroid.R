@@ -4,54 +4,73 @@ source("monotone.R")
 source("auxiliaries.R")
 
 voronoiCentroidAnalysis <- function(theData,
-                                       ndim = 2,
-                                       wght = NULL,
-                                       inmax = 5,
-                                       ips = 1e-6,
-                                       itmax = 1000,
-                                       eps = 1e-6,
-                                       aps = 1e-6,
-                                       dnorm = FALSE,
-                                       xcent = FALSE,
-                                       xnorm = FALSE,
-                                       yrank = ndim,
-                                       verbose = TRUE) {
+                                    ndim = 2,
+                                    wght = NULL,
+                                    inmax = 5,
+                                    ips = 1e-6,
+                                    itmax = 1000,
+                                    eps = 1e-6,
+                                    aps = 1e-6,
+                                    dnorm = FALSE,
+                                    xcent = FALSE,
+                                    xnorm = FALSE,
+                                    yrank = ndim,
+                                    verbose = TRUE) {
   nobj <- nrow(theData)
   nvar <- ncol(theData)
   ncat <- rep(0, nvar)
-  indi <- rep(list(0), nvar)
-  for (j in 1:nvar) {
-    indi[[j]] <- makeIndicator(theData[, j])
-    ncat[j] <- ncol(indi[[j]])
-  }
+  indi <- lapply(theData, makeIndicator)
+  marg <- lapply(indi, colSums)
+  ncat <- sapply(indi, ncol)
   if (is.null(wght)) {
-    wght <- rep(list(0), nvar)
-    for (j in 1:nvar) {
-      wght[[j]] <- matrix(1, nobj, ncat[j])
-    }
+    wght <- lapply(indi, function(x)
+      array(1, dim(x)))
   }
-  wsum <- rowSums(sapply(wght, rowSums))
+  wrsm <- lapply(wght, rowSums)
+  wcsm <- lapply(wght, colSums)
   haux <- mca(indi, ncat, ndim)
   xini <- xold <- haux$xmat
-  yini <- yold <- haux$ymat
-  dold <- rep(list(0), nvar)
+  yini <- lapply(indi, function(x)
+    crossprod(x, xini) / colSums(x))
+  yold <- yini
   dhat <- rep(list(0), nvar)
+  dold <- lapply(yold, function(x)
+    makeDmat(xold, x))
   sold <- 0.0
   for (j in 1:nvar) {
-    dold[[j]] <- makeDmat(xold, yold[[j]])
     dhat[[j]] <- monotone(dold[[j]], ncat[j], indi[[j]])
     sold <- sold + sum(wght[[j]] * (dhat[[j]] - dold[[j]])^2)
   }
+  vmat <- matrix(0, nobj, nobj)
+  for (j in 1:nvar) {
+    vmat <- vmat + diag(wrsm[[j]])
+    vmat <- vmat - indi[[j]] %*% (t(wght[[j]]) / marg[[j]])
+    vmat <- vmat - wght[[j]] %*% (t(indi[[j]]) / marg[[j]])
+    vmat <- vmat + indi[[j]] %*% (t(indi[[j]]) * (wcsm[[j]] / marg[[j]]^2))
+  }
+  vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
   itel <- 1
   repeat {
-    xnew <- makeXnew(xold, yold, dold, dhat, wght, wsum, xcent, xnorm)
-    ynew <- makeYnew(xnew, yold, dold, dhat, wght, yrank)
+    bmat <- matrix(0, nobj, nobj)
+    for (j in 1:nvar) {
+      resi <- wght[[j]] * dhat[[j]] * invMe(dold[[j]])
+      rrsm <- rowSums(resi)
+      rcsm <- colSums(resi)
+      bmat <- bmat + diag(rrsm)
+      bmat <- bmat - indi[[j]] %*% (t(resi) / marg[[j]])
+      bmat <- bmat - resi %*% (t(indi[[j]]) / marg[[j]])
+      bmat <- bmat + indi[[j]] %*% (t(indi[[j]]) * (rcsm / marg[[j]]^2))
+    }
+    xnew <- vinv %*% bmat %*% xold
+    xnew <- xnew * sqrt(nobj / sum(xnew * (vmat %*% xnew)))
+    ynew <- lapply(indi, function(x)
+     crossprod(x, xnew) / colSums(x))
     snew <- 0.0
     smid <- 0.0
     daps <- 0.0
-    dnew <- rep(list(0), nvar)
+    dnew <- lapply(ynew, function(x)
+      makeDmat(xnew, x))
     for (j in 1:nvar) {
-      dnew[[j]] <- makeDmat(xnew, ynew[[j]])
       smid <- smid + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
       dhat[[j]] <- monotone(dnew[[j]], ncat[j], indi[[j]])
       snew <- snew + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
@@ -116,6 +135,10 @@ voronoiCentroidAnalysis <- function(theData,
       wght = wght
     )
   )
+}
+
+invMe <- function(x) {
+  return(ifelse(x == 0, 0, 1 / x))
 }
 
 vca <- voronoiCentroidAnalysis
