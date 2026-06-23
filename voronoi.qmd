@@ -350,6 +350,19 @@ small loss. Then we perform iterations until either the distances do not change
 from one iteration to the next (up to some epsilon) or the loss becomes zero (up
 to some epsilon) or we have reached the maximum number of iterations allowed.
 
+## Spherical Homogeneity Analysis
+
+If $g_{i\ell}^j=1$ and $g_{k\ell}^j=0$ then $d_{i\ell}^j(X,Y)\leq d_{k\ell}^j(X,Y)$.
+
+Thus object-points belonging to a category are in a sphere centered at the
+category point, and objects not belonging to that category are outside
+the sphere. Thus spheres corresponding with different categories of the
+same variable are disjoint. This implies convex hulls are disjoint and
+object poinst are in the correct Voronoi region.
+
+
+
+
 \sectionbreak
 
 # Algorithm
@@ -1188,6 +1201,37 @@ r <- noquote(colnames(cetacea))
 print(r, right = TRUE)
 ```
 
+
 \sectionbreak
+
+# Appendix: Binary Monotone Regression
+
+Suppose $y$ and $w\geq 0$ are given vectors with $n$ elements. Suppose
+$N_1$ and $N_0$ are a partition of $N:=\{1,2,\cdots n\}$. The Binary
+Monotone Regression Problem is to find $x$ with $x_i\leq x_k$ for all 
+$i\in N_0$ and $k\in N_1$
+such that
+$$
+\sigma(x)=\frac12\sum_{i\in N} w_i(x_i-y_i)^2
+$$
+is minimized. Equivalently we want to find $\alpha$ such that
+$x_i\leq\alpha$ for $i\in N_0$ and $x_i\geq\alpha$ for
+$i\in N_1$.
+Thus loss can be rewritten as a function of the single variable $\alpha$.
+$$
+\sigma(\alpha)=\frac12\sum_{i\in N_0} w_i\min(\alpha-y_i,0)^2+\frac12\sum_{i\in N_1} w_i\max(\alpha-y_i,0)^2.
+$$
+This function is piecewise quadratic, convex, and differentiable (although not twice
+differentiable). Its derivative, which is increasing, is
+$$
+\mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
+$$
+The function binaryMonotoneRegression(), with the alias bmr(), minimizes $\sigma$ over
+$\alpha$. We sort $y$, set $\alpha$ equal to the smallest $y_i$, and compute 
+$\mathcal{D}\sigma(\alpha)$. If the derivative is zero, we are done. If it is
+negative we set $\alpha$ to the next smallest $y_i$. We continue this until we arrive
+at an $\alpha$ for which the derivative is either zero or positive. If it is
+zero we stop. If it is positive then the minimum is between this $\alpha$ and
+the previous $\alpha$, for which the derivative was still negative. Since the derivative is linear on the interval between the two values of $\alpha$ we can use linear interpolation to find the value for which it is zero.
 
 # References
