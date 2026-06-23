@@ -36,3 +36,15 @@ makeListfromMatrix <- function(y, k) {
 ei <- function(i, n) {
   return(ifelse(i == 1:n, 1, 0))
 }
+
+invMe <- function(x) {
+  return(ifelse(x == 0, 0, 1 / x))
+}
+
+matrixPower <- function(x, p) {
+  eall <- eigen(x)
+  evec <- eall$vectors
+  eval <- eall$values
+  epow <- diag(ifelse(eval == 0, 0, eval^p))
+  return(evec %*% epow %*% t(evec))
+}

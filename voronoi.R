@@ -18,17 +18,11 @@ voronoiHomogeneityAnalysis <- function(theData,
                                        verbose = TRUE) {
   nobj <- nrow(theData)
   nvar <- ncol(theData)
-  ncat <- rep(0, nvar)
-  indi <- rep(list(0), nvar)
-  for (j in 1:nvar) {
-    indi[[j]] <- makeIndicator(theData[, j])
-    ncat[j] <- ncol(indi[[j]])
-  }
+  indi <- lapply(theData, makeIndicator)
+  ncat <- sapply(indi, ncol)
   if (is.null(wght)) {
-    wght <- rep(list(0), nvar)
-    for (j in 1:nvar) {
-      wght[[j]] <- matrix(1, nobj, ncat[j])
-    }
+    wght <- lapply(indi, function(x)
+      array(1, dim(x)))
   }
   csum <- sapply(wght, colSums)
   rsum <- lapply(wght, rowSums)

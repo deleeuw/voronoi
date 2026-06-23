@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 18, 2026}
+\date{June 22, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -339,17 +339,17 @@ Here is a small example with \(n=10\) and \(m=3\), taken from Gifi
 repository these data are in data/small.R.
 
 \begin{verbatim}
-      [,1] [,2] [,3]
- [1,] "a"  "p"  "u" 
- [2,] "b"  "q"  "v" 
- [3,] "a"  "r"  "v" 
- [4,] "a"  "p"  "u" 
- [5,] "b"  "p"  "v" 
- [6,] "c"  "p"  "v" 
- [7,] "a"  "p"  "u" 
- [8,] "a"  "p"  "v" 
- [9,] "c"  "p"  "v" 
-[10,] "a"  "p"  "v" 
+   V1 V2 V3
+1   a  p  u
+2   b  q  v
+3   a  r  v
+4   a  p  u
+5   b  p  v
+6   c  p  v
+7   a  p  u
+8   a  p  v
+9   c  p  v
+10  a  p  v
 \end{verbatim}
 
 The key mathematical object in HGA is the \emph{indicator matrix}, a
@@ -391,11 +391,18 @@ Define\footnote{The symbol $:=$ is used for definitions}
 \end{equation} with \(w_{i\ell}^j\) given non-negative weights,
 \(d(x_i,y_\ell^j)\) the \emph{Euclidean distance} between row \(i\) of
 \(X\) and row \(\ell\) of \(Y_j\), and \(\smash{\delta_{i\ell}^j}\) the
-corresponding \emph{disparity}. Disparities are required to satisfy the
-measurement restrictions implied by the data. In HGA this means that we
-require that \(\smash{\delta_{i\ell}^j=0}\) whenever
-\(\smash{g_{i\ell}^j=1}\), or, using the elementwise product
-\(\circledast\) of matries, \(\Delta_j\circledast G_j=0\).
+corresponding \emph{disparity}.
+
+In classical HGA there are no weights, i.e.~all \(w_{i\ell}^j\) in
+\eqref{eq-loss1} are equal to one. We have added weights to the
+definition of HGA so that, for example, we can easily incorporate
+missing data.
+
+Disparities are required to satisfy the measurement restrictions implied
+by the data. In HGA this means that we require that
+\(\smash{\delta_{i\ell}^j=0}\) whenever \(\smash{g_{i\ell}^j=1}\), or,
+using the elementwise product \(\circledast\) of matries,
+\(\Delta_j\circledast G_j=0\).
 
 HGA minimizes \eqref{eq-loss1} over the \(n\times p\) configurations
 \(X\) satisfying \(X'X=I\), over the \(Y_j\), and over the \(\Delta_j\)
@@ -408,7 +415,9 @@ zero if \(g_{i\ell}^j=1\) and equal to \(d(x_i,y_\ell^j)\) otherwise.
 Consequently \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jg_{i\ell}^jd^2(x_i,y_\ell^j).\label{eq-loss3}
 \end{equation} Note that the value of \eqref{eq-loss3} does not depend
-on the \(w_{i\ell}^j\) for which \(g_{i\ell}^j=0\).
+on the \(w_{i\ell}^j\) for which \(g_{i\ell}^j=0\). This implies that we
+can actually forget about the subscript \(\ell\) in \(w_{i\ell}^j\) and
+simply use \(w_{i}^j\).
 
 We can make a graphical representation of \eqref{eq-loss3}. For variable
 \(j\) we plot the \(n\) points \(x_i\) and the \(k_j\) points
@@ -424,19 +433,18 @@ aims to place the object-points and category-points in space in such a
 way that the stars are as small as possible, i.e.~objects are as close
 as possible to the categories they belong to.
 
-\[
-\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'M_j X-2\ X'\tilde G_jY_j+ Y_j'D_jY_j\}
-\] Here \(\tilde G_j\) is the elementwise product
-\(W_j\circledast G_j\), \(D_j\) is the diagonal matrix of column-sums of
-\(\tilde G_j\), and \(M_j\) is the diagonal matrix of row-sums of
-\(\tilde G_j\).
+In matrix notation \begin{equation}
+\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'W_j X-2\ X'W_jG_jY_j+ Y_j'D_jY_j\}\label{eq-loss4}
+\end{equation} Here \(W_j\) is a diagonal matrix with the \(w_i^j\) and
+\(D_j\) is the diagonal matrix of column-sums of \(W_jG_j\). Note that
+in classical HGA, with \(W_j=I\) for all \(j\), we have \(D_j=G_j'G_j\).
 
 Next define \begin{equation}
-\sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss4}
-\end{equation} The minimum of \eqref{eq-loss3} over the \(Y_j\) is
-attained at \(\hat Y_j:=D_j^{-1}\tilde G_j'X\). Category-points are the
+\sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss5}
+\end{equation} The minimum of \eqref{eq-loss4} over the \(Y_j\) is
+attained at \(\hat Y_j:=D_j^{-1}G_j'W_jX\). Category-points are the
 weighted centroids of the object-points belonging to the category. This
-makes the stars actually look like stars. If we substitute these optimal
+makes stars actually look like stars. If we substitute these optimal
 \(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see that
 \(\sigma_{\star\star}(X)\) is indeed equal to the weighted sum of
 squares of all lines defining the stars. Minimizing
@@ -860,34 +868,36 @@ effectively eliminate the \(Y_j\) from the optimization problem. We have
 to adapt the majorization method to take these new constraints into
 account.
 
-Consider a single variable \(j\) and the corresponding \(n\times k_j\)
-distance matrix \(D_j(X)\). We have \(d_{i\ell}(X)=\|X'r_{i\ell}\|\)
-with \(r_{i\ell}:=e_i-d_\ell^{-1}g_\ell\). Now \begin{subequations}
-\begin{align}
-d_{i\ell}(X)&\geq\text{tr}\ X'\left\{\frac{1}{d_{i\ell}(\tilde X)}r_{i\ell}r_{i\ell}'\right\}\tilde X,\\
-d_{il}^2(X)&=\text{tr}\ X'r_{i\ell}r_{i\ell}'X.
-\end{align}
+If \(Y_j=D_j^{-1}G_j'X\) then \(d^j_{i\ll}(X,Y_j)\) only depends on
+\(X\) and we have \begin{subequations}
+\begin{equation}
+\{d_{i\ell}^j(X)\}^2=\text{tr}\ X'\left\{e_ie_i'-2\ \{d^j_\ell\}^{-1}g^j_\ell e_i'+\{d^j_\ell\}^{-2}g^j_\ell\{g^j_\ell\}'\right\}X.
+\end{equation}
+Moreover for each pair $X$ and $\tilde X$ we have, by Cauchy-=Schwartz,
+\begin{equation}
+d_{i\ell}^j(X)\geq\frac{1}{d_{i\ell}^j(\tilde X)}\text{tr}\ X'\{e_ie_i'-2\ \{d^j_\ell\}^{-1}g^j_\ell e_i'+\{d^j_\ell\}^{-2}g^j_\ell\{g^j_\ell\}'\}\tilde X
+\end{equation}
 \end{subequations}
 
-The loss component for the variable is \[
-\sigma_j(X)\leq
-C-2\ \text{tr}\ X'\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}\frac{\delta_{i\ell}}{d_{i\ell}}r_{i\ell}r_{i\ell}'\right\}\tilde X
-+\text{tr}\ X'\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}r_{i\ell}r_{i\ell}'\right\}X
-\]
-
-\[
-\{d_{i\ell}^j(X)\}^2=\text{tr}\ X'\left\{e_ie_i'-2\ \{d^j_\ell\}^{-1}g^j_\ell e_i'+\{d^j_\ell\}^{-2}g^j_\ell\{g^j_\ell\}'\right\}X
-\] \[
-d_{i\ell}^j(X)\geq\text{tr}\ X'\left\{\frac{e_ie_i'-2\ \{d^j_\ell\}^{-1}g^j_\ell e_i'+\{d^j_\ell\}^{-2}g^j_\ell\{g^j_\ell\}'}{d_{i\ell}^j(\tilde X)}\right\}\tilde X
-\]
-
-\[
+Suppose \(R_W^j\) and \(C_W^j\) are diagonal matrices with row-sums and
+column=sums of \(W_j\). Then \begin{subequations}
+\begin{equation}
 \sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j\{d_{i\ell}^j(X)\}^2=
-\text{tr}\ X'\left\{R_W^j-2\ G_jD_j^{-1}W_j'+G_j(C_W^jD_j^{-2})G_j'\right\}X
-\] \[
+\text{tr}\ X'\left\{R_W^j-G_jD_j^{-1}W_j'-W_jD_j^{-1}G_j'+G_j(C_W^jD_j^{-2})G_j'\right\}X,
+\end{equation}
+and
+\begin{equation}
 \sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jd_{i\ell}^j(X)\geq
-\text{tr}\ X'\left\{R_B^j-2\ G_jD_j^{-1}B_j'+G_j(C_B^jD_j^{-2})G_j'\right\}\tilde X
-\]
+\text{tr}\ X'\left\{R_{\tilde B}^j-G_jD_j^{-1}\tilde B_j'-\tilde B_j'D_j^{-1}G_j'+G_j(C_{\tilde B}^jD_j^{-2})G_j'\right\}\tilde X.\label{eq-ozob}
+\end{equation}
+\end{subequations} In \eqref{eq-ozob} the matrix \(\tilde B_j\) is
+defined as \begin{equation}
+\tilde b_{i\ell}^j:=\begin{cases}
+w_{i\ell}^j\frac{\delta_{i\ell}^j}{d_{i\ell}^j(\tilde X)}&\text{ if }d_{i\ell}^j(\tilde X)>0,\\
+0&\text{ if }d_{i\ell}^j(\tilde X)=0,
+\end{cases}
+\end{equation} and \(R_{\tilde B}^j\) and \(C_{\tilde B}^j\) are the
+diagonal matrices of its row-sums and column-sums.
 
 \sectionbreak
 

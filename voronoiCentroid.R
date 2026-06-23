@@ -13,12 +13,11 @@ voronoiCentroidAnalysis <- function(theData,
                                     aps = 1e-6,
                                     dnorm = FALSE,
                                     xcent = FALSE,
-                                    xnorm = FALSE,
+                                    xnorm = 1,
                                     yrank = ndim,
                                     verbose = TRUE) {
   nobj <- nrow(theData)
   nvar <- ncol(theData)
-  ncat <- rep(0, nvar)
   indi <- lapply(theData, makeIndicator)
   marg <- lapply(indi, colSums)
   ncat <- sapply(indi, ncol)
@@ -28,6 +27,14 @@ voronoiCentroidAnalysis <- function(theData,
   }
   wrsm <- lapply(wght, rowSums)
   wcsm <- lapply(wght, colSums)
+  vmat <- matrix(0, nobj, nobj)
+  for (j in 1:nvar) {
+    vmat <- vmat + diag(wrsm[[j]])
+    vmat <- vmat - indi[[j]] %*% (t(wght[[j]]) / marg[[j]])
+    vmat <- vmat - wght[[j]] %*% (t(indi[[j]]) / marg[[j]])
+    vmat <- vmat + indi[[j]] %*% (t(indi[[j]]) * (wcsm[[j]] / marg[[j]]^2))
+  }
+  vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
   haux <- mca(indi, ncat, ndim)
   xini <- xold <- haux$xmat
   yini <- lapply(indi, function(x)
@@ -41,14 +48,6 @@ voronoiCentroidAnalysis <- function(theData,
     dhat[[j]] <- monotone(dold[[j]], ncat[j], indi[[j]])
     sold <- sold + sum(wght[[j]] * (dhat[[j]] - dold[[j]])^2)
   }
-  vmat <- matrix(0, nobj, nobj)
-  for (j in 1:nvar) {
-    vmat <- vmat + diag(wrsm[[j]])
-    vmat <- vmat - indi[[j]] %*% (t(wght[[j]]) / marg[[j]])
-    vmat <- vmat - wght[[j]] %*% (t(indi[[j]]) / marg[[j]])
-    vmat <- vmat + indi[[j]] %*% (t(indi[[j]]) * (wcsm[[j]] / marg[[j]]^2))
-  }
-  vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
   itel <- 1
   repeat {
     bmat <- matrix(0, nobj, nobj)
@@ -62,7 +61,10 @@ voronoiCentroidAnalysis <- function(theData,
       bmat <- bmat + indi[[j]] %*% (t(indi[[j]]) * (rcsm / marg[[j]]^2))
     }
     xnew <- vinv %*% bmat %*% xold
-    xnew <- xnew * sqrt(nobj / sum(xnew * (vmat %*% xnew)))
+    xnew <- switch(xnorm, 
+                   xnew,
+                   xnew %*% matrixPower(crossprod(xnew, vmat %*% xnew), -0.5),
+                   xnew / sqrt(sum(xnew * (vmat %*% xnew))))
     ynew <- lapply(indi, function(x)
      crossprod(x, xnew) / colSums(x))
     snew <- 0.0
@@ -135,10 +137,6 @@ voronoiCentroidAnalysis <- function(theData,
       wght = wght
     )
   )
-}
-
-invMe <- function(x) {
-  return(ifelse(x == 0, 0, 1 / x))
 }
 
 vca <- voronoiCentroidAnalysis
