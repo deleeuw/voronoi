@@ -1,3 +1,4 @@
+
 mca <- function(indi,
                 ncat,
                 ndim,

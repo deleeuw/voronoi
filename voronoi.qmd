@@ -147,19 +147,16 @@ multidimensional scaling, using the *stress* loss function (@kruskal_64a,
 \end{equation}
 with $w_{i\ell}^j$ given non-negative weights, $d(x_i,y_\ell^j)$ the *Euclidean
 distance* between row $i$ of $X$ and row $\ell$ of $Y_j$, and
-$\smash{\delta_{i\ell}^j}$ the corresponding *disparity*. 
+$\smash{\delta_{i\ell}^j}$ the corresponding *disparity*.
 
-In classical
-HGA there are no weights, i.e. all $w_{i\ell}^j$ in \eqref{eq-loss1}
-are equal to one. We have added
-weights to the definition of HGA so that, for example, we can easily incorporate
-missing data.
+In classical HGA there are no weights, i.e. all $w_{i\ell}^j$ in
+\eqref{eq-loss1} are equal to one. We have added weights to the definition of
+HGA so that, for example, we can easily incorporate missing data.
 
-Disparities are
-required to satisfy the measurement restrictions implied by the data. In HGA
-this means that we require that $\smash{\delta_{i\ell}^j=0}$ whenever
-$\smash{g_{i\ell}^j=1}$, or, using the elementwise product $\circledast$ of
-matries, $\Delta_j\circledast G_j=0$.
+Disparities are required to satisfy the measurement restrictions implied by the
+data. In HGA this means that we require that $\smash{\delta_{i\ell}^j=0}$
+whenever $\smash{g_{i\ell}^j=1}$, or, using the elementwise product
+$\circledast$ of matries, $\Delta_j\circledast G_j=0$.
 
 HGA minimizes \eqref{eq-loss1} over the $n\times p$ configurations $X$
 satisfying $X'X=I$, over the $Y_j$, and over the $\Delta_j$ that satisfy the
@@ -175,7 +172,7 @@ and equal to $d(x_i,y_\ell^j)$ otherwise. Consequently
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jg_{i\ell}^jd^2(x_i,y_\ell^j).\label{eq-loss3}
 \end{equation}
 Note that the value of \eqref{eq-loss3} does not depend on the $w_{i\ell}^j$ for
-which $g_{i\ell}^j=0$. This implies that we can actually forget about the 
+which $g_{i\ell}^j=0$. This implies that we can actually forget about the
 subscript $\ell$ in $w_{i\ell}^j$ and simply use $w_{i}^j$.
 
 We can make a graphical representation of \eqref{eq-loss3}. For variable $j$ we
@@ -194,9 +191,9 @@ In matrix notation
 \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'W_j X-2\ X'W_jG_jY_j+ Y_j'D_jY_j\}\label{eq-loss4}
 \end{equation}
-Here $W_j$ is a diagonal matrix with the $w_i^j$ and $D_j$ is the
-diagonal matrix of column-sums of $W_jG_j$. Note that in classical HGA, with
-$W_j=I$ for all $j$, we have $D_j=G_j'G_j$.
+Here $W_j$ is a diagonal matrix with the $w_i^j$ and $D_j$ is the diagonal
+matrix of column-sums of $W_jG_j$. Note that in classical HGA, with $W_j=I$ for
+all $j$, we have $D_j=G_j'G_j$.
 
 Next define
 \begin{equation}
@@ -206,10 +203,10 @@ The minimum of \eqref{eq-loss4} over the $Y_j$ is attained at
 $\hat Y_j:=D_j^{-1}G_j'W_jX$. Category-points are the weighted centroids of the
 object-points belonging to the category. This makes stars actually look like
 stars. If we substitute these optimal $\smash{\hat Y_j}$ in \eqref{eq-loss3} we
-see that $\sigma_{\star\star}(X)$ is indeed equal to the weighted sum of squares of all
-lines defining the stars. Minimizing $\sigma_{\star\star}(X)$ over $X'X=I$, and
-thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$, defines HGA.
-
+see that $\sigma_{\star\star}(X)$ is indeed equal to the weighted sum of squares
+of all lines defining the stars. Minimizing $\sigma_{\star\star}(X)$ over
+$X'X=I$, and thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$, defines
+HGA.
 
 Computing the solution turns out to be a straightforward eigenvalue-eigenvector
 problem. The details are in the publications we referenced at the beginning of
@@ -352,16 +349,14 @@ to some epsilon) or we have reached the maximum number of iterations allowed.
 
 ## Spherical Homogeneity Analysis
 
-If $g_{i\ell}^j=1$ and $g_{k\ell}^j=0$ then $d_{i\ell}^j(X,Y)\leq d_{k\ell}^j(X,Y)$.
+If $g_{i\ell}^j=1$ and $g_{k\ell}^j=0$ then
+$d_{i\ell}^j(X,Y)\leq d_{k\ell}^j(X,Y)$.
 
 Thus object-points belonging to a category are in a sphere centered at the
-category point, and objects not belonging to that category are outside
-the sphere. Thus spheres corresponding with different categories of the
-same variable are disjoint. This implies convex hulls are disjoint and
-object poinst are in the correct Voronoi region.
-
-
-
+category point, and objects not belonging to that category are outside the
+sphere. Thus spheres corresponding with different categories of the same
+variable are disjoint. This implies convex hulls are disjoint and object poinst
+are in the correct Voronoi region.
 
 \sectionbreak
 
@@ -591,14 +586,14 @@ regression operator it follows that the solution for $\tilde x$ is
 $\sqrt{c}M(Jy)/\|M(Jy)\|_W$, which automatically satisfies $e'W\tilde x=0$
 (@bauschke_bui_wang_18). Thus the solution of our original problem is
 $$
-\hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|_W}+\overline{y}e.
+  \hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|_W}+\overline{y}e.
 $$
 This can be rewritten in a perhaps more revealing way. Now
 $M(y-\overline{y}e)=M(y)-\overline{y}e$ and $e'WM(y)=e'Wy=e'We\overline{y}$.
 Thus $\|M(y-\overline y)\|_W^2=\|M(y)\|_W^2-e'We\overline{M(y)}^2$ so that
 $$
-\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|_W}+\overline{y}e=
-\frac{1}{\|M(y-\overline{y})\|_W}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|_W}\right\}\overline{y}e
+  \hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|_W}+\overline{y}e=
+  \frac{1}{\|M(y-\overline{y})\|_W}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|_W}\right\}\overline{y}e
 $$
 
 ## Configuration Constraints
@@ -611,7 +606,7 @@ If we require $X'W_re=0$ then the stationary equations are
 $W_r(X-\overline X)=W_re\lambda'$ and thus $X=\overline X+e\lambda'$ with
 $\lambda'=-e'W_r\overline X/e'W_re$ or
 $$
-X=(I-\frac{ee'W_r}{e'W_re})\overline X
+  X=(I-\frac{ee'W_r}{e'W_re})\overline X
 $$
 
 This is different from updating $X$ as $J_n\tilde X$ and $Y$ as
@@ -626,11 +621,11 @@ without this type of centering.
 If we require $X'W_\star X=I$ we have the stationary equations $\overline X=XM$,
 with $M$ a symmetric matrix of Lagrange multipliers. Thus
 $$
-X=\text{procrustus}(\overline X):=\overline X(\overline X'W_\star \overline X)^{-\frac12}.
+  X=\text{procrustus}(\overline X):=\overline X(\overline X'W_\star \overline X)^{-\frac12}.
 $$
 If we require both $X'W_\star X=I$ and $X'W_\star e=0$ we have
 $$
-X=\text{procrustus}((I-\frac{ee'W_\star }{e'W_\star e})\overline X)
+  X=\text{procrustus}((I-\frac{ee'W_\star }{e'W_\star e})\overline X)
 $$
 
 ### Rank Constraints
@@ -647,7 +642,7 @@ lines or planes are parallel and perpendicular to the line with the
 category-points.
 
 $$
-\text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a
+  \text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a
 $$
 
 So rank one approximation of $\tilde Y+n^{-1}ee'(X-\tilde X)$. If $X$ is
@@ -692,8 +687,8 @@ w_{i\ell}^j\frac{\delta_{i\ell}^j}{d_{i\ell}^j(\tilde X)}&\text{ if }d_{i\ell}^j
 0&\text{ if }d_{i\ell}^j(\tilde X)=0,
 \end{cases}
 \end{equation}
-and $R_{\tilde B}^j$ and $C_{\tilde B}^j$ are the diagonal matrices of its row-sums
-and column-sums.
+and $R_{\tilde B}^j$ and $C_{\tilde B}^j$ are the diagonal matrices of its
+row-sums and column-sums.
 
 \sectionbreak
 
@@ -885,7 +880,7 @@ dold <- rep(list(0), 4)
 dhat <- rep(list(0), 4)
 for (j in 1:4) {
     dold[[j]] <- makeDmat(hgalo$xini, hgalo$yini[[j]])
-    dhat[[j]] <- monotone(dold[[j]], hgalo$ncat[j], hgalo$indi[[j]])
+    dhat[[j]] <- monotoneRow(dold[[j]], wght[[j]], hgalo$indi[[j]])
   }
 dmatmat <- makeMatrixFromList(dold)
 dhatmat <- makeMatrixFromList(dhat)
@@ -1201,37 +1196,37 @@ r <- noquote(colnames(cetacea))
 print(r, right = TRUE)
 ```
 
-
 \sectionbreak
 
 # Appendix: Binary Monotone Regression
 
-Suppose $y$ and $w\geq 0$ are given vectors with $n$ elements. Suppose
-$N_1$ and $N_0$ are a partition of $N:=\{1,2,\cdots n\}$. The Binary
-Monotone Regression Problem is to find $x$ with $x_i\leq x_k$ for all 
-$i\in N_0$ and $k\in N_1$
-such that
+Suppose $y$ and $w\geq 0$ are given vectors with $n$ elements. Suppose $N_1$ and
+$N_0$ are a partition of $N:=\{1,2,\cdots n\}$. The Binary Monotone Regression
+Problem is to find $x$ with $x_i\leq x_k$ for all $i\in N_0$ and $k\in N_1$ such
+that
 $$
-\sigma(x)=\frac12\sum_{i\in N} w_i(x_i-y_i)^2
+  \sigma(x)=\frac12\sum_{i\in N} w_i(x_i-y_i)^2
 $$
-is minimized. Equivalently we want to find $\alpha$ such that
-$x_i\leq\alpha$ for $i\in N_0$ and $x_i\geq\alpha$ for
-$i\in N_1$.
-Thus loss can be rewritten as a function of the single variable $\alpha$.
+is minimized. Equivalently we want to find $\alpha$ such that $x_i\leq\alpha$
+for $i\in N_0$ and $x_i\geq\alpha$ for $i\in N_1$. Thus loss can be rewritten as
+a function of the single variable $\alpha$.
 $$
-\sigma(\alpha)=\frac12\sum_{i\in N_0} w_i\min(\alpha-y_i,0)^2+\frac12\sum_{i\in N_1} w_i\max(\alpha-y_i,0)^2.
+  \sigma(\alpha)=\frac12\sum_{i\in N_0} w_i\min(\alpha-y_i,0)^2+\frac12\sum_{i\in N_1} w_i\max(\alpha-y_i,0)^2.
 $$
-This function is piecewise quadratic, convex, and differentiable (although not twice
-differentiable). Its derivative, which is increasing, is
+This function is piecewise quadratic, convex, and differentiable (although not
+twice differentiable). Its derivative, which is increasing, is
 $$
-\mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
+  \mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
 $$
-The function binaryMonotoneRegression(), with the alias bmr(), minimizes $\sigma$ over
-$\alpha$. We sort $y$, set $\alpha$ equal to the smallest $y_i$, and compute 
-$\mathcal{D}\sigma(\alpha)$. If the derivative is zero, we are done. If it is
-negative we set $\alpha$ to the next smallest $y_i$. We continue this until we arrive
-at an $\alpha$ for which the derivative is either zero or positive. If it is
-zero we stop. If it is positive then the minimum is between this $\alpha$ and
-the previous $\alpha$, for which the derivative was still negative. Since the derivative is linear on the interval between the two values of $\alpha$ we can use linear interpolation to find the value for which it is zero.
+The function binaryMonotoneRegression(), with the alias bmr(), minimizes
+$\sigma$ over $\alpha$. We sort $y$, set $\alpha$ equal to the smallest $y_i$,
+and compute $\mathcal{D}\sigma(\alpha)$. If the derivative is zero, we are done.
+If it is negative we set $\alpha$ to the next smallest $y_i$. We continue this
+until we arrive at an $\alpha$ for which the derivative is either zero or
+positive. If it is zero we stop. If it is positive then the minimum is between
+this $\alpha$ and the previous $\alpha$, for which the derivative was still
+negative. Since the derivative is linear on the interval between the two values
+of $\alpha$ we can use linear interpolation to find the value for which it is
+zero.
 
 # References
