@@ -1,6 +1,6 @@
 source("mca.R")
 source("mals.R")
-source("monotone.R")
+source("bmr.R")
 source("auxiliaries.R")
 
 voronoiCentroidAnalysis <- function(theData,
@@ -45,7 +45,7 @@ voronoiCentroidAnalysis <- function(theData,
     makeDmat(xold, x))
   sold <- 0.0
   for (j in 1:nvar) {
-    dhat[[j]] <- monotone(dold[[j]], ncat[j], indi[[j]])
+    dhat[[j]] <- monotoneRow(dold[[j]], wght[[j]], indi[[j]])
     sold <- sold + sum(wght[[j]] * (dhat[[j]] - dold[[j]])^2)
   }
   itel <- 1
@@ -74,7 +74,7 @@ voronoiCentroidAnalysis <- function(theData,
       makeDmat(xnew, x))
     for (j in 1:nvar) {
       smid <- smid + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
-      dhat[[j]] <- monotone(dnew[[j]], ncat[j], indi[[j]])
+      dhat[[j]] <- monotoneRow(dnew[[j]], wght[[j]], indi[[j]])
       snew <- snew + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
       daps <- max(daps, max(abs(dold[[j]] - dnew[[j]])))
     }
@@ -130,6 +130,7 @@ voronoiCentroidAnalysis <- function(theData,
       dhat = dhat,
       xini = xini,
       yini = yini,
+      vmat = vmat,
       itel = itel,
       loss = snew,
       indi = indi,

@@ -3,7 +3,7 @@ source("mals.R")
 source("monotone.R")
 source("auxiliaries.R")
 
-voronoiHomogeneityAnalysis <- function(theData,
+voronoiSphericalAnalysis <- function(theData,
                                        ndim = 2,
                                        wght = NULL,
                                        inmax = 5,
@@ -37,7 +37,7 @@ voronoiHomogeneityAnalysis <- function(theData,
   sold <- 0.0
   for (j in 1:nvar) {
     dold[[j]] <- makeDmat(xold, yold[[j]])
-    dhat[[j]] <- monotoneRow(dold[[j]], wght[[j]], indi[[j]])
+    dhat[[j]] <- monotoneColumn(dold[[j]], wght[[j]], indi[[j]])
     sold <- sold + sum(wght[[j]] * (dhat[[j]] - dold[[j]])^2)
   }
   itel <- 1
@@ -51,7 +51,7 @@ voronoiHomogeneityAnalysis <- function(theData,
     for (j in 1:nvar) {
       dnew[[j]] <- makeDmat(xnew, ynew[[j]])
       smid <- smid + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
-      dhat[[j]] <- monotoneRow(dnew[[j]], wght[[j]], indi[[j]])
+      dhat[[j]] <- monotoneColumn(dnew[[j]], wght[[j]], indi[[j]])
       if (dnorm) {
       }
       snew <- snew + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
@@ -118,4 +118,4 @@ voronoiHomogeneityAnalysis <- function(theData,
   )
 }
 
-vha <- voronoiHomogeneityAnalysis
+vsa <- voronoiSphericalAnalysis

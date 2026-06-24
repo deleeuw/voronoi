@@ -1,43 +1,59 @@
-monotone <- function(dold, ncat, indi) {
+
+monotoneRow <- function(dold, wght, indi) {
   nobj <- nrow(dold)
+  ncat <- ncol(indi)
   dhat <- matrix(0, nobj, ncat)
   for (i in 1:nobj) {
-    targ <- dold[i, ]
-    kind <- which.max(indi[i, ])
-    if (which.min(targ) == kind) {
-      ehat <- targ
-    } else {
-      ehat <- paraplu(targ, kind)
-    }
-    dhat[i, ] <- ehat
+    dhat[i, ] <- bmr(dold[i, ], wght[i, ], 1 - indi[i, ])
   }
   return(dhat)
 }
 
-paraplu <- function(x, k) {
-  n <- length(x)
-  tx <- rep(0, n)
-  xk <- x[k]
-  if (xk == min(x)) {
-    return(x)
+monotoneColumn <- function(dold, wght, indi) {
+  nobj <- nrow(dold)
+  ncat <- ncol(indi)
+  dhat <- matrix(0, nobj, ncat)
+  for (l in 1:ncat) {
+    dhat[, l] <- bmr(dold[, l], wght[, l], 1 - indi[, l])
   }
-  x[k] <- -1
-  h <- sort(x, index.return = TRUE)
-  sx <- h$x
-  sx[1] <- xk
-  ix <- h$ix
-  for (i in 2:n) {
-    r <- mean(sx[1:i])
-    if (i == n) {
-      return(rep(r, n))
+  return(dhat)
+}
+
+
+binaryMonotoneRegression <- function(y, w, g, verbose = FALSE) {
+  nn <- length(y)
+  x <- rep(0, nn)
+  n0 <- which(g == 0)
+  n1 <- which(g == 1)
+  sy <- sort(y)
+  gold <- -Inf
+  for (k in 1:nn) {
+    anew <- sy[k]
+    x0 <- pmin(anew - y[n0], 0)
+    x1 <- pmax(anew - y[n1], 0)
+    gnew <- sum(w[n0] * x0) + sum(w[n1] * x1)
+    fnew <- sum(w[n0] * x0^2) + sum(w[n1] * x1^2)
+    if (verbose) {
+      cat("alph =", formatC(anew, digits = 6, width = 10, format = "f"),
+          "loss =", formatC(fnew, digits = 6, width = 10, format = "f"),
+          "grad =", formatC(gnew, digits = 6, width = 10, format = "f"),
+          "\n")
     }
-    if (r < sx[i + 1]) {
-      tx <- c(rep(r, i), sx[(i + 1):n])
+    if (gnew >= 0) {
       break
     }
+    gold <- gnew
+    aold <- anew
   }
-  for (i in 1:n) {
-    sx[ix[i]] <- tx[i]
+  if (gnew == 0) {
+    ao <- anew
+  } else {
+    as <- (gnew - gold) / (anew - aold)
+    ao <- anew - gnew / as
   }
-  return(sx)
+  x[n0] <- pmin(y[n0], ao)
+  x[n1] <- pmax(y[n1], ao)
+  return(x)
 }
+
+bmr <- binaryMonotoneRegression
