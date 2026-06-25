@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 23, 2026}
+\date{June 25, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -387,75 +387,71 @@ function (Kruskal (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
 (\citeproc{ref-kruskal_64b}{1964b})).
 Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
-\end{equation} with \(w_{i\ell}^j\) given non-negative weights,
+\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^nw_{ij}\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
+\end{equation} with \(w_{ij}\) given non-negative weights,
 \(d(x_i,y_\ell^j)\) the \emph{Euclidean distance} between row \(i\) of
 \(X\) and row \(\ell\) of \(Y_j\), and \(\smash{\delta_{i\ell}^j}\) the
-corresponding \emph{disparity}.
+corresponding \emph{disparity}. In classical HGA there are no weights,
+i.e.~all \(w_{ij}\) in \eqref{eq-loss1} are equal to one. We have added
+weights to the definition of HGA so that, for example, we can easily
+incorporate missing data. Disparities are required to satisfy the
+measurement restrictions implied by the data. In HGA this means that we
+require that \(\smash{\delta_{i\ell}^j=0}\) whenever
+\(\smash{g_{i\ell}^j=1}\), or, using the elementwise product
+\(\circledast\) of matries, \(\Delta_j\circledast G_j=0\).
 
-In classical HGA there are no weights, i.e.~all \(w_{i\ell}^j\) in
-\eqref{eq-loss1} are equal to one. We have added weights to the
-definition of HGA so that, for example, we can easily incorporate
-missing data.
-
-Disparities are required to satisfy the measurement restrictions implied
-by the data. In HGA this means that we require that
-\(\smash{\delta_{i\ell}^j=0}\) whenever \(\smash{g_{i\ell}^j=1}\), or,
-using the elementwise product \(\circledast\) of matries,
-\(\Delta_j\circledast G_j=0\).
-
-HGA minimizes \eqref{eq-loss1} over the \(n\times p\) configurations
-\(X\) satisfying \(X'X=I\), over the \(Y_j\), and over the \(\Delta_j\)
-that satisfy the measurement restrictions.
+Define \(W_j\) as the diagonal matrix of weights for variable \(j\), and
+\(W_\star\) as the sum of the \(W)j\). HGA minimizes \eqref{eq-loss1}
+over the \(n\times p\) configurations \(X\) satisfying
+\(X'W_\star X=I\), over the \(Y_j\), and over the \(\Delta_j\) that
+satisfy the measurement restrictions.
 
 Define \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m).\label{eq-loss2}
 \end{equation} The minimizing disparity \(\delta_{i\ell}^j\) is equal to
 zero if \(g_{i\ell}^j=1\) and equal to \(d(x_i,y_\ell^j)\) otherwise.
 Consequently \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jg_{i\ell}^jd^2(x_i,y_\ell^j).\label{eq-loss3}
-\end{equation} Note that the value of \eqref{eq-loss3} does not depend
-on the \(w_{i\ell}^j\) for which \(g_{i\ell}^j=0\). This implies that we
-can actually forget about the subscript \(\ell\) in \(w_{i\ell}^j\) and
-simply use \(w_{i}^j\).
+\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^nw_{ij}\sum_{\ell=1}^{k_j}\{d^2(x_i,y_\ell^j)\mid g_{i\ell}^j=1\}.\label{eq-loss3}
+\end{equation}
 
 We can make a graphical representation of \eqref{eq-loss3}. For variable
 \(j\) we plot the \(n\) points \(x_i\) and the \(k_j\) points
-\(y_\ell^j\) in a joint plot (or biplot). We then connect, with straight
-lines, each category point with the object points that belong to it. For
-each category this defines a figure in the plot which we call a
-\emph{star}. The \emph{size} of a star is the weighted sum of squares of
-the length of its lines. The loss function \eqref{eq-loss3} for variable
-\(j\) is the weighted sum of squares of the length of all \(n\) lines in
-this plot, or equivalently the sum of the sizes of the \(k_j\) stars.
-The total loss is the sum of star-sizes over all \(m\) plots. Thus HGA
-aims to place the object-points and category-points in space in such a
-way that the stars are as small as possible, i.e.~objects are as close
-as possible to the categories they belong to.
+\(y_\ell^j\) in a joint plot (or \emph{biplot}). We then connect, with
+straight lines, each category point with the object points that belong
+to it. For each category this defines a figure in the plot which we call
+a \emph{star}. The \emph{size} of a star is the weighted sum of squares
+of the length of its lines. The loss function \eqref{eq-loss3} for
+variable \(j\) is the weighted sum of squares of the length of all \(n\)
+lines in this plot, or equivalently the sum of the sizes of the \(k_j\)
+stars. The total loss is the sum of star-sizes over all \(m\) plots.
+Thus HGA aims to place the object-points and category-points in space in
+such a way that the stars are as small as possible, i.e.~objects are as
+close as possible to the categories they belong to.
 
 In matrix notation \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'W_j X-2\ X'W_jG_jY_j+ Y_j'D_jY_j\}\label{eq-loss4}
-\end{equation} Here \(W_j\) is a diagonal matrix with the \(w_i^j\) and
-\(D_j\) is the diagonal matrix of column-sums of \(W_jG_j\). Note that
-in classical HGA, with \(W_j=I\) for all \(j\), we have \(D_j=G_j'G_j\).
+\end{equation} Here \(D_j\) is the diagonal matrix with column-sums of
+\(W_jG_j\) on the diagonal. In classical HGA \(D_j=G_j'G_j\), but if
+there are weights this is no longer the case.
 
 Next define \begin{equation}
 \sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss5}
 \end{equation} The minimum of \eqref{eq-loss4} over the \(Y_j\) is
 attained at \(\hat Y_j:=D_j^{-1}G_j'W_jX\). Category-points are the
 weighted centroids of the object-points belonging to the category. This
-makes stars actually look like stars. If we substitute these optimal
+makes ``stars'' actually look like stars. If we substitute these optimal
 \(\smash{\hat Y_j}\) in \eqref{eq-loss3} we see that
 \(\sigma_{\star\star}(X)\) is indeed equal to the weighted sum of
 squares of all lines defining the stars. Minimizing
-\(\sigma_{\star\star}(X)\) over \(X'X=I\), and thus minimizing
+\(\sigma_{\star\star}(X)\) over \(X'W_\star X=I\), and thus minimizing
 \eqref{eq-loss1} over \((X, Y_j,\Delta_j)\), defines HGA.
 
-Computing the solution turns out to be a straightforward
-eigenvalue-eigenvector problem. The details are in the publications we
-referenced at the beginning of this section.
+By writing \begin{equation}
+\sigma_{\star\star}(X):=\text{tr}\ X'\left\{\sum_{j=1}^m(W_j-W_jG_jD_j^{-1}G_j'W_j)\right\}X\label{eq-loss6}
+\end{equation} we see that minimizing \eqref{eq-loss6} over
+\(X'W_\star X=I\) is a straightforward eigenvalue-eigenvector problem.
 
-A HGA in two dimensions produces of our small example the following
+A HGA in two dimensions of our small example produces the following
 three star plots. Objects are numbered and in BLUE, categories have
 bigger labels and are in RED. Note that there are ten objects, but the
 sets of objects \((1,4,7)\), \((8,10)\), and \((6,9)\) have the same
@@ -464,10 +460,10 @@ Thus there are at most six different object-points. The analysis
 minimizes the sum of squares of the length of all black lines in the
 three plots, under the condition that the matrix of object scores is
 column-centered and orthonormal. We can think of the results as a form
-of \emph{graph drawing}, where the graph is the union of the \(m\)
-bipartite graphs of all \(m\) ``belonging to'' relations (De Leeuw and
-Michailidis (\citeproc{ref-deleeuw_michailidis_C_00}{2000}), Michailidis
-and De Leeuw (\citeproc{ref-michailidis_deleeuw_A_01}{2001})).
+of \emph{graph drawing}, where the graph is the union of the bipartite
+graphs of all \(m\) ``belonging to'' relations (De Leeuw and Michailidis
+(\citeproc{ref-deleeuw_michailidis_C_00}{2000}), Michailidis and De
+Leeuw (\citeproc{ref-michailidis_deleeuw_A_01}{2001})).
 
 \begin{center}
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/mca-1.pdf}}
@@ -629,6 +625,89 @@ approach to ties (Kruskal (\citeproc{ref-kruskal_64b}{1964b}), De Leeuw
 (\citeproc{ref-deleeuw_A_77}{1977})), treating all \(\delta_\ell\) with
 \(\ell\neq\nu\) as ties.
 
+Suppose \(y\) and \(w\geq 0\) are given vectors with \(n\) elements.
+Suppose \(N_1\) and \(N_0\) are a partition of \(N:=\{1,2,\cdots n\}\).
+The Binary Monotone Regression Problem is to find \(x\) with
+\(x_i\leq x_k\) for all \(i\in N_0\) and \(k\in N_1\) such that \[
+  \sigma(x)=\frac12\sum_{i\in N} w_i(x_i-y_i)^2
+\] is minimized. Equivalently we want to find \(\alpha\) such that
+\(x_i\leq\alpha\) for \(i\in N_0\) and \(x_i\geq\alpha\) for
+\(i\in N_1\). Thus loss can be rewritten as a function of the single
+variable \(\alpha\). \[
+  \sigma(\alpha)=\frac12\sum_{i\in N_0} w_i\min(\alpha-y_i,0)^2+\frac12\sum_{i\in N_1} w_i\max(\alpha-y_i,0)^2.
+\] This function is piecewise quadratic, convex, and differentiable
+(although not twice differentiable). Its derivative, which is
+increasing, is \[
+\mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
+\] The function binaryMonotoneRegression(), with the alias bmr(),
+minimizes \(\sigma\) over \(\alpha\). We sort \(y\), set \(\alpha\)
+equal to the smallest \(y_i\), and compute
+\(\mathcal{D}\sigma(\alpha)\). If the derivative is zero, we are done.
+If it is negative we set \(\alpha\) to the next smallest \(y_i\). We
+continue this until we arrive at an \(\alpha\) for which the derivative
+is either zero or positive. If it is zero we stop. If it is positive
+then the minimum is between this \(\alpha\) and the previous \(\alpha\),
+for which the derivative was still negative. Since the derivative is
+linear on the interval between the two values of \(\alpha\) we can use
+linear interpolation to find the value for which it is zero.
+
+\subsection{Regression Constraints}\label{regression-constraints}
+
+In this paper we (optionally) use the constraints \begin{equation}
+\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=w_{i\star}^j,\label{eq-norm}
+\end{equation} for all \(i\) and \(j\), with
+\(\smash{\overline{\delta}_{ij}}\) the weighted mean of the
+\(\smash{\delta_{i\ell}^j}\). In addition, of course, the
+\(\delta_{i\ell}^j\) must satisfy the ordinal constraints. Constraint
+\eqref{eq-norm} explicitly excludes the possibility that the
+\(\smash{\delta_{i\ell}^j}\) for given \(i\) and \(j\) are equal for all
+\(\ell\).
+
+Suppose \(y\) is a vector with \(n\) elements. The problem we study is
+to minimize \(\sigma(x):=\|x-y\|_W^2\) over \(x\in K\) and
+\(\|x-\overline x e\|_W^2\) is equal to some constant \(c\). Here
+
+\begin{itemize}
+\tightlist
+\item
+  \(K\) is the cone of vectors defined by a number of inequalities of
+  the form \(x_i\leq x_j\),
+\item
+  \(e\) is the vector with all \(n\) elements equal to one,
+\item
+  \(W\) is a diagonal matrix of weights,
+\item
+  \(\|x\|^2_W=x'Wx\) is the square of the \(W\)-norm of \(x\),
+\item
+  \(\overline x\) is the weighted mean \(e'Wx/e'We\).
+\end{itemize}
+
+Define \(J:=I-ee'W/(e'We)\) and \(\tilde x=Jx\). Then
+\(Jx=x-\overline x e\). Then \(x'Jx=\tilde x'W\tilde x\) and \(x\in K\)
+if and only if \(\tilde x\in K\). Also \(\tilde x= Jx\) if and only if
+\(x=\tilde x+\beta e\). So the transformed problem is to minimize
+\(\|\tilde x+\beta e-y\|_W\) over \(\beta\) and \(\tilde x\in K\), with
+\(e'W\tilde x=0\) and \(\tilde x'W\tilde x=c\). The minimizer for
+\(\beta\) is \(\overline{y}:=e'Wy/e'We\), and thus the equivalent
+``reduced'' problem becomes minimizing \(\|\tilde x- Jy\|_W^2\) over
+\(\tilde x\in K\), \(\tilde x'W\tilde x=c\), and \(e'W\tilde x=0\).
+
+Forget about the constraint \(e'W\tilde x=0\) for now. If \(M\) is the
+monotone regression operator it follows that the solution for
+\(\tilde x\) is \(\sqrt{c}M(Jy)/\|M(Jy)\|_W\), which automatically
+satisfies \(e'W\tilde x=0\) (Bauschke et al.
+(\citeproc{ref-bauschke_bui_wang_18}{2018})). Thus the solution of our
+original problem is \[
+  \hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|_W}+\overline{y}e.
+\] This can be rewritten in a perhaps more revealing way. Now
+\(M(y-\overline{y}e)=M(y)-\overline{y}e\) and
+\(e'WM(y)=e'Wy=e'We\overline{y}\). Thus
+\(\|M(y-\overline y)\|_W^2=\|M(y)\|_W^2-e'We\overline{M(y)}^2\) so that
+\[
+  \hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|_W}+\overline{y}e=
+  \frac{1}{\|M(y-\overline{y})\|_W}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|_W}\right\}\overline{y}e
+\]
+
 \subsection{Majorization}\label{majorization}
 
 We study the off-diagonal smacof algorithm for MDS, without taking into
@@ -764,73 +843,12 @@ same way
 
 \section{Constraints}\label{constraints}
 
-\subsection{Regression Constraints}\label{regression-constraints}
-
-In this paper we (optionally) use the constraints \begin{equation}
-\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=w_{i\star}^j,\label{eq-norm}
-\end{equation} for all \(i\) and \(j\), with
-\(\smash{\overline{\delta}_{ij}}\) the weighted mean of the
-\(\smash{\delta_{i\ell}^j}\). In addition, of course, the
-\(\delta_{i\ell}^j\) must satisfy the ordinal constraints. Constraint
-\eqref{eq-norm} explicitly excludes the possibility that the
-\(\smash{\delta_{i\ell}^j}\) for given \(i\) and \(j\) are equal for all
-\(\ell\).
-
-Suppose \(y\) is a vector with \(n\) elements. The problem we study is
-to minimize \(\sigma(x):=\|x-y\|_W^2\) over \(x\in K\) and
-\(\|x-\overline x e\|_W^2\) is equal to some constant \(c\). Here
-
-\begin{itemize}
-\tightlist
-\item
-  \(K\) is the cone of vectors defined by a number of inequalities of
-  the form \(x_i\leq x_j\),
-\item
-  \(e\) is the vector with all \(n\) elements equal to one,
-\item
-  \(W\) is a diagonal matrix of weights,
-\item
-  \(\|x\|^2_W=x'Wx\) is the square of the \(W\)-norm of \(x\),
-\item
-  \(\overline x\) is the weighted mean \(e'Wx/e'We\).
-\end{itemize}
-
-Define \(J:=I-ee'W/(e'We)\) and \(\tilde x=Jx\). Then
-\(Jx=x-\overline x e\). Then \(x'Jx=\tilde x'W\tilde x\) and \(x\in K\)
-if and only if \(\tilde x\in K\). Also \(\tilde x= Jx\) if and only if
-\(x=\tilde x+\beta e\). So the transformed problem is to minimize
-\(\|\tilde x+\beta e-y\|_W\) over \(\beta\) and \(\tilde x\in K\), with
-\(e'W\tilde x=0\) and \(\tilde x'W\tilde x=c\). The minimizer for
-\(\beta\) is \(\overline{y}:=e'Wy/e'We\), and thus the equivalent
-``reduced'' problem becomes minimizing \(\|\tilde x- Jy\|_W^2\) over
-\(\tilde x\in K\), \(\tilde x'W\tilde x=c\), and \(e'W\tilde x=0\).
-
-Forget about the constraint \(e'W\tilde x=0\) for now. If \(M\) is the
-monotone regression operator it follows that the solution for
-\(\tilde x\) is \(\sqrt{c}M(Jy)/\|M(Jy)\|_W\), which automatically
-satisfies \(e'W\tilde x=0\) (Bauschke et al.
-(\citeproc{ref-bauschke_bui_wang_18}{2018})). Thus the solution of our
-original problem is \[
-\hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|_W}+\overline{y}e.
-\] This can be rewritten in a perhaps more revealing way. Now
-\(M(y-\overline{y}e)=M(y)-\overline{y}e\) and
-\(e'WM(y)=e'Wy=e'We\overline{y}\). Thus
-\(\|M(y-\overline y)\|_W^2=\|M(y)\|_W^2-e'We\overline{M(y)}^2\) so that
-\[
-\hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|_W}+\overline{y}e=
-\frac{1}{\|M(y-\overline{y})\|_W}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|_W}\right\}\overline{y}e
-\]
-
-\subsection{Configuration Constraints}\label{configuration-constraints}
-
-Separation
-
 \subsubsection{Column-Centering}\label{column-centering}
 
 If we require \(X'W_re=0\) then the stationary equations are
 \(W_r(X-\overline X)=W_re\lambda'\) and thus \(X=\overline X+e\lambda'\)
 with \(\lambda'=-e'W_r\overline X/e'W_re\) or \[
-X=(I-\frac{ee'W_r}{e'W_re})\overline X
+  X=(I-\frac{ee'W_r}{e'W_re})\overline X
 \]
 
 This is different from updating \(X\) as \(J_n\tilde X\) and \(Y\) as
@@ -845,9 +863,9 @@ values, are the same with or without this type of centering.
 If we require \(X'W_\star X=I\) we have the stationary equations
 \(\overline X=XM\), with \(M\) a symmetric matrix of Lagrange
 multipliers. Thus \[
-X=\text{procrustus}(\overline X):=\overline X(\overline X'W_\star \overline X)^{-\frac12}.
+  X=\text{procrustus}(\overline X):=\overline X(\overline X'W_\star \overline X)^{-\frac12}.
 \] If we require both \(X'W_\star X=I\) and \(X'W_\star e=0\) we have \[
-X=\text{procrustus}((I-\frac{ee'W_\star }{e'W_\star e})\overline X)
+  X=\text{procrustus}((I-\frac{ee'W_\star }{e'W_\star e})\overline X)
 \]
 
 \subsubsection{Rank Constraints}\label{rank-constraints}
@@ -865,7 +883,7 @@ the Voronoi lines or planes are parallel and perpendicular to the line
 with the category-points.
 
 \[
-\text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a
+  \text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a
 \]
 
 So rank one approximation of \(\tilde Y+n^{-1}ee'(X-\tilde X)\). If
@@ -1362,35 +1380,6 @@ Loss is 0.0003024926 after 1000 iterations.
 \end{verbatim}
 
 \sectionbreak
-
-\section{Appendix: Binary Monotone
-Regression}\label{appendix-binary-monotone-regression}
-
-Suppose \(y\) and \(w\geq 0\) are given vectors with \(n\) elements.
-Suppose \(N_1\) and \(N_0\) are a partition of \(N:=\{1,2,\cdots n\}\).
-The Binary Monotone Regression Problem is to find \(x\) with
-\(x_i\leq x_k\) for all \(i\in N_0\) and \(k\in N_1\) such that \[
-\sigma(x)=\frac12\sum_{i\in N} w_i(x_i-y_i)^2
-\] is minimized. Equivalently we want to find \(\alpha\) such that
-\(x_i\leq\alpha\) for \(i\in N_0\) and \(x_i\geq\alpha\) for
-\(i\in N_1\). Thus loss can be rewritten as a function of the single
-variable \(\alpha\). \[
-\sigma(\alpha)=\frac12\sum_{i\in N_0} w_i\min(\alpha-y_i,0)^2+\frac12\sum_{i\in N_1} w_i\max(\alpha-y_i,0)^2.
-\] This function is piecewise quadratic, convex, and differentiable
-(although not twice differentiable). Its derivative, which is
-increasing, is \[
-\mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
-\] The function binaryMonotoneRegression(), with the alias bmr(),
-minimizes \(\sigma\) over \(\alpha\). We sort \(y\), set \(\alpha\)
-equal to the smallest \(y_i\), and compute
-\(\mathcal{D}\sigma(\alpha)\). If the derivative is zero, we are done.
-If it is negative we set \(\alpha\) to the next smallest \(y_i\). We
-continue this until we arrive at an \(\alpha\) for which the derivative
-is either zero or positive. If it is zero we stop. If it is positive
-then the minimum is between this \(\alpha\) and the previous \(\alpha\),
-for which the derivative was still negative. Since the derivative is
-linear on the interval between the two values of \(\alpha\) we can use
-linear interpolation to find the value for which it is zero.
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
