@@ -11,6 +11,7 @@ voronoiHomogeneityAnalysis <- function(theData,
                                        itmax = 1000,
                                        eps = 1e-6,
                                        aps = 1e-6,
+                                       rowwise = TRUE,
                                        dnorm = FALSE,
                                        xcent = FALSE,
                                        xnorm = FALSE,
@@ -37,7 +38,11 @@ voronoiHomogeneityAnalysis <- function(theData,
   sold <- 0.0
   for (j in 1:nvar) {
     dold[[j]] <- makeDmat(xold, yold[[j]])
-    dhat[[j]] <- monotoneRow(dold[[j]], wght[[j]], indi[[j]])
+    if (rowwise) {
+      dhat[[j]] <- monotoneRow(dold[[j]], wght[[j]], indi[[j]])
+    } else {
+      dhat[[j]] <- monotoneColumn(dold[[j]], wght[[j]], indi[[j]])
+    }
     sold <- sold + sum(wght[[j]] * (dhat[[j]] - dold[[j]])^2)
   }
   itel <- 1
@@ -51,9 +56,11 @@ voronoiHomogeneityAnalysis <- function(theData,
     for (j in 1:nvar) {
       dnew[[j]] <- makeDmat(xnew, ynew[[j]])
       smid <- smid + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
-      dhat[[j]] <- monotoneRow(dnew[[j]], wght[[j]], indi[[j]])
-      if (dnorm) {
-      }
+      if (rowwise) {
+        dhat[[j]] <- monotoneRow(dnew[[j]], wght[[j]], indi[[j]])
+      } else {
+        dhat[[j]] <- monotoneColumn(dnew[[j]], wght[[j]], indi[[j]])
+      } 
       snew <- snew + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
       daps <- max(daps, max(abs(dold[[j]] - dnew[[j]])))
     }
