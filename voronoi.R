@@ -11,7 +11,7 @@ voronoiHomogeneityAnalysis <- function(theData,
                                        itmax = 1000,
                                        eps = 1e-6,
                                        aps = 1e-6,
-                                       rowwise = TRUE,
+                                       how = "byrow",
                                        dnorm = FALSE,
                                        xcent = FALSE,
                                        xnorm = FALSE,
@@ -38,7 +38,7 @@ voronoiHomogeneityAnalysis <- function(theData,
   sold <- 0.0
   for (j in 1:nvar) {
     dold[[j]] <- makeDmat(xold, yold[[j]])
-    if (rowwise) {
+    if (how == "byrow") {
       dhat[[j]] <- monotoneRow(dold[[j]], wght[[j]], indi[[j]])
     } else {
       dhat[[j]] <- monotoneColumn(dold[[j]], wght[[j]], indi[[j]])
@@ -56,7 +56,7 @@ voronoiHomogeneityAnalysis <- function(theData,
     for (j in 1:nvar) {
       dnew[[j]] <- makeDmat(xnew, ynew[[j]])
       smid <- smid + sum(wght[[j]] * (dhat[[j]] - dnew[[j]])^2)
-      if (rowwise) {
+      if (how == "byrow") {
         dhat[[j]] <- monotoneRow(dnew[[j]], wght[[j]], indi[[j]])
       } else {
         dhat[[j]] <- monotoneColumn(dnew[[j]], wght[[j]], indi[[j]])
