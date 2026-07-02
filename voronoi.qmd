@@ -51,6 +51,8 @@ suppressPackageStartupMessages(library(MASS, quietly = TRUE))
 suppressPackageStartupMessages(library(RSpectra, quietly = TRUE))
 suppressPackageStartupMessages(library(deldir, quietly = TRUE))
 suppressPackageStartupMessages(library(dismo, quietly = TRUE))
+suppressPackageStartupMessages(library(plotrix, quietly = TRUE))
+suppressPackageStartupMessages(library(grDevices, quietly = TRUE))
 ```
 
 ```{r}
@@ -147,19 +149,18 @@ multidimensional scaling, using the *stress* loss function (@kruskal_64a,
 \end{equation}
 with $w_{ij}$ given non-negative weights, $d(x_i,y_\ell^j)$ the *Euclidean
 distance* between row $i$ of $X$ and row $\ell$ of $Y_j$, and
-$\smash{\delta_{i\ell}^j}$ the corresponding *disparity*.
-In classical HGA there are no weights, i.e. all $w_{ij}$ in
-\eqref{eq-loss1} are equal to one. We have added weights to the definition of
-HGA so that, for example, we can easily incorporate missing data.
-Disparities are required to satisfy the measurement restrictions implied by the
-data. In HGA this means that we require that $\smash{\delta_{i\ell}^j=0}$
-whenever $\smash{g_{i\ell}^j=1}$, or, using the elementwise product
-$\circledast$ of matries, $\Delta_j\circledast G_j=0$.
+$\smash{\delta_{i\ell}^j}$ the corresponding *disparity*. In classical HGA there
+are no weights, i.e. all $w_{ij}$ in \eqref{eq-loss1} are equal to one. We have
+added weights to the definition of HGA so that, for example, we can easily
+incorporate missing data. Disparities are required to satisfy the measurement
+restrictions implied by the data. In HGA this means that we require that
+$\smash{\delta_{i\ell}^j=0}$ whenever $\smash{g_{i\ell}^j=1}$, or, using the
+elementwise product $\circledast$ of matries, $\Delta_j\circledast G_j=0$.
 
-Define $W_j$ as the diagonal matrix of weights for variable $j$, and $W_\star$ as the sum of the
-$W)j$. HGA minimizes \eqref{eq-loss1} over the $n\times p$ configurations $X$
-satisfying $X'W_\star X=I$, over the $Y_j$, and over the $\Delta_j$ that satisfy the
-measurement restrictions.
+Define $W_j$ as the diagonal matrix of weights for variable $j$, and $W_\star$
+as the sum of the $W)j$. HGA minimizes \eqref{eq-loss1} over the $n\times p$
+configurations $X$ satisfying $X'W_\star X=I$, over the $Y_j$, and over the
+$\Delta_j$ that satisfy the measurement restrictions.
 
 Define
 \begin{equation}
@@ -187,8 +188,9 @@ In matrix notation
 \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'W_j X-2\ X'W_jG_jY_j+ Y_j'D_jY_j\}\label{eq-loss4}
 \end{equation}
-Here $D_j$ is the diagonal
-matrix with column-sums of $W_jG_j$ on the diagonal. In classical HGA $D_j=G_j'G_j$, but if there are weights this is no longer the case.
+Here $D_j$ is the diagonal matrix with column-sums of $W_jG_j$ on the diagonal.
+In classical HGA $D_j=G_j'G_j$, but if there are weights this is no longer the
+case.
 
 Next define
 \begin{equation}
@@ -200,15 +202,15 @@ object-points belonging to the category. This makes "stars" actually look like
 stars. If we substitute these optimal $\smash{\hat Y_j}$ in \eqref{eq-loss3} we
 see that $\sigma_{\star\star}(X)$ is indeed equal to the weighted sum of squares
 of all lines defining the stars. Minimizing $\sigma_{\star\star}(X)$ over
-$X'W_\star X=I$, and thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$, defines
-HGA.
+$X'W_\star X=I$, and thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$,
+defines HGA.
 
 By writing
 \begin{equation}
 \sigma_{\star\star}(X):=\text{tr}\ X'\left\{\sum_{j=1}^m(W_j-W_jG_jD_j^{-1}G_j'W_j)\right\}X\label{eq-loss6}
 \end{equation}
-we see that minimizing \eqref{eq-loss6} over $X'W_\star X=I$ is a straightforward eigenvalue-eigenvector
-problem. 
+we see that minimizing \eqref{eq-loss6} over $X'W_\star X=I$ is a
+straightforward eigenvalue-eigenvector problem.
 
 A HGA in two dimensions of our small example produces the following three star
 plots. Objects are numbered and in BLUE, categories have bigger labels and are
@@ -282,7 +284,7 @@ general loss function
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss2}
 \end{equation}
-with the constraints that 
+with the constraints that
 \begin{equation}
 \text{if }g_{i\ell}^j=1\text{ then }\delta_{i\ell}^j\leq\delta_{i\nu}^j\text{ for all }\nu=1,\cdots,k_j.
 \label{eq-hori}
@@ -293,7 +295,8 @@ coincide with the category-point, but we merely require that the object-point is
 at least as close to category-point $\ell$ as to any of the other $k_j-1$
 category-points of that variable.
 
-Constraints \eqref{eq-hori} are called the *horizontal constraints*. The *vertical constraints* are
+Constraints \eqref{eq-hori} are called the *horizontal constraints*. The
+*vertical constraints* are
 \begin{equation}
 \text{if }g_{i\ell}^j=1\text{ and }g_{k\ell}^j=0 \text{ then }\delta_{i\ell}^j\leq\delta_{k\ell}^j.
 \end{equation}
@@ -354,17 +357,19 @@ to some epsilon) or we have reached the maximum number of iterations allowed.
 
 ## Vertical Homogeneity Analysis
 
-Constraints \eqref{eq-hori} are called the *horizontal constraints*. The *vertical constraints* are
+Constraints \eqref{eq-hori} are called the *horizontal constraints*. The
+*vertical constraints* are
 \begin{equation}
 \text{if }g_{i\ell}^j=1\text{ and }g_{k\ell}^j=0 \text{ then }\delta_{i\ell}^j\leq\delta_{k\ell}^j.
 \end{equation}
 
 Thus object-points belonging to a category must be inside a ball centered at the
-category point (or on its boundary), and objects not belonging to that category must be outside the
-ball (or on its boundary). Clearly an object cannot be inside two balls of two categories of the same
-variable -- if it was it would be in two categories of that variable.
-Thus convex hulls of the point clouds in balls corresponding with different categories of the same
-variable are disjoint, which implies that object points are in the correct Voronoi regions.
+category point (or on its boundary), and objects not belonging to that category
+must be outside the ball (or on its boundary). Clearly an object cannot be
+inside two balls of two categories of the same variable -- if it was it would be
+in two categories of that variable. Thus convex hulls of the point clouds in
+balls corresponding with different categories of the same variable are disjoint,
+which implies that object points are in the correct Voronoi regions.
 
 \sectionbreak
 
@@ -425,7 +430,7 @@ $$
 This function is piecewise quadratic, convex, and differentiable (although not
 twice differentiable). Its derivative, which is increasing, is
 $$
-\mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
+  \mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
 $$
 The function binaryMonotoneRegression(), with the alias bmr(), minimizes
 $\sigma$ over $\alpha$. We sort $y$, set $\alpha$ equal to the smallest $y_i$,
@@ -437,7 +442,6 @@ this $\alpha$ and the previous $\alpha$, for which the derivative was still
 negative. Since the derivative is linear on the interval between the two values
 of $\alpha$ we can use linear interpolation to find the value for which it is
 zero.
-
 
 ## Regression Constraints
 
@@ -737,8 +741,8 @@ following arguments (with default values).
 #| label: arguments
 #| eval: false
 
-voronoiHomogeneityAnalysis <- function(theData,  # n x m matrix with categorical variables
-                                       ndim = 2, # dimensionality
+voronoiHomogeneityAnalysis <- function(theData,  
+                                       ndim = 2, 
                                        wght = NULL,
                                        dnorm = FALSE,
                                        xcent = FALSE,
@@ -798,12 +802,26 @@ The value returned by the program is a list.
 - *itel* number of iterations.
 - *loss* final value of stress.
 - *indi* indicators, a list of *m* matrices of dimension $n\times k_j$.
-- *ncat* number of categories of the $m$ variables.
+- *ncat* a vector with the number of categories of the $m$ variables.
 - *wght* weights, a list of *m* matrices of dimension $n\times k_j$.
 
 ## Subroutines
 
 ## Plots
+
+The plotVHA() routine makes joint plots of object scores and category scores for
+a single variable. It can label the points in different ways and it can draw
+some additional geometric objects in the plots. The arguments are
+
+- *xmat* $n\times p$, object scores,
+- *ymat* $k_j\times p$, category scores variable $j$,
+- *indi* $n\times k_j$, indicator matrix variable $j$,
+- *dmat* $n\times k_j$, distance matrix variable $j$,
+- *type* "voronoi" (default), "circle", or "hull",
+- *main* NULL (default), or plot label,
+- *ylab* = 1,
+- *xlab* = 1,
+- *pdf* plot device, default FALSE)
 
 \sectionbreak
 
@@ -814,15 +832,15 @@ The value returned by the program is a list.
 We start with the small example we used before to illustrate HGA.
 
 ```{r}
-#| label: smallvha
+#| label: smallvharow
 #| fig-align: "center"
 #| echo: false
 
 h_small <- vha(small, itmax = 1000, eps = 1e-10, verbose = FALSE)
-par(mfrow = c(1, 3))
-plotVHA(h_small$xmat, h_small$ymat[[1]], h_small$indi[[1]], ncat_small[1], xlab = small[, 1], ylab = labs_small[[1]], pdf = FALSE)
-plotVHA(h_small$xmat, h_small$ymat[[2]], h_small$indi[[2]], h_small$ncat[2], xlab = small[, 2], ylab = labs_small[[2]], pdf = FALSE)
-plotVHA(h_small$xmat, h_small$ymat[[3]], h_small$indi[[3]], h_small$ncat[3], xlab = small[, 3], ylab = labs_small[[3]], pdf = FALSE)
+par(mfrow = c(1, 3), pty = "s")
+plotVHA(h_small$xmat, h_small$ymat[[1]], h_small$indi[[1]], h_small$dmat[[1]], ncat_small[1], xlab = small[, 1], ylab = labs_small[[1]], type = "voronoi", pdf = FALSE)
+plotVHA(h_small$xmat, h_small$ymat[[2]], h_small$indi[[2]], h_small$dmat[[2]], h_small$ncat[2], xlab = small[, 2], ylab = labs_small[[2]], type = "voronoi", pdf = FALSE)
+plotVHA(h_small$xmat, h_small$ymat[[3]], h_small$indi[[3]], h_small$dmat[[3]], h_small$ncat[3], xlab = small[, 3], ylab = labs_small[[3]], type = "voronoi", pdf = FALSE)
 ```
 Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after
 `r h_small$itel` iterations. If we compare the plots from the Voronoi analysis
@@ -840,9 +858,57 @@ object-point 2, and one containing all other points. one containing all other.
 #| echo: false
 #| fig-align: "center"
 
-plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], 23, xlab = small[, 2], ylab = c("p r", "q"), pdf = FALSE)
+par(pty = "s")
+plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], h_small$dmat[[2]], 23, xlab = small[, 2], ylab = c("p r", "q"), type = "voronoi", pdf = FALSE)
 ```
 
+```{r}
+#| label: smallvhacol
+#| fig-align: "center"
+#| echo: false
+
+h_small <- vha(
+  small,
+  itmax = 1000,
+  eps = 1e-10,
+  verbose = FALSE,
+  how = "bycolumn"
+)
+par(mfrow = c(1, 3), pty = "s")
+plotVHA(
+  h_small$xmat,
+  h_small$ymat[[1]],
+  h_small$indi[[1]],
+  h_small$dmat[[1]],
+  ncat_small[1],
+  xlab = small[, 1],
+  ylab = labs_small[[1]],
+  pdf = FALSE,
+  type = "circle"
+)
+plotVHA(
+  h_small$xmat,
+  h_small$ymat[[2]],
+  h_small$indi[[2]],
+  h_small$dmat[[2]],
+  h_small$ncat[2],
+  xlab = small[, 2],
+  ylab = labs_small[[2]],
+  pdf = FALSE,
+  type = "circle"
+)
+plotVHA(
+  h_small$xmat,
+  h_small$ymat[[3]],
+  h_small$indi[[3]],
+  h_small$dmat[[3]],
+  h_small$ncat[3],
+  xlab = small[, 3],
+  ylab = labs_small[[3]],
+  pdf = FALSE,
+  type = "circle"
+)
+```
 ## GALO
 
 Our next example use the GALO data from @peschar_75. In the github voronoi

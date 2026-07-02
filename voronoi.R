@@ -40,7 +40,8 @@ voronoiHomogeneityAnalysis <- function(theData,
     dold[[j]] <- makeDmat(xold, yold[[j]])
     if (how == "byrow") {
       dhat[[j]] <- monotoneRow(dold[[j]], wght[[j]], indi[[j]])
-    } else {
+    }
+    if (how == "bycolumn") {
       dhat[[j]] <- monotoneColumn(dold[[j]], wght[[j]], indi[[j]])
     }
     sold <- sold + sum(wght[[j]] * (dhat[[j]] - dold[[j]])^2)

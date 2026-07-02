@@ -19,7 +19,7 @@ prepend-args = ["--print-width=100"]
 [linters]
 r = "jarl"      # Enable R linting
 
-[linter.rules] 
-duplicate-bibliography-key = true
-missing-bibliography-key = true
+#[linter.rules] 
+#duplicate-bibliography-key = true
+#missing-bibliography-key = true
 

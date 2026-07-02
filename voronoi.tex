@@ -281,7 +281,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{June 25, 2026}
+\date{July 1, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -494,15 +494,20 @@ the data.
 The lack of a realistic model makes it interesting to continue use the
 more general loss function \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss2}
-\end{equation} with the constraints that if \(g_{i\ell}^j=1\) then
-merely \(\delta_{i\ell}^j\leq\delta_{i\nu}^j\) for all
-\(\nu=1,\cdots,k_j\). This is significantly weaker than the HGA
-constraints, which require the \(mn\) disparities
-\(\smash{\delta_{i\ell}^j}\) to be zero. If object \(i\) belongs to
-category \(\ell\) of variable \(j\) we do no longer require the
-object-point to coincide with the category-point, but we merely require
-that the object-point is at least as close to category-point \(\ell\) as
-to any of the other \(k_j-1\) category-points of that variable.
+\end{equation} with the constraints that \begin{equation}
+\text{if }g_{i\ell}^j=1\text{ then }\delta_{i\ell}^j\leq\delta_{i\nu}^j\text{ for all }\nu=1,\cdots,k_j.
+\label{eq-hori}
+\end{equation} This is significantly weaker than the HGA constraints. If
+object \(i\) belongs to category \(\ell\) of variable \(j\) we do no
+longer require the object-point to coincide with the category-point, but
+we merely require that the object-point is at least as close to
+category-point \(\ell\) as to any of the other \(k_j-1\) category-points
+of that variable.
+
+Constraints \eqref{eq-hori} are called the \emph{horizontal
+constraints}. The \emph{vertical constraints} are \begin{equation}
+\text{if }g_{i\ell}^j=1\text{ and }g_{k\ell}^j=0 \text{ then }\delta_{i\ell}^j\leq\delta_{k\ell}^j.
+\end{equation}
 
 \emph{Voronoi Homogeneity Analysis} (VHA) of categorical data minimizes
 loss function \eqref{eq-loss1} over \(X\), over the \(Y_j\) and over the
@@ -567,17 +572,23 @@ the distances do not change from one iteration to the next (up to some
 epsilon) or the loss becomes zero (up to some epsilon) or we have
 reached the maximum number of iterations allowed.
 
-\subsection{Spherical Homogeneity
-Analysis}\label{spherical-homogeneity-analysis}
+\subsection{Vertical Homogeneity
+Analysis}\label{vertical-homogeneity-analysis}
 
-If \(g_{i\ell}^j=1\) and \(g_{k\ell}^j=0\) then
-\(d_{i\ell}^j(X,Y)\leq d_{k\ell}^j(X,Y)\).
+Constraints \eqref{eq-hori} are called the \emph{horizontal
+constraints}. The \emph{vertical constraints} are \begin{equation}
+\text{if }g_{i\ell}^j=1\text{ and }g_{k\ell}^j=0 \text{ then }\delta_{i\ell}^j\leq\delta_{k\ell}^j.
+\end{equation}
 
-Thus object-points belonging to a category are in a sphere centered at
-the category point, and objects not belonging to that category are
-outside the sphere. Thus spheres corresponding with different categories
-of the same variable are disjoint. This implies convex hulls are
-disjoint and object poinst are in the correct Voronoi region.
+Thus object-points belonging to a category must be inside a ball
+centered at the category point (or on its boundary), and objects not
+belonging to that category must be outside the ball (or on its
+boundary). Clearly an object cannot be inside two balls of two
+categories of the same variable -- if it was it would be in two
+categories of that variable. Thus convex hulls of the point clouds in
+balls corresponding with different categories of the same variable are
+disjoint, which implies that object points are in the correct Voronoi
+regions.
 
 \sectionbreak
 
@@ -638,7 +649,7 @@ variable \(\alpha\). \[
 \] This function is piecewise quadratic, convex, and differentiable
 (although not twice differentiable). Its derivative, which is
 increasing, is \[
-\mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
+  \mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
 \] The function binaryMonotoneRegression(), with the alias bmr(),
 minimizes \(\sigma\) over \(\alpha\). We sort \(y\), set \(\alpha\)
 equal to the smallest \(y_i\), and compute
@@ -940,8 +951,8 @@ following arguments (with default values).
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{voronoiHomogeneityAnalysis }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(theData,  }\CommentTok{\# n x m matrix with categorical variables}
-                                       \AttributeTok{ndim =} \DecValTok{2}\NormalTok{, }\CommentTok{\# dimensionality}
+\NormalTok{voronoiHomogeneityAnalysis }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(theData,  }
+                                       \AttributeTok{ndim =} \DecValTok{2}\NormalTok{, }
                                        \AttributeTok{wght =} \ConstantTok{NULL}\NormalTok{,}
                                        \AttributeTok{dnorm =} \ConstantTok{FALSE}\NormalTok{,}
                                        \AttributeTok{xcent =} \ConstantTok{FALSE}\NormalTok{,}
@@ -1033,7 +1044,8 @@ The value returned by the program is a list.
   \emph{indi} indicators, a list of \emph{m} matrices of dimension
   \(n\times k_j\).
 \item
-  \emph{ncat} number of categories of the \(m\) variables.
+  \emph{ncat} a vector with the number of categories of the \(m\)
+  variables.
 \item
   \emph{wght} weights, a list of \emph{m} matrices of dimension
   \(n\times k_j\).
@@ -1042,6 +1054,33 @@ The value returned by the program is a list.
 \subsection{Subroutines}\label{subroutines}
 
 \subsection{Plots}\label{plots}
+
+The plotVHA() routine makes joint plots of object scores and category
+scores for a single variable. It can label the points in different ways
+and it can draw some additional geometric objects in the plots. The
+arguments are
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{xmat} \(n\times p\), object scores,
+\item
+  \emph{ymat} \(k_j\times p\), category scores variable \(j\),
+\item
+  \emph{indi} \(n\times k_j\), indicator matrix variable \(j\),
+\item
+  \emph{dmat} \(n\times k_j\), distance matrix variable \(j\),
+\item
+  \emph{type} ``voronoi'' (default), ``circle'', or ``hull'',
+\item
+  \emph{main} NULL (default), or plot label,
+\item
+  \emph{ylab} = 1,
+\item
+  \emph{xlab} = 1,
+\item
+  \emph{pdf} plot device, default FALSE)
+\end{itemize}
 
 \sectionbreak
 
@@ -1052,7 +1091,7 @@ The value returned by the program is a list.
 We start with the small example we used before to illustrate HGA.
 
 \begin{center}
-\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvha-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvharow-1.pdf}}
 \end{center}
 
 Loss is 0.0000000000 after 443 iterations. If we compare the plots from
@@ -1069,6 +1108,10 @@ all other points. one containing all other.
 
 \begin{center}
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/redo-1.pdf}}
+\end{center}
+
+\begin{center}
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvhacol-1.pdf}}
 \end{center}
 
 \subsection{GALO}\label{galo}
