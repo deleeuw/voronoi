@@ -829,7 +829,9 @@ some additional geometric objects in the plots. The arguments are
 
 ## Small Example
 
-We start with the small example we used before to illustrate HGA.
+We start with the small example we used before to illustrate HGA. We first do an analysis
+without additional configuration constraints, using the horizontal (row-wise) ordinal constraints
+on the dissimilarities.
 
 ```{r}
 #| label: smallvharow
@@ -843,7 +845,7 @@ plotVHA(h_small$xmat, h_small$ymat[[2]], h_small$indi[[2]], h_small$dmat[[2]], h
 plotVHA(h_small$xmat, h_small$ymat[[3]], h_small$indi[[3]], h_small$dmat[[3]], h_small$ncat[3], xlab = small[, 3], ylab = labs_small[[3]], type = "voronoi", pdf = FALSE)
 ```
 Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after
-`r h_small$itel` iterations. If we compare the plots from the Voronoi analysis
+`r h_small$itel` iterations. If we compare the plots from the VHA
 with the star plots from the initial HGA for this example we see that the
 algorithm did not have to change much to obtain perfect fit. One thing that does
 change is that the iterations moves the category-points "p" and "r" for variable
@@ -851,7 +853,7 @@ change is that the iterations moves the category-points "p" and "r" for variable
 still distinguishable, and thus their perpendicular bisector is still a line in
 the Voronoi plot. If we would continue iterating "p" and "r" would coincide and
 there would only be two Voronoi regions: one containing category-point "q" and
-object-point 2, and one containing all other points. one containing all other.
+object-point 2, and one containing all other points. 
 
 ```{r}
 #| label: redo
@@ -861,6 +863,9 @@ object-point 2, and one containing all other points. one containing all other.
 par(pty = "s")
 plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], h_small$dmat[[2]], 23, xlab = small[, 2], ylab = c("p r", "q"), type = "voronoi", pdf = FALSE)
 ```
+
+Next we repeat the analysis, but this time with vertical (column-wise) constraints. We show the circle-plots
+for this solution. 
 
 ```{r}
 #| label: smallvhacol
