@@ -268,6 +268,10 @@
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
+% fallback for those not using the hyperref driver hyperxmp:
+\makeatletter
+\@ifundefined{xmpquote}{\newcommand{\xmpquote}[1]{#1}}{}
+\makeatother
 \hypersetup{
   pdftitle={Voronoi Homogeneity Analysis of Categorical Data},
   pdfauthor={Jan de Leeuw},
@@ -281,7 +285,7 @@
 
 \title{Voronoi Homogeneity Analysis of Categorical Data}
 \author{Jan de Leeuw}
-\date{July 1, 2026}
+\date{August 22, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -306,13 +310,12 @@ can be found at \url{https://github.com/deleeuw/voronoi}
 
 \section{Introduction}\label{introduction}
 
-\subsection{Homogeneity Analysis}\label{homogeneity-analysis}
+\subsection{Multiple Correspondence
+Analysis}\label{multiple-correspondence-analysis}
 
-\emph{Homogeneity Analysis (HGA)}, a.k.a. \emph{Multiple Correspondence
-Analysis (MCA)}, can be introduced and implemented in many different
-ways\footnote{Since PCA and MCA have three-letter
-acronyms I added the G of Gifi to the HA of Homogeneity Analysis.}. We
-refer to Guttman (\citeproc{ref-guttman_41}{1941}), Tenenhaus and Young
+\emph{Multiple Correspondence Analysis (MCA)} can be introduced and
+implemented in many different ways. We refer to Guttman
+(\citeproc{ref-guttman_41}{1941}), Tenenhaus and Young
 (\citeproc{ref-tenenhaus_young_85}{1985}), Bekker and De Leeuw
 (\citeproc{ref-bekker_deleeuw_C_88}{1988}), Gifi
 (\citeproc{ref-gifi_B_90}{1990}), Greenacre and Blasius
@@ -320,19 +323,20 @@ refer to Guttman (\citeproc{ref-guttman_41}{1941}), Tenenhaus and Young
 (\citeproc{ref-leroux_rouanet_10}{2010}), Husson et al.
 (\citeproc{ref-husson_josse_saporta_16}{2016}), and De Leeuw
 (\citeproc{ref-deleeuw_C_23}{2023}) for a bouquet of discussions and
-interpretations of the equations and algorithms defining the HGA
+interpretations of the equations and algorithms defining the MCA
 technique.
 
-A \emph{variable} is a function that maps on a (finite or infinite)
-domain of \emph{objects} into a (finite or infinite) codomain of
-\emph{values}. In HGA the data are the values of \(m\) variables on the
-same \emph{carrier}, a finite subset the domain consisting of \(n\)
-objects. Each variable \(j\) has a finite number \(k_j\) of
-\emph{categories}. The categories constitute the \emph{range} of the
-variable for the \(n\) objects in the carrier. Note that all variables
-have the same carrier. Each object maps into a unique category, and each
-category contains a subset of objects from the carrier. We also say that
-a category has a number of objects that ``belong to'' the category.
+First some terminology. A \emph{variable} is a function that maps on a
+(finite or infinite) domain of \emph{objects} into a (finite or
+infinite) codomain of \emph{values}. In MCA the data are the values of
+\(m\) variables on the same \emph{carrier}, a finite subset the domain
+consisting of \(n\) objects. Each variable \(j\) has a finite number
+\(k_j\) of \emph{categories}. The categories constitute the \emph{range}
+of the variable for the \(n\) objects in the carrier. Note that all
+variables have the same carrier. Each object maps into a unique
+category, and each category contains a subset of objects from the
+carrier. We also say that a category has a number of objects that
+``belong to'' the category.
 
 Here is a small example with \(n=10\) and \(m=3\), taken from Gifi
 (\citeproc{ref-gifi_B_90}{1990}), page 65. In the github voronoi
@@ -352,13 +356,13 @@ repository these data are in data/small.R.
 10  a  p  v
 \end{verbatim}
 
-The key mathematical object in HGA is the \emph{indicator matrix}, a
-classical way to code categorical
+The key mathematical object in MCA is the \emph{indicator matrix}, which
+is a classical way to code categorical
 data\footnote{Since the indicator matrix is the core of the Gifi 
-system we avoid the irreverent alternative "dummy coding".}. For a
-variable \(j\) with \(k_j\) categories it is an \(n\times k_j\) binary
-matrix \(G_j\) in which each row \(i\) contains a single element equal
-to one, indicating into which category the object \(i\) maps for
+system we avoid the somewhat irreverent alternative "dummy coding".}.
+For a variable \(j\) with \(k_j\) categories it is an \(n\times k_j\)
+binary matrix \(G_j\) in which each row \(i\) contains a single element
+equal to one, indicating into which category the object \(i\) maps for
 variable \(j\). The cross product \(G_j'G_j\) is diagonal, with the
 \emph{marginal frequencies} of the categories on the diagonal. For two
 different variables the crossproduct \(G_j'G_\ell\) is the
@@ -381,7 +385,7 @@ example, next to each other.
 \end{verbatim}
 
 We now deviate from the usual Gifi and French approaches (Husson et al.
-(\citeproc{ref-husson_josse_saporta_16}{2016})) and define HGA as a form
+(\citeproc{ref-husson_josse_saporta_16}{2016})) and define MCA as a form
 of non-metric multidimensional scaling, using the \emph{stress} loss
 function (Kruskal (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
 (\citeproc{ref-kruskal_64b}{1964b})).
@@ -391,17 +395,17 @@ Define\footnote{The symbol $:=$ is used for definitions}
 \end{equation} with \(w_{ij}\) given non-negative weights,
 \(d(x_i,y_\ell^j)\) the \emph{Euclidean distance} between row \(i\) of
 \(X\) and row \(\ell\) of \(Y_j\), and \(\smash{\delta_{i\ell}^j}\) the
-corresponding \emph{disparity}. In classical HGA there are no weights,
+corresponding \emph{disparity}. In classical MCA there are no weights,
 i.e.~all \(w_{ij}\) in \eqref{eq-loss1} are equal to one. We have added
-weights to the definition of HGA so that, for example, we can easily
+weights to the definition of MCA so that, for example, we can easily
 incorporate missing data. Disparities are required to satisfy the
-measurement restrictions implied by the data. In HGA this means that we
+measurement restrictions implied by the data. In MCA this means that we
 require that \(\smash{\delta_{i\ell}^j=0}\) whenever
 \(\smash{g_{i\ell}^j=1}\), or, using the elementwise product
 \(\circledast\) of matries, \(\Delta_j\circledast G_j=0\).
 
 Define \(W_j\) as the diagonal matrix of weights for variable \(j\), and
-\(W_\star\) as the sum of the \(W)j\). HGA minimizes \eqref{eq-loss1}
+\(W_\star\) as the sum of the \(W)j\). MCA minimizes \eqref{eq-loss1}
 over the \(n\times p\) configurations \(X\) satisfying
 \(X'W_\star X=I\), over the \(Y_j\), and over the \(\Delta_j\) that
 satisfy the measurement restrictions.
@@ -424,14 +428,14 @@ of the length of its lines. The loss function \eqref{eq-loss3} for
 variable \(j\) is the weighted sum of squares of the length of all \(n\)
 lines in this plot, or equivalently the sum of the sizes of the \(k_j\)
 stars. The total loss is the sum of star-sizes over all \(m\) plots.
-Thus HGA aims to place the object-points and category-points in space in
+Thus MCA aims to place the object-points and category-points in space in
 such a way that the stars are as small as possible, i.e.~objects are as
 close as possible to the categories they belong to.
 
 In matrix notation \begin{equation}
 \sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'W_j X-2\ X'W_jG_jY_j+ Y_j'D_jY_j\}\label{eq-loss4}
 \end{equation} Here \(D_j\) is the diagonal matrix with column-sums of
-\(W_jG_j\) on the diagonal. In classical HGA \(D_j=G_j'G_j\), but if
+\(W_jG_j\) on the diagonal. In classical MCA \(D_j=G_j'G_j\), but if
 there are weights this is no longer the case.
 
 Next define \begin{equation}
@@ -444,14 +448,14 @@ makes ``stars'' actually look like stars. If we substitute these optimal
 \(\sigma_{\star\star}(X)\) is indeed equal to the weighted sum of
 squares of all lines defining the stars. Minimizing
 \(\sigma_{\star\star}(X)\) over \(X'W_\star X=I\), and thus minimizing
-\eqref{eq-loss1} over \((X, Y_j,\Delta_j)\), defines HGA.
+\eqref{eq-loss1} over \((X, Y_j,\Delta_j)\), defines MCA.
 
 By writing \begin{equation}
 \sigma_{\star\star}(X):=\text{tr}\ X'\left\{\sum_{j=1}^m(W_j-W_jG_jD_j^{-1}G_j'W_j)\right\}X\label{eq-loss6}
 \end{equation} we see that minimizing \eqref{eq-loss6} over
 \(X'W_\star X=I\) is a straightforward eigenvalue-eigenvector problem.
 
-A HGA in two dimensions of our small example produces the following
+A MCA in two dimensions of our small example produces the following
 three star plots. Objects are numbered and in BLUE, categories have
 bigger labels and are in RED. Note that there are ten objects, but the
 sets of objects \((1,4,7)\), \((8,10)\), and \((6,9)\) have the same
@@ -472,12 +476,12 @@ Leeuw (\citeproc{ref-michailidis_deleeuw_A_01}{2001})).
 \subsection{Voronoi Homogeneity
 Analysis}\label{voronoi-homogeneity-analysis}
 
-Although using loss function \eqref{eq-loss1} makes HGA a form of
+Although using loss function \eqref{eq-loss1} makes MCA a form of
 non-metric multidimensional scaling there are some important differences
 with the more familiar MDS versions minimizing stress. There is no local
-minima problem in HGA, because it turns out to be a symmetric eigenvalue
-problem. In HGA, unlike in MDS, we impose the constraint \(X'X=I\).
-Also, and perhaps most importantly, in HGA we do not really expect the
+minima problem in MCA, because it turns out to be a symmetric eigenvalue
+problem. In MCA, unlike in MDS, we impose the constraint \(X'X=I\).
+Also, and perhaps most importantly, in MCA we do not really expect the
 minimum loss function value to be zero, or even close to zero. The loss
 function measures deviations from a very unrealistic ``model''. Zero
 loss would imply all object-points coincide with all category-points
@@ -497,7 +501,7 @@ more general loss function \begin{equation}
 \end{equation} with the constraints that \begin{equation}
 \text{if }g_{i\ell}^j=1\text{ then }\delta_{i\ell}^j\leq\delta_{i\nu}^j\text{ for all }\nu=1,\cdots,k_j.
 \label{eq-hori}
-\end{equation} This is significantly weaker than the HGA constraints. If
+\end{equation} This is significantly weaker than the MCA constraints. If
 object \(i\) belongs to category \(\ell\) of variable \(j\) we do no
 longer require the object-point to coincide with the category-point, but
 we merely require that the object-point is at least as close to
@@ -518,7 +522,7 @@ multidimensional unfolding problems for the binary matrices \(G_j\),
 which are ``linked'' because they share the same \(X\).
 
 Because of the different ordinal constraints on the disparities, the
-plots corresponding with this analysis are different. As in HGA there is
+plots corresponding with this analysis are different. As in MCA there is
 a plot for each variable \(j\) with both \(n\) object-points and \(k_j\)
 category-points. The \(k_j\) category-points are the \emph{generators}
 of \(k_j\) \emph{Voronoi regions} that partition the space. Voronoi
@@ -543,13 +547,13 @@ al. (\citeproc{ref-aurenhammer_klein_lee_13}{2013}).
 
 Since the category-point itself is obviously in its own Voronoi region
 and since Voronoi regions are convex it follows that if we make stars by
-connecting category-points with object points as in HGA then we actually
+connecting category-points with object points as in MCA then we actually
 require each star to be in its Voronoi region. It is no longer true that
 a category-point is the centroid of points of the objects belonging to
 the category. The category-point can even be outside the convex hull of
 the object-points belonging to the category.
 
-The constraint \(X'X=I\) from HGA is no longer imposed directly, but we
+The constraint \(X'X=I\) from MCA is no longer imposed directly, but we
 somehow have to deal with the fact that in VHA the minimum of loss
 function \eqref{eq-loss1} is always zero. The trivial solution, in which
 all points and regions collapse into a single point and all \(\Delta_j\)
@@ -566,7 +570,7 @@ choose all disparities equal to that distance value and obtain loss
 zero.
 
 We will use some constraints that tend to counteract degeneracy. Also,
-we always start our iterations with the HGA analysis, which in most
+we always start our iterations with the MCA analysis, which in most
 cases already has small loss. Then we perform iterations until either
 the distances do not change from one iteration to the next (up to some
 epsilon) or the loss becomes zero (up to some epsilon) or we have
@@ -583,12 +587,12 @@ constraints}. The \emph{vertical constraints} are \begin{equation}
 Thus object-points belonging to a category must be inside a ball
 centered at the category point (or on its boundary), and objects not
 belonging to that category must be outside the ball (or on its
-boundary). Clearly an object cannot be inside two balls of two
-categories of the same variable -- if it was it would be in two
-categories of that variable. Thus convex hulls of the point clouds in
-balls corresponding with different categories of the same variable are
-disjoint, which implies that object points are in the correct Voronoi
-regions.
+boundary). Clearly an object cannot be in the interiors of two different
+balls of two categories of the same variable -- if it was it would be in
+two categories of that variable. Thus convex hulls of the point clouds
+in balls corresponding with different categories of the same variable
+are disjoint, which implies that object points are in the correct
+Voronoi regions.
 
 \sectionbreak
 
@@ -618,8 +622,8 @@ ALS \emph{outer iteration}.
 
 \subsection{Initial Configuration}\label{initial-configuration}
 
-In all our analysis we use HGA as the initial configuration for both
-object-scores and category-scores. The algorithm for HGA is the ALS
+In all our analysis we use MCA as the initial configuration for both
+object-scores and category-scores. The algorithm for MCA is the ALS
 method used in Gifi (\citeproc{ref-gifi_B_90}{1990}) to compute the
 truncated SVD. The repository includes mca.R
 
@@ -885,7 +889,7 @@ One of the main themes in Gifi (\citeproc{ref-gifi_B_90}{1990}) is that
 the \(k_j\times p\) matrices of category-scores can be constrained to be
 of rank \(r<p\). We will restrict ourselves in this paper to \(r=1\),
 which defines what Gifi calls \emph{single quantifications}. If all
-variables are restricted to have single quantifications then a HGA
+variables are restricted to have single quantifications then a MCA
 becomes equivalent to a PCA of the transformed variables.
 
 In VHA the Voronoi regions of single variables become parallel strips.
@@ -1033,9 +1037,9 @@ The value returned by the program is a list.
   \emph{dhat} disparities, a list of \emph{m} matrices of dimension
   \(n\times k_j\).
 \item
-  \emph{xini} the HGA solution for the object scores,
+  \emph{xini} the MCA solution for the object scores,
 \item
-  \emph{yini} the HGA solution for the category-scores,
+  \emph{yini} the MCA solution for the category-scores,
 \item
   \emph{itel} number of iterations.
 \item
@@ -1088,31 +1092,44 @@ arguments are
 
 \subsection{Small Example}\label{small-example}
 
-We start with the small example we used before to illustrate HGA.
+We start with the small example we used before to illustrate MCA. We
+first do an analysis without additional configuration constraints, using
+the horizontal (row-wise) ordinal constraints on the dissimilarities.
 
 \begin{center}
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvharow-1.pdf}}
 \end{center}
 
 Loss is 0.0000000000 after 443 iterations. If we compare the plots from
-the Voronoi analysis with the star plots from the initial HGA for this
-example we see that the algorithm did not have to change much to obtain
-perfect fit. One thing that does change is that the iterations moves the
+the VHA with the star plots from the initial MCA for this example we see
+that the algorithm did not have to change much to obtain perfect fit.
+One thing that does change is that the iterations moves the
 category-points ``p'' and ``r'' for variable 2 very close to each other.
 At the point where we stop the iterations they are still
 distinguishable, and thus their perpendicular bisector is still a line
 in the Voronoi plot. If we would continue iterating ``p'' and ``r''
 would coincide and there would only be two Voronoi regions: one
 containing category-point ``q'' and object-point 2, and one containing
-all other points. one containing all other.
+all other points.
 
 \begin{center}
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/redo-1.pdf}}
 \end{center}
 
+Next we repeat the analysis, but this time with vertical (column-wise)
+constraints. We show the circle-plots for this solution.
+
 \begin{center}
 \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/smallvhacol-1.pdf}}
 \end{center}
+
+Note that for variable 2 the p-circle is within the r-circle, and there
+is a p-object on the boundary of the r-circle and an r-object on the
+boundary of the p-circle. The intersection of the interiors of these two
+circle do not contain any objects. For the third variable the three
+u-objects (which all have the same ``apu'' profile and thus have a
+circle with zero radius) are on the boundary of the v-circle. Loss is
+0.0000000000 after 173 iterations.
 
 \subsection{GALO}\label{galo}
 
@@ -1159,38 +1176,38 @@ The categories of SES are as follows (again alphabetically).
   \emph{Unsk} Unskilled Manual.
 \end{itemize}
 
-We start with an HGA of the galo data. The initial value of the loss
+We start with an MCA of the galo data. The initial value of the loss
 function is 0.3158339145. The loss function value is computed by using
 \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-losshga}
-\end{equation} where \(X\) and the \(Y_j\) are the HGA solution, and
+\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-lossMCA}
+\end{equation} where \(X\) and the \(Y_j\) are the MCA solution, and
 where the minimum over the \(\Delta_j\) is computed by requiring that
 \(\smash{\delta_{i\nu}^j\leq\delta_{i\ell}^j}\) if
-\(\smash{g_{i\nu}^j=1}\). This is \emph{not} the HGA loss function
+\(\smash{g_{i\nu}^j=1}\). This is \emph{not} the MCA loss function
 \eqref{eq-loss2}, in which the minimum over the \(\Delta_j\) is computed
 by requiring that \(\delta_{i\ell}^j=0\) whenever \(g_{i\ell}^j=1\).
-Thus we evaluate the HGA solution using the VGA loss function.
+Thus we evaluate the MCA solution using the VGA loss function.
 
-For any HGA or VGA solution we can compute a Shepard diagram by plotting
+For any MCA or VGA solution we can compute a Shepard diagram by plotting
 the distances and disparities, pooled over all objects (individuals) and
 variables. The weak regression requirements imply that many disparities
 will be equal to the corresponding distances. This is illustrated by the
-diagonal of Figure~\ref{fig-galo_d_dhat_hga}.
+diagonal of Figure~\ref{fig-galo_d_dhat_MCA}.
 
 \begin{figure}
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_d_dhat_hga-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_d_dhat_MCA-1.pdf}}
 
 }
 
-\caption{\label{fig-galo_d_dhat_hga}Galo D-Dhat Plot HGA}
+\caption{\label{fig-galo_d_dhat_MCA}Galo D-Dhat Plot MCA}
 
 \end{figure}%
 
-The HGA solution can also be used to produce Voronoi plots, which are
-given in Figure~\ref{fig-galo_IQ_HGA} for IQ. We see the familiar
+The MCA solution can also be used to produce Voronoi plots, which are
+given in Figure~\ref{fig-galo_IQ_MCA} for IQ. We see the familiar
 horseshoe shape of the object score cloud (the Guttman effect, see De
 Leeuw (\citeproc{ref-deleeuw_C_23}{2023})). The category-scores are
 largely in order along the horseshoe, and as a consequence the Voronoi
@@ -1205,15 +1222,15 @@ Voronoi region.
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_IQ_HGA-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/fig-galo_IQ_MCA-1.pdf}}
 
 }
 
-\caption{\label{fig-galo_IQ_HGA}Galo IQ HGA}
+\caption{\label{fig-galo_IQ_MCA}Galo IQ MCA}
 
 \end{figure}%
 
-The VHA solution has loss equal to 0.0000818320 after 1000 iterations.
+The VHA solution has loss equal to 0.0000818331 after 1000 iterations.
 The voronoi function stopped because the maximum number of iterations
 was reached. The \(d-\hat d\) plot in Figure~\ref{fig-galo_d_dhat} shows
 a near-perfect fit.
@@ -1254,15 +1271,15 @@ unstable. The solution for the category-scores for IQ is
 
 \begin{verbatim}
          dim1          dim2 freq
-1 -0.03551673  0.0038947751    5
-2 -0.02703754 -0.0491982427   17
-3 -0.02706027 -0.0427253923  121
-4 -0.02290451 -0.0006391014  234
-5 -0.02289473 -0.0006162192  390
-6  0.02216000  0.0203127031  244
-7  0.02216072  0.0203143475  197
-8  0.05467148 -0.0480676414   63
-9  0.06483907 -0.0642872615   19
+1 -0.03551679  0.0038947482    5
+2 -0.02703758 -0.0491982477   17
+3 -0.02706029 -0.0427253760  121
+4 -0.02290451 -0.0006391076  234
+5 -0.02289474 -0.0006162247  390
+6  0.02215996  0.0203126796  244
+7  0.02216069  0.0203143237  197
+8  0.05467150 -0.0480675505   63
+9  0.06483906 -0.0642872376   19
 \end{verbatim}
 
 We see that categories 2 and 3 map into basically the same point. The
@@ -1297,40 +1314,40 @@ habitat and feeding. The average number of categories per variable is
 about four, and almost all variables are ``nominal'' (i.e.~not
 ``ordinal'' and not ``numerical''). In the same book Van der Burg
 (\citeproc{ref-vanderburg_85}{1985}) presents a secondary analysis of
-the data with HGA and Guttman (\citeproc{ref-guttman_85}{1985}) applies
-his MSA-I technique (which uses HGA as an initial configuration for its
+the data with MCA and Guttman (\citeproc{ref-guttman_85}{1985}) applies
+his MSA-I technique (which uses MCA as an initial configuration for its
 iterations).
 
-We start with an HGA of the cetacea data. The initial value of the loss
+We start with an MCA of the cetacea data. The initial value of the loss
 function \ldots{} is 0.9945577132.
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_d_dhat_hga-1.pdf}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_d_dhat_MCA-1.pdf}}
 
 }
 
-\caption{Cetacea D-Dhat Plot HGA}
+\caption{Cetacea D-Dhat Plot MCA}
 
 \end{figure}%
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_xmat_HGA-1.pdf}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_xmat_MCA-1.pdf}}
 
 }
 
-\caption{Cetacea Object Scores HGA}
+\caption{Cetacea Object Scores MCA}
 
 \end{figure}%
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_flippers_HGA-1.pdf}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{voronoi_files/figure-pdf/cetacea_flippers_MCA-1.pdf}}
 
 }
 
-\caption{Cetacea Flippers HGA}
+\caption{Cetacea Flippers MCA}
 
 \end{figure}%
 
