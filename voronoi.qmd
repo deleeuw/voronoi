@@ -84,25 +84,24 @@ but is not required. The files can be found at
 
 ## Multiple Correspondence Analysis
 
-*Multiple Correspondence Analysis (MCA)*
-can be introduced and implemented in many different
-ways. We refer to @guttman_41, @tenenhaus_young_85, @bekker_deleeuw_C_88, @gifi_B_90,
-@greenacre_blasius_06, @leroux_rouanet_10, @husson_josse_saporta_16, and
-@deleeuw_C_23 for a bouquet of discussions and interpretations of the equations
-and algorithms defining the MCA technique.
+*Multiple Correspondence Analysis (MCA)* can be introduced and implemented in
+many different ways. We refer to @guttman_41, @tenenhaus_young_85,
+@bekker_deleeuw_C_88, @gifi_B_90, @greenacre_blasius_06, @leroux_rouanet_10,
+@husson_josse_saporta_16, and @deleeuw_C_23 for a bouquet of discussions and
+interpretations of the equations and algorithms defining the MCA technique.
 
-First some terminology. A *variable* is a function that maps on a (finite or infinite) domain of
-*objects* into a (finite or infinite) codomain of *values*. In MCA the data are
-the values of $m$ variables on the same *carrier*, a finite subset the domain
-consisting of $n$ objects. Each variable $j$ has a finite number $k_j$ of
-*categories*. The categories constitute the *range* of the variable for the $n$
-objects in the carrier. Note that all variables have the same carrier. Each
-object maps into a unique category, and each category contains a subset of
-objects from the carrier. We also say that a category has a number of objects
-that "belong to" the category.
+First some terminology. A *variable* is a function that maps on a (finite or
+infinite) domain of *objects* into a (finite or infinite) codomain of *values*.
+In MCA the data are the values of $m$ variables on the same *carrier*, a finite
+subset the domain consisting of $n$ objects. Each variable $j$ has a finite
+number $k_j$ of *categories*. The categories constitute the *range* of the
+variable for the $n$ objects in the carrier. Note that all variables have the
+same carrier. Each object maps into a unique category, and each category
+contains a subset of objects from the carrier. We also say that a category has a
+number of objects that "belong to" the category.
 
-Here is a small example with $n=10$ and $m=3$, taken from @gifi_B_90, page 65.
-In the github voronoi repository these data are in data/small.R.
+Here is a small example with $n = 10$ and $m = 3$, taken from @gifi_B_90, page
+65. In the github voronoi repository these data are in data/small.R.
 
 ```{r}
 #| label: small
@@ -111,17 +110,16 @@ In the github voronoi repository these data are in data/small.R.
 print(small)
 ```
 
-The key mathematical object in MCA is the *indicator matrix*, which is a classical way to
-code categorical
-data\footnote{Since the indicator matrix is the core of the Gifi 
-system we avoid the somewhat irreverent alternative "dummy coding".}.
-For a variable $j$ with $k_j$ categories it is an $n\times k_j$ binary matrix
-$G_j$ in which each row $i$ contains a single element equal to one, indicating
-into which category the object $i$ maps for variable $j$. The cross product
-$G_j'G_j$ is diagonal, with the *marginal frequencies* of the categories on the
-diagonal. For two different variables the crossproduct $G_j'G_\ell$ is the
-$k_j\times k_\ell$ *cross table* or *contingency table* of the two variables.
-Here are the three indicator matrices of our small example, next to each other.
+The key mathematical object in MCA is the *indicator matrix*, which is a
+classical way to code categorical data. Coding variables using indicator
+matrices is also known as *dummy coding*. For a variable $j$ with $k_j$
+categories it is an $n \times k_j$ binary matrix $G_j$ in which each row $i$
+contains a single element equal to one, indicating into which category the
+object $i$ maps for variable $j$. The cross product $G_j'G_j$ is diagonal, with
+the *marginal frequencies* of the categories on the diagonal. For two different
+variables the crossproduct $G_j'G_\ell$ is the $k_j \times k_\ell$ *cross table*
+or *contingency table* of the two variables. Here are the three indicator
+matrices of our small example, next to each other.
 
 ```{r}
 #| label: indi
@@ -143,31 +141,32 @@ We now deviate from the usual Gifi and French approaches
 multidimensional scaling, using the *stress* loss function (@kruskal_64a,
 @kruskal_64b). Define\footnote{The symbol $:=$ is used for definitions}
 \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^nw_{ij}\sum_{\ell=1}^{k_j}(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss1}
+  \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ) := \sum_{j=1}^m\sum_{i=1}^nw_{ij} \sum_{\ell=1}^{k_j}(\delta_{i\ell}^j - d(x_i,y_\ell^j))^2,\label{eq-loss1}
 \end{equation}
 with $w_{ij}$ given non-negative weights, $d(x_i,y_\ell^j)$ the *Euclidean
 distance* between row $i$ of $X$ and row $\ell$ of $Y_j$, and
 $\smash{\delta_{i\ell}^j}$ the corresponding *disparity*. In classical MCA there
 are no weights, i.e. all $w_{ij}$ in \eqref{eq-loss1} are equal to one. We have
 added weights to the definition of MCA so that, for example, we can easily
-incorporate missing data. Disparities are required to satisfy the measurement
+incorporate missing data. Disparities are constrained to satisfy the measurement
 restrictions implied by the data. In MCA this means that we require that
 $\smash{\delta_{i\ell}^j=0}$ whenever $\smash{g_{i\ell}^j=1}$, or, using the
-elementwise product $\circledast$ of matries, $\Delta_j\circledast G_j=0$.
+elementwise product $\circledast$ of matries, $\Delta_j \circledast G_j = 0$.
 
 Define $W_j$ as the diagonal matrix of weights for variable $j$, and $W_\star$
-as the sum of the $W)j$. MCA minimizes \eqref{eq-loss1} over the $n\times p$
-configurations $X$ satisfying $X'W_\star X=I$, over the $Y_j$, and over the
-$\Delta_j$ that satisfy the measurement restrictions.
+as the sum of the $W_j$. MCA minimizes \eqref{eq-loss1} over the $n \times p$
+configurations $X$, over the $Y_j$, and over the $\Delta_j$ that satisfy the
+measurement restrictions. There may be additional constraints on $X$ and/or the
+$Y_j$, which define different variations of MCA.
 
 Define
 \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m).\label{eq-loss2}
+  \sigma_\star(X,Y_1,\cdots,Y_m) := \min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m).\label{eq-loss2}
 \end{equation}
-The minimizing disparity $\delta_{i\ell}^j$ is equal to zero if $g_{i\ell}^j=1$
-and equal to $d(x_i,y_\ell^j)$ otherwise. Consequently
+The minimizing disparity $\delta_{i\ell}^j$ is equal to zero if
+$g_{i\ell}^j = 1$ and equal to $d(x_i,y_\ell^j)$ otherwise. Consequently
 \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^nw_{ij}\sum_{\ell=1}^{k_j}\{d^2(x_i,y_\ell^j)\mid g_{i\ell}^j=1\}.\label{eq-loss3}
+  \sigma_\star(X,Y_1,\cdots,Y_m) = \sum_{j=1}^m\sum_{i=1}^nw_{ij}\sum_{\ell=1}^{k_j}\{d^2(x_i,y_\ell^j) \mid g_{i\ell}^j = 1\}.\label{eq-loss3}
 \end{equation}
 
 We can make a graphical representation of \eqref{eq-loss3}. For variable $j$ we
@@ -184,30 +183,30 @@ i.e. objects are as close as possible to the categories they belong to.
 
 In matrix notation
 \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m \text{tr}\ \{X'W_j X-2\ X'W_jG_jY_j+ Y_j'D_jY_j\}\label{eq-loss4}
+  \sigma_\star(X,Y_1,\cdots,Y_m) = \sum_{j=1}^m \text{tr}\ \{X'W_j X - 2\ X'W_jG_jY_j + Y_j'D_jY_j\}\label{eq-loss4}
 \end{equation}
 Here $D_j$ is the diagonal matrix with column-sums of $W_jG_j$ on the diagonal.
-In classical MCA $D_j=G_j'G_j$, but if there are weights this is no longer the
+In classical MCA $D_j = G_j'G_j$, but if there are weights this is no longer the
 case.
 
 Next define
 \begin{equation}
-\sigma_{\star\star}(X):=\min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss5}
+  \sigma_{\star \star}(X) := \min_{Y_1,\cdots,Y_m}\sigma_\star(X;Y_1,\cdots,Y_m).\label{eq-loss5}
 \end{equation}
 The minimum of \eqref{eq-loss4} over the $Y_j$ is attained at
-$\hat Y_j:=D_j^{-1}G_j'W_jX$. Category-points are the weighted centroids of the
-object-points belonging to the category. This makes "stars" actually look like
-stars. If we substitute these optimal $\smash{\hat Y_j}$ in \eqref{eq-loss3} we
-see that $\sigma_{\star\star}(X)$ is indeed equal to the weighted sum of squares
-of all lines defining the stars. Minimizing $\sigma_{\star\star}(X)$ over
-$X'W_\star X=I$, and thus minimizing \eqref{eq-loss1} over $(X, Y_j,\Delta_j)$,
-defines MCA.
+$\hat Y_j := D_j^{-1}G_j'W_jX$. Category-points are the weighted centroids of
+the object-points belonging to the category. This makes "stars" actually look
+like stars. If we substitute these optimal $\smash{\hat Y_j}$ in
+\eqref{eq-loss3} we see that $\sigma_{\star \star}(X)$ is indeed equal to the
+weighted sum of squares of all lines defining the stars. Minimizing
+$\sigma_{\star \star}(X)$ over $X'W_\star X = I$, and thus minimizing
+\eqref{eq-loss1} over $(X, Y_j,\Delta_j)$, defines MCA.
 
 By writing
 \begin{equation}
-\sigma_{\star\star}(X):=\text{tr}\ X'\left\{\sum_{j=1}^m(W_j-W_jG_jD_j^{-1}G_j'W_j)\right\}X\label{eq-loss6}
+  \sigma_{\star \star}(X) := \text{tr}\ X'\left\{ \sum_{j=1}^m(W_j - W_jG_jD_j^{-1}G_j'W_j) \right\}X\label{eq-loss6}
 \end{equation}
-we see that minimizing \eqref{eq-loss6} over $X'W_\star X=I$ is a
+we see that minimizing \eqref{eq-loss6} over $X'W_\star X = I$ is a
 straightforward eigenvalue-eigenvector problem.
 
 A MCA in two dimensions of our small example produces the following three star
@@ -264,10 +263,10 @@ Although using loss function \eqref{eq-loss1} makes MCA a form of non-metric
 multidimensional scaling there are some important differences with the more
 familiar MDS versions minimizing stress. There is no local minima problem in
 MCA, because it turns out to be a symmetric eigenvalue problem. In MCA, unlike
-in MDS, we impose the constraint $X'X=I$. Also, and perhaps most importantly, in
-MCA we do not really expect the minimum loss function value to be zero, or even
-close to zero. The loss function measures deviations from a very unrealistic
-"model". Zero loss would imply all object-points coincide with all
+in MDS, we impose the constraint $X'X = I$. Also, and perhaps most importantly,
+in MCA we do not really expect the minimum loss function value to be zero, or
+even close to zero. The loss function measures deviations from a very
+unrealistic "model". Zero loss would imply all object-points coincide with all
 category-points they belong to. This can only be realized, except in trivial
 cases, if all object and category-points map into a single point, which is
 prohibited by the orthonormality constraint on the object scores. Thus we get a
@@ -280,23 +279,22 @@ drawings of the bipartite graphs that constitute the data.
 The lack of a realistic model makes it interesting to continue use the more
 general loss function
 \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ):=\sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-d(x_i,y_\ell^j))^2,\label{eq-loss2}
+  \sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m) ) := \sum_{j=1}^m\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j - d(x_i,y_\ell^j))^2,\label{eq-loss2}
 \end{equation}
 with the constraints that
 \begin{equation}
-\text{if }g_{i\ell}^j=1\text{ then }\delta_{i\ell}^j\leq\delta_{i\nu}^j\text{ for all }\nu=1,\cdots,k_j.
-\label{eq-hori}
+  \text{if }g_{i\ell}^j = 1\text{ then }\delta_{i\ell}^j \leq \delta_{i\nu}^j\text{ for all }\nu = 1,\cdots,k_j. \label{eq-hori}
 \end{equation}
 This is significantly weaker than the MCA constraints. If object $i$ belongs to
 category $\ell$ of variable $j$ we do no longer require the object-point to
 coincide with the category-point, but we merely require that the object-point is
-at least as close to category-point $\ell$ as to any of the other $k_j-1$
+at least as close to category-point $\ell$ as to any of the other $k_j - 1$
 category-points of that variable.
 
 Constraints \eqref{eq-hori} are called the *horizontal constraints*. The
 *vertical constraints* are
 \begin{equation}
-\text{if }g_{i\ell}^j=1\text{ and }g_{k\ell}^j=0 \text{ then }\delta_{i\ell}^j\leq\delta_{k\ell}^j.
+  \text{if }g_{i\ell}^j = 1\text{ and }g_{k\ell}^j = 0 \text{ then }\delta_{i\ell}^j \leq \delta_{k\ell}^j.
 \end{equation}
 
 *Voronoi Homogeneity Analysis* (VHA) of categorical data minimizes loss function
@@ -320,8 +318,8 @@ belong to.
 One (inefficient, but conceptually easy) way of constructing Voronoi regions in
 the plane is to draw the perpendicular bisectors of the (hypothetical) lines
 connecting all pairs of category-points of a variable. In higher dimensions
-$p>2$ the bisectors are planes of dimension $p-1$. The convex polyhedral regions
-thus formed, some bounded and some unbounded, define the Voronoi
+$p > 2$ the bisectors are planes of dimension $p - 1$. The convex polyhedral
+regions thus formed, some bounded and some unbounded, define the Voronoi
 regions\footnote{In the plane a Voronoi region is unbounded if and only if its generator is on the boundary of the convex hull of all generators.}.
 The literature on properties and computation of Voronoi regions is large, and we
 refer to the textbooks of @okabe_boots_sugihara_chiu_00 and
@@ -335,7 +333,7 @@ centroid of points of the objects belonging to the category. The category-point
 can even be outside the convex hull of the object-points belonging to the
 category.
 
-The constraint $X'X=I$ from MCA is no longer imposed directly, but we somehow
+The constraint $X'X = I$ from MCA is no longer imposed directly, but we somehow
 have to deal with the fact that in VHA the minimum of loss function
 \eqref{eq-loss1} is always zero. The trivial solution, in which all points and
 regions collapse into a single point and all $\Delta_j$ are zero, is always
@@ -358,17 +356,17 @@ to some epsilon) or we have reached the maximum number of iterations allowed.
 Constraints \eqref{eq-hori} are called the *horizontal constraints*. The
 *vertical constraints* are
 \begin{equation}
-\text{if }g_{i\ell}^j=1\text{ and }g_{k\ell}^j=0 \text{ then }\delta_{i\ell}^j\leq\delta_{k\ell}^j.
+  \text{if }g_{i\ell}^j = 1\text{ and }g_{k\ell}^j = 0 \text{ then }\delta_{i\ell}^j \leq \delta_{k\ell}^j.
 \end{equation}
 
 Thus object-points belonging to a category must be inside a ball centered at the
 category point (or on its boundary), and objects not belonging to that category
-must be outside the ball (or on its boundary). Clearly an object cannot be
-in the interiors of two different balls of two categories of the same variable
--- if it was it would be
-in two categories of that variable. Thus convex hulls of the point clouds in
-balls corresponding with different categories of the same variable are disjoint,
-which implies that object points are in the correct Voronoi regions.
+must be outside the ball (or on its boundary). Clearly an object cannot be in
+the interiors of two different balls of two categories of the same variable --
+if it was it would be in two categories of that variable. Thus convex hulls of
+the point clouds in balls corresponding with different categories of the same
+variable are disjoint, which implies that object points are in the correct
+Voronoi regions.
 
 \sectionbreak
 
@@ -382,14 +380,14 @@ minimization over $X$ and $Y_1\cdots Y_m$ for given $\Delta_1,\cdots,\Delta_m$.
 Using superscript $(\mu)$ for the iteration index we can write for an ALS
 iteration
 \begin{subequations}
-\begin{align}
-(\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)})&=\mathop{\text{argmin}}_{\Delta_1,\cdots,\Delta_m}\sigma(X^{(\mu)},Y_1^{(\mu)},\cdots,Y_m^{(\mu)},\Delta_1,\cdots,\Delta_m),\label{eq-als1}\\
-(X^{(\mu+1)},Y_1^{(\mu+1)},\cdots,Y_m^{(\mu+1)})&=\mathop{\text{argmin}}_{X,Y_1,\cdots,Y_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)}).\label{eq-als2}
-\end{align}
+  \begin{align}
+    (\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)})       & = \mathop{\text{argmin}}_{\Delta_1,\cdots,\Delta_m}\sigma(X^{(\mu)},Y_1^{(\mu)},\cdots,Y_m^{(\mu)},\Delta_1,\cdots,\Delta_m),\label{eq-als1} \\
+    (X^{(\mu+1)},Y_1^{(\mu+1)},\cdots,Y_m^{(\mu+1)}) & = \mathop{\text{argmin}}_{X,Y_1,\cdots,Y_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1^{(\mu)},\cdots,\Delta_m^{(\mu)}).\label{eq-als2}
+  \end{align}
 \end{subequations}
 The first substep \eqref{eq-als1} of iteration $(\mu)$ solves a monotone
 regression problem for a simple partial order, in which one of $k_j$ elements
-must be smaller than the other $k_j-1$ elements. The second substep
+must be smaller than the other $k_j - 1$ elements. The second substep
 \eqref{eq-als2} solves a metric multidimensional scaling problem. This second
 subproblem cannot be solved completely, because it would need an infinite
 iterative process by itself. Thus the second substep \eqref{eq-als2} consists of
@@ -406,30 +404,32 @@ in @gifi_B_90 to compute the truncated SVD. The repository includes mca.R
 
 The $nm$ monotone regressions are applied for each object $i$ and each variable
 $j$. Forgetting about all these indices for the moment we need to minimize the
-sum of squares $\|\delta-d\|^2$ over $\delta$, where one of the elements, say
+sum of squares $\|\delta - d\|^2$ over $\delta$, where one of the elements, say
 $\delta_\nu$, must be smaller than or equal to all others.
 
 This can be solved by using monotone regression with the primary approach to
 ties (@kruskal_64b, @deleeuw_A_77), treating all $\delta_\ell$ with
-$\ell\neq\nu$ as ties.
+$\ell \neq \nu$ as ties.
 
-Suppose $y$ and $w\geq 0$ are given vectors with $n$ elements. Suppose $N_1$ and
-$N_0$ are a partition of $N:=\{1,2,\cdots n\}$. The Binary Monotone Regression
-Problem is to find $x$ with $x_i\leq x_k$ for all $i\in N_0$ and $k\in N_1$ such
-that
+Suppose $y$ and $w \geq 0$ are given vectors with $n$ elements. Suppose $N_1$
+and $N_0$ are a partition of $N := \{1,2,\cdots n\}$. The Binary Monotone
+Regression Problem is to find $x$ with $x_i \leq x_k$ for all $i \in N_0$ and
+$k \in N_1$ such that
 $$
-  \sigma(x)=\frac12\sum_{i\in N} w_i(x_i-y_i)^2
+  \sigma(x) = \frac12\sum_{i \in N} w_i(x_i - y_i)^2
 $$
-is minimized. Equivalently we want to find $\alpha$ such that $x_i\leq\alpha$
-for $i\in N_0$ and $x_i\geq\alpha$ for $i\in N_1$. Thus loss can be rewritten as
-a function of the single variable $\alpha$.
+is minimized. Equivalently we want to find $\alpha$ such that $x_i \leq \alpha$
+for $i \in N_0$ and $x_i \geq \alpha$ for $i \in N_1$. Thus loss can be
+rewritten as a function of the single variable $\alpha$.
 $$
-  \sigma(\alpha)=\frac12\sum_{i\in N_0} w_i\min(\alpha-y_i,0)^2+\frac12\sum_{i\in N_1} w_i\max(\alpha-y_i,0)^2.
+  \sigma(\alpha) = \frac12\sum_{i \in N_0} w_i\min(\alpha - y_i,0)^2
+                   + \frac12\sum_{i \in N_1} w_i\max(\alpha - y_i,0)^2.
 $$
 This function is piecewise quadratic, convex, and differentiable (although not
 twice differentiable). Its derivative, which is increasing, is
 $$
-  \mathcal{D}\sigma(\alpha)=\sum_{i\in N_0} w_i(\min(\alpha-y_i,0)+\sum_{i\in N_1} w_i(\max(\alpha-y_i, 0)
+  \mathcal{D}\sigma(\alpha)
+  = \sum_{i \in N_0} w_i(\min(\alpha - y_i,0) + \sum_{i \in N_1} w_i(\max(\alpha - y_i, 0)
 $$
 The function binaryMonotoneRegression(), with the alias bmr(), minimizes
 $\sigma$ over $\alpha$. We sort $y$, set $\alpha$ equal to the smallest $y_i$,
@@ -442,53 +442,6 @@ negative. Since the derivative is linear on the interval between the two values
 of $\alpha$ we can use linear interpolation to find the value for which it is
 zero.
 
-## Regression Constraints
-
-In this paper we (optionally) use the constraints
-\begin{equation}
-\sum_{\ell=1}^{k_j}w_{i\ell}^j(\delta_{i\ell}^j-\overline{\delta}_{ij})^2=w_{i\star}^j,\label{eq-norm}
-\end{equation}
-for all $i$ and $j$, with $\smash{\overline{\delta}_{ij}}$ the weighted mean of
-the $\smash{\delta_{i\ell}^j}$. In addition, of course, the $\delta_{i\ell}^j$
-must satisfy the ordinal constraints. Constraint \eqref{eq-norm} explicitly
-excludes the possibility that the $\smash{\delta_{i\ell}^j}$ for given $i$ and
-$j$ are equal for all $\ell$.
-
-Suppose $y$ is a vector with $n$ elements. The problem we study is to minimize
-$\sigma(x):=\|x-y\|_W^2$ over $x\in K$ and $\|x-\overline x e\|_W^2$ is equal to
-some constant $c$. Here
-
-- $K$ is the cone of vectors defined by a number of inequalities of the form
-  $x_i\leq x_j$,
-- $e$ is the vector with all $n$ elements equal to one,
-- $W$ is a diagonal matrix of weights,
-- $\|x\|^2_W=x'Wx$ is the square of the $W$-norm of $x$,
-- $\overline x$ is the weighted mean $e'Wx/e'We$.
-
-Define $J:=I-ee'W/(e'We)$ and $\tilde x=Jx$. Then $Jx=x-\overline x e$. Then
-$x'Jx=\tilde x'W\tilde x$ and $x\in K$ if and only if $\tilde x\in K$. Also
-$\tilde x= Jx$ if and only if $x=\tilde x+\beta e$. So the transformed problem
-is to minimize $\|\tilde x+\beta e-y\|_W$ over $\beta$ and $\tilde x\in K$, with
-$e'W\tilde x=0$ and $\tilde x'W\tilde x=c$. The minimizer for $\beta$ is
-$\overline{y}:=e'Wy/e'We$, and thus the equivalent "reduced" problem becomes
-minimizing $\|\tilde x- Jy\|_W^2$ over $\tilde x\in K$, $\tilde x'W\tilde x=c$,
-and $e'W\tilde x=0$.
-
-Forget about the constraint $e'W\tilde x=0$ for now. If $M$ is the monotone
-regression operator it follows that the solution for $\tilde x$ is
-$\sqrt{c}M(Jy)/\|M(Jy)\|_W$, which automatically satisfies $e'W\tilde x=0$
-(@bauschke_bui_wang_18). Thus the solution of our original problem is
-$$
-  \hat x=\sqrt{c}\frac{M(y-\overline{y})}{\|M(y-\overline{y})\|_W}+\overline{y}e.
-$$
-This can be rewritten in a perhaps more revealing way. Now
-$M(y-\overline{y}e)=M(y)-\overline{y}e$ and $e'WM(y)=e'Wy=e'We\overline{y}$.
-Thus $\|M(y-\overline y)\|_W^2=\|M(y)\|_W^2-e'We\overline{M(y)}^2$ so that
-$$
-  \hat x=\frac{M(y)-\overline{y}e}{\|M(y-\overline{y})\|_W}+\overline{y}e=
-  \frac{1}{\|M(y-\overline{y})\|_W}M(y)+\left\{1-\frac{1}{\|M(y-\overline{y})\|_W}\right\}\overline{y}e
-$$
-
 ## Majorization
 
 We study the off-diagonal smacof algorithm for MDS, without taking into account
@@ -498,22 +451,24 @@ metric unfolding problem in @heiser_deleeuw_A_79.
 
 We rewrite stress as
 \begin{equation}
-\sigma(X,Y):=\sum_{i=1}^n\sum_{k=1}^Kw_{ik}(\delta_{ik}-d(x_i,y_k))^2.\label{eq-ploss}
+  \sigma(X,Y) := \sum_{i=1}^n\sum_{k=1}^Kw_{ik}(\delta_{ik} - d(x_i,y_k))^2.\label{eq-ploss}
 \end{equation}
 The distance is
 \begin{equation}
-d(x_i,y_k)=\sqrt{(X'e_i-Y'e_k)'(X'e_i-Y'e_k)}.
+  d(x_i,y_k) = \sqrt{(X'e_i - Y'e_k)'(X'e_i - Y'e_k)}.
 \end{equation}
 We will construct a majorization of \eqref{eq-ploss} at $\tilde X$ and
 $\tilde Y$. Think of $\tilde X$ and $\tilde Y$ as the current best estimates in
 a sequence of iterations. By Cauchy-Schwartz,
 \begin{equation}
-d(x_i,y_k)\geq\frac{1}{d(\tilde x_i,\tilde y_k)}(X'e_i-Y'e_k)'(\tilde X'e_i-\tilde Y'e_k).
+  d(x_i,y_k) \geq \frac{1}{d(\tilde x_i,\tilde y_k)}(X'e_i - Y'e_k)'(\tilde X'e_i - \tilde Y'e_k).
 \end{equation}
-Define the $n\times K$ matrix-valued function $B(X,Y)$ by
+Define the $n \times K$ matrix-valued function $B(X,Y)$ by
 \begin{equation}
-b_{ik}(X,Y):=\begin{cases}w_{ik}\frac{\delta_{ik}}{d(x_i,y_k)}&\text{ if }d(x_i,y_k)>0,\\
-0&\text{ if }d(x_i,y_k)=0.\end{cases}
+  b_{ik}(X,Y) := \begin{cases}
+                   w_{ik}\frac{\delta_{ik}}{d(x_i,y_k)} & \text{ if }d(x_i,y_k) > 0, \\
+                   0                                    & \text{ if }d(x_i,y_k) = 0.
+                 \end{cases}
 \end{equation}
 Also define the diagonal matrices $B_{\star}(X,Y)$ with the row-sums of $B(X,Y)$
 and $B^{\star}(X,Y)$ with the column-sums.
@@ -540,50 +495,51 @@ C:=\sum_{i=1}^n\sum_{k=1}^Kw_{ik}\delta_{ik}^2
 
 With these definitions
 \begin{equation}
-\sigma(X,Y)=C-2\ \rho(X,Y)+\eta^2(X,Y),
+  \sigma(X,Y) = C - 2\ \rho(X,Y) + \eta^2(X,Y),
 \end{equation}
-and $\sigma(X,Y)\leq\sigma(X,Y;\tilde X, \tilde Y)$, where
+and $\sigma(X,Y) \leq \sigma(X,Y;\tilde X, \tilde Y)$, where
 \begin{equation}
-\sigma(X,Y;\tilde X, \tilde Y):= C-2\ \rho(X,Y;\tilde X,\tilde Y)+\eta^2(X,Y),
+  \sigma(X,Y;\tilde X, \tilde Y) := C - 2\ \rho(X,Y;\tilde X,\tilde Y) + \eta^2(X,Y),
 \end{equation}
-with equality if $X=\tilde X$ and $Y=\tilde Y$. In a majorization (or MM)
+with equality if $X = \tilde X$ and $Y = \tilde Y$. In a majorization (or MM)
 iteration we minimize $\sigma(X,Y;\tilde X, \tilde Y)$ over $X$ and $Y$. If the
 minimum is attained at $\tilde X$ and $\tilde Y$ we stop the algorithm, because
 we have found a stationary point. If not we have found updates $X^+$ and $Y^+$
 such that
 \begin{equation}
-\sigma(X^+,Y^+)\leq\sigma(X^+,Y^+;\tilde X, \tilde Y)<
-\sigma(\tilde X,\tilde Y;\tilde X, \tilde Y)=\sigma(\tilde X,\tilde Y).
+  \sigma(X^+,Y^+) \leq \sigma(X^+,Y^+;\tilde X, \tilde Y) < \sigma(\tilde X,\tilde Y;\tilde X, \tilde Y) = \sigma(\tilde X,\tilde Y).
 \end{equation}
 
 The stationary equations for minimizing $\sigma(X,Y;\tilde X, \tilde Y)$ are
 \begin{subequations}
-\begin{align}
-X&=W_\star^{-1}(WY+B_\star(\tilde X,\tilde Y)\tilde X-B(\tilde X,\tilde Y)\tilde Y),\label{eq-xy1}\\
-Y&=\{W^\star\}^{-1}(W'X+B^\star(\tilde X,\tilde Y)\tilde Y-B'(\tilde X, \tilde Y)\tilde X).\label{eq-xy2}
-\end{align}
+  \begin{align}
+    X & = W_\star^{-1}(WY + B_\star(\tilde X,\tilde Y)\tilde X - B(\tilde X,\tilde Y)\tilde Y),\label{eq-xy1}        \\
+    Y & = \{W^\star\}^{-1}(W'X + B^\star(\tilde X,\tilde Y)\tilde Y - B'(\tilde X, \tilde Y)\tilde X).\label{eq-xy2}
+  \end{align}
 \end{subequations}
 Alternatively
 \begin{equation}
-\begin{bmatrix}
-W_\star&-W\\
--W'&W^\star
-\end{bmatrix}
-\begin{bmatrix}
-X\\Y
-\end{bmatrix}=
-\begin{bmatrix}
-B_\star(\tilde X,\tilde Y)&-B(\tilde X,\tilde Y)\\
--B'(\tilde X, \tilde Y)&B^\star(\tilde X,\tilde Y)
-\end{bmatrix}
-\begin{bmatrix}
-\tilde X\\\tilde Y
-\end{bmatrix}\label{eq-xy3}
+  \begin{bmatrix}
+    W_\star & -W      \\
+    -W'     & W^\star
+  \end{bmatrix}
+  \begin{bmatrix}
+    X \\
+    Y
+  \end{bmatrix} =
+  \begin{bmatrix}
+    B_\star(\tilde X,\tilde Y) & -B(\tilde X,\tilde Y)      \\
+    -B'(\tilde X, \tilde Y)    & B^\star(\tilde X,\tilde Y)
+  \end{bmatrix}
+  \begin{bmatrix}
+    \tilde X \\
+    \tilde Y
+  \end{bmatrix}\label{eq-xy3}
 \end{equation}
 
 The next step in each iteration could be to directly solve the system
 \eqref{eq-xy3} for $X$ and $Y$. This approach has the disadvantage that the
-order is $n+m$, which can be quite large in applications. We also have to take
+order is $n + m$, which can be quite large in applications. We also have to take
 into account that the coefficient matrix of \eqref{eq-xy3} is singular.
 Alternatively we can substitute the expression for $X$ from \eqref{eq-xy1} in
 \eqref{eq-xy2} and then solve the resulting equation for $Y$. Or we can solve
@@ -610,14 +566,14 @@ Then proceed to the next two-step MALS iteration, using the new $X^+$ and $Y^+$.
 
 One advantage of MALS, shared with ALS, is that the only matrix inversion needed
 is of thee diagonal weight marginals. Also there is no need to work with square
-symmetric matrices of order $n+m$. But the main advantage of MALS is that it can
-easioly incorporate various constraints on $X$ and $Y$. Remember that
+symmetric matrices of order $n + m$. But the main advantage of MALS is that it
+can easioly incorporate various constraints on $X$ and $Y$. Remember that
 \begin{equation}
-\sigma(X, \tilde Y;\tilde X,\tilde Y)=\text{tr}\ X'W_\star X-2\ \text{tr}\ X'\{W\tilde Y-\text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X+\text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y\}+C,
+  \sigma(X, \tilde Y;\tilde X,\tilde Y) = \text{tr}\ X'W_\star X - 2\ \text{tr}\ X'\{W\tilde Y - \text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X + \text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y\} + C,
 \end{equation}
 where $C$ is now used generically for terms not involving $X$. Define
 \begin{equation}
-\overline X:=W\tilde Y-\text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X+\text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y
+  \overline X := W\tilde Y - \text{tr}\ X'B_\star(\tilde X,\tilde Y)\tilde X + \text{tr}\ X'B(\tilde X,\tilde Y)\tilde Y
 \end{equation}
 Then, after completing the square,
 \begin{subequations}
@@ -637,39 +593,44 @@ same way
 
 # Constraints
 
-### Column-Centering
+## External Unfolding
 
-If we require $X'W_re=0$ then the stationary equations are
-$W_r(X-\overline X)=W_re\lambda'$ and thus $X=\overline X+e\lambda'$ with
-$\lambda'=-e'W_r\overline X/e'W_re$ or
+$X = ZA$ with $Z$ a known matrix.
+
+## Column-Centering
+
+If we require $X'W_re = 0$ then the stationary equations are
+$W_r(X - \overline X) = W_re\lambda'$ and thus $X = \overline X + e\lambda'$
+with $\lambda' = -e'W_r\overline X/e'W_re$ or
 $$
-  X=(I-\frac{ee'W_r}{e'W_re})\overline X
+  X = (I - \frac{ee'W_r}{e'W_re})\overline X
 $$
 
 This is different from updating $X$ as $J_n\tilde X$ and $Y$ as
-$\tilde Y-n^{-1}ee'\tilde X$. With this alternative update, in which we subtract
-the column-means of $\tilde X$ from both $\tilde X$ and $\tilde Y$, the
+$\tilde Y - n^{-1}ee'\tilde X$. With this alternative update, in which we
+subtract the column-means of $\tilde X$ from both $\tilde X$ and $\tilde Y$, the
 distances are the same before and after centering. Thus the distances in all
 iterations, and consequently the loss function values, are the same with or
 without this type of centering.
 
-### Orthogonality
+## Orthogonality
 
-If we require $X'W_\star X=I$ we have the stationary equations $\overline X=XM$,
-with $M$ a symmetric matrix of Lagrange multipliers. Thus
+If we require $X'W_\star X = I$ we have the stationary equations
+$\overline X = XM$, with $M$ a symmetric matrix of Lagrange multipliers. Thus
 $$
-  X=\text{procrustus}(\overline X):=\overline X(\overline X'W_\star \overline X)^{-\frac12}.
+  X = \text{procrustus}(\overline X)
+    := \overline X(\overline X'W_\star \overline X)^{-\frac12}.
 $$
-If we require both $X'W_\star X=I$ and $X'W_\star e=0$ we have
+If we require both $X'W_\star X = I$ and $X'W_\star e = 0$ we have
 $$
-  X=\text{procrustus}((I-\frac{ee'W_\star }{e'W_\star e})\overline X)
+  X = \text{procrustus}((I - \frac{ee'W_\star}{e'W_\star e})\overline X)
 $$
 
-### Rank Constraints
+## Rank Constraints
 
-One of the main themes in @gifi_B_90 is that the $k_j\times p$ matrices of
-category-scores can be constrained to be of rank $r<p$. We will restrict
-ourselves in this paper to $r=1$, which defines what Gifi calls *single
+One of the main themes in @gifi_B_90 is that the $k_j \times p$ matrices of
+category-scores can be constrained to be of rank $r < p$. We will restrict
+ourselves in this paper to $r = 1$, which defines what Gifi calls *single
 quantifications*. If all variables are restricted to have single quantifications
 then a MCA becomes equivalent to a PCA of the transformed variables.
 
@@ -679,21 +640,22 @@ lines or planes are parallel and perpendicular to the line with the
 category-points.
 
 $$
-  \text{tr}\ (Y-za')'W_c(Y-za')=-2z'W_cYa+z'W_cz.a'a
+  \text{tr}\ (Y - za')'W_c(Y - za') = -2z'W_cYa + z'W_cz.a'a
 $$
 
-So rank one approximation of $\tilde Y+n^{-1}ee'(X-\tilde X)$. If $X$ is
-column-centered then of course $\tilde Y-ee'\tilde X)$.
+So rank one approximation of $\tilde Y + n^{-1}ee'(X - \tilde X)$. If $X$ is
+column-centered then of course $\tilde Y - ee'\tilde X)$.
 
-### Centroid
+## Centroid
 
-A more complicated restriction is $Y=D^{-1}G'X$, possibly together with $X'X=I$
-and $e'X=0$. Minimization over $X$ and the $Y_j$ is no longer separated. In
-fact, the *centroid constraints* effectively eliminate the $Y_j$ from the
-optimization problem. We have to adapt the majorization method to take these new
-constraints into account.
+A more complicated restriction is $Y = D^{-1}G'X$, possibly together with
+$X'X = I$ and $e'X = 0$. Minimization over $X$ and the $Y_j$ is no longer
+separated. In fact, the *centroid constraints* effectively eliminate the $Y_j$
+from the optimization problem. We have to adapt the majorization method to take
+these new constraints into account.
 
-If $Y_j=D_j^{-1}G_j'X$ then $d^j_{i\ll}(X,Y_j)$ only depends on $X$ and we have
+If $Y_j = D_j^{-1}G_j'X$ then $d^j_{i \ll}(X,Y_j)$ only depends on $X$ and we
+have
 \begin{subequations}
 \begin{equation}
 \{d_{i\ell}^j(X)\}^2=\text{tr}\ X'\left\{e_ie_i'-2\ \{d^j_\ell\}^{-1}g^j_\ell e_i'+\{d^j_\ell\}^{-2}g^j_\ell\{g^j_\ell\}'\right\}X.
@@ -707,22 +669,22 @@ d_{i\ell}^j(X)\geq\frac{1}{d_{i\ell}^j(\tilde X)}\text{tr}\ X'\{e_ie_i'-2\ \{d^j
 Suppose $R_W^j$ and $C_W^j$ are diagonal matrices with row-sums and column=sums
 of $W_j$. Then
 \begin{subequations}
-\begin{equation}
-\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j\{d_{i\ell}^j(X)\}^2=
-\text{tr}\ X'\left\{R_W^j-G_jD_j^{-1}W_j'-W_jD_j^{-1}G_j'+G_j(C_W^jD_j^{-2})G_j'\right\}X,
-\end{equation}
-and
-\begin{equation}
-\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jd_{i\ell}^j(X)\geq
-\text{tr}\ X'\left\{R_{\tilde B}^j-G_jD_j^{-1}\tilde B_j'-\tilde B_j'D_j^{-1}G_j'+G_j(C_{\tilde B}^jD_j^{-2})G_j'\right\}\tilde X.\label{eq-ozob}
-\end{equation}
+  \begin{equation}
+    \sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^j\{d_{i\ell}^j(X)\}^2 =
+    \text{tr}\ X'\left\{ R_W^j - G_jD_j^{-1}W_j' - W_jD_j^{-1}G_j' + G_j(C_W^jD_j^{-2})G_j' \right\}X,
+  \end{equation}
+  and
+  \begin{equation}
+    \sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^jd_{i\ell}^j(X) \geq
+    \text{tr}\ X'\left\{ R_{\tilde B}^j - G_jD_j^{-1}\tilde B_j' - \tilde B_j'D_j^{-1}G_j' + G_j(C_{\tilde B}^jD_j^{-2})G_j' \right\}\tilde X.\label{eq-ozob}
+  \end{equation}
 \end{subequations}
 In \eqref{eq-ozob} the matrix $\tilde B_j$ is defined as
 \begin{equation}
-\tilde b_{i\ell}^j:=\begin{cases}
-w_{i\ell}^j\frac{\delta_{i\ell}^j}{d_{i\ell}^j(\tilde X)}&\text{ if }d_{i\ell}^j(\tilde X)>0,\\
-0&\text{ if }d_{i\ell}^j(\tilde X)=0,
-\end{cases}
+  \tilde b_{i\ell}^j := \begin{cases}
+                          w_{i\ell}^j\frac{\delta_{i\ell}^j}{d_{i\ell}^j(\tilde X)} & \text{ if }d_{i\ell}^j(\tilde X) > 0, \\
+                          0                                                         & \text{ if }d_{i\ell}^j(\tilde X) = 0,
+                        \end{cases}
 \end{equation}
 and $R_{\tilde B}^j$ and $C_{\tilde B}^j$ are the diagonal matrices of its
 row-sums and column-sums.
@@ -743,7 +705,7 @@ following arguments (with default values).
 voronoiHomogeneityAnalysis <- function(theData,  
                                        ndim = 2, 
                                        wght = NULL,
-                                       dnorm = FALSE,
+                                       xextr = NULL,
                                        xcent = FALSE,
                                        xnorm = FALSE,
                                        yrank = ndim,
@@ -753,11 +715,11 @@ voronoiHomogeneityAnalysis <- function(theData,
                                        verbose = TRUE)
 ```
 
-- *theData* is an $n\times m$ matrix with $n$ observations on $m$categorical
+- *theData* is an $n \times m$ matrix with $n$ observations on $m$categorical
   variables.
 - *ndim* is the number of dimensions of the solution.
-- *wght* is either NULL or a list of $n\times k_j$ matrices. If wght is NULL all
-  weights are one.
+- *wght* is either NULL or a list of $n \times k_j$ matrices. If wght is NULL
+  all weights are one.
 - *dnorm* if TRUE the monotone regression is normalized.
 - *xcent* if TRUE object scores are W-centered.
 - *xnorm* if TRUE object scores are W-orthonormal.
@@ -792,17 +754,17 @@ The value returned by the program is a list.
   )
 ```
 
-- *xmat* object scores, an $n\times p$ matrix, with $p$ equal to *ndim*.
-- *ymat* category-scores, a list of *m* matrices of dimension $k_j\times p$.
-- *dmat* distances, a list of *m* matrices of dimension $n\times k_j$.
-- *dhat* disparities, a list of *m* matrices of dimension $n\times k_j$.
+- *xmat* object scores, an $n \times p$ matrix, with $p$ equal to *ndim*.
+- *ymat* category-scores, a list of *m* matrices of dimension $k_j \times p$.
+- *dmat* distances, a list of *m* matrices of dimension $n \times k_j$.
+- *dhat* disparities, a list of *m* matrices of dimension $n \times k_j$.
 - *xini* the MCA solution for the object scores,
 - *yini* the MCA solution for the category-scores,
 - *itel* number of iterations.
 - *loss* final value of stress.
-- *indi* indicators, a list of *m* matrices of dimension $n\times k_j$.
+- *indi* indicators, a list of *m* matrices of dimension $n \times k_j$.
 - *ncat* a vector with the number of categories of the $m$ variables.
-- *wght* weights, a list of *m* matrices of dimension $n\times k_j$.
+- *wght* weights, a list of *m* matrices of dimension $n \times k_j$.
 
 ## Subroutines
 
@@ -812,10 +774,10 @@ The plotVHA() routine makes joint plots of object scores and category scores for
 a single variable. It can label the points in different ways and it can draw
 some additional geometric objects in the plots. The arguments are
 
-- *xmat* $n\times p$, object scores,
-- *ymat* $k_j\times p$, category scores variable $j$,
-- *indi* $n\times k_j$, indicator matrix variable $j$,
-- *dmat* $n\times k_j$, distance matrix variable $j$,
+- *xmat* $n \times p$, object scores,
+- *ymat* $k_j \times p$, category scores variable $j$,
+- *indi* $n \times k_j$, indicator matrix variable $j$,
+- *dmat* $n \times k_j$, distance matrix variable $j$,
 - *type* "voronoi" (default), "circle", or "hull",
 - *main* NULL (default), or plot label,
 - *ylab* = 1,
@@ -828,9 +790,9 @@ some additional geometric objects in the plots. The arguments are
 
 ## Small Example
 
-We start with the small example we used before to illustrate MCA. We first do an analysis
-without additional configuration constraints, using the horizontal (row-wise) ordinal constraints
-on the dissimilarities.
+We start with the small example we used before to illustrate MCA. We first do an
+analysis without additional configuration constraints, using the horizontal
+(row-wise) ordinal constraints on the dissimilarities.
 
 ```{r}
 #| label: smallvharow
@@ -844,15 +806,15 @@ plotVHA(h_small$xmat, h_small$ymat[[2]], h_small$indi[[2]], h_small$dmat[[2]], h
 plotVHA(h_small$xmat, h_small$ymat[[3]], h_small$indi[[3]], h_small$dmat[[3]], h_small$ncat[3], xlab = small[, 3], ylab = labs_small[[3]], type = "voronoi", pdf = FALSE)
 ```
 Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after
-`r h_small$itel` iterations. If we compare the plots from the VHA
-with the star plots from the initial MCA for this example we see that the
-algorithm did not have to change much to obtain perfect fit. One thing that does
-change is that the iterations moves the category-points "p" and "r" for variable
-2 very close to each other. At the point where we stop the iterations they are
-still distinguishable, and thus their perpendicular bisector is still a line in
-the Voronoi plot. If we would continue iterating "p" and "r" would coincide and
+`r h_small$itel` iterations. If we compare the plots from the VHA with the star
+plots from the initial MCA for this example we see that the algorithm did not
+have to change much to obtain perfect fit. One thing that does change is that
+the iterations moves the category-points "p" and "r" for variable 2 very close
+to each other. At the point where we stop the iterations they are still
+distinguishable, and thus their perpendicular bisector is still a line in the
+Voronoi plot. If we would continue iterating "p" and "r" would coincide and
 there would only be two Voronoi regions: one containing category-point "q" and
-object-point 2, and one containing all other points. 
+object-point 2, and one containing all other points.
 
 ```{r}
 #| label: redo
@@ -863,9 +825,8 @@ par(pty = "s")
 plotVHA(h_small$xmat, h_small$ymat[[2]][1:2, ], h_small$indi[[2]], h_small$dmat[[2]], 23, xlab = small[, 2], ylab = c("p r", "q"), type = "voronoi", pdf = FALSE)
 ```
 
-Next we repeat the analysis, but this time with vertical (column-wise) constraints. 
-We show the circle-plots
-for this solution. 
+Next we repeat the analysis, but this time with vertical (column-wise)
+constraints. We show the circle-plots for this solution.
 
 ```{r}
 #| label: smallvhacol
@@ -915,14 +876,13 @@ plotVHA(
 )
 ```
 
-Note that for variable 2 the p-circle is within the r-circle, and there
-is a p-object on the boundary of the r-circle and an r-object on the
-boundary of the p-circle. The intersection of the interiors of these two circle 
-do not contain any objects. For the third variable the three u-objects
-(which all have the same "apu" profile and thus have a circle with zero radius) 
-are on the boundary of the v-circle.
-Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after
-`r h_small$itel` iterations. 
+Note that for variable 2 the p-circle is within the r-circle, and there is a
+p-object on the boundary of the r-circle and an r-object on the boundary of the
+p-circle. The intersection of the interiors of these two circle do not contain
+any objects. For the third variable the three u-objects (which all have the same
+"apu" profile and thus have a circle with zero radius) are on the boundary of
+the v-circle. Loss is `r formatC(h_small$loss, digits = 10, format = "f")` after
+`r h_small$itel` iterations.
 
 ## GALO
 
@@ -952,14 +912,15 @@ The categories of SES are as follows (again alphabetically).
 We start with an MCA of the galo data. The initial value of the loss function is
 0.3158339145. The loss function value is computed by using
 \begin{equation}
-\sigma_\star(X,Y_1,\cdots,Y_m):=\min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-lossMCA}
+  \sigma_\star(X,Y_1,\cdots,Y_m) := \min_{\Delta_1,\cdots,\Delta_m}\sigma(X,Y_1,\cdots,Y_m,\Delta_1,\cdots,\Delta_m),\label{eq-lossMCA}
 \end{equation}
 where $X$ and the $Y_j$ are the MCA solution, and where the minimum over the
 $\Delta_j$ is computed by requiring that
 $\smash{\delta_{i\nu}^j\leq\delta_{i\ell}^j}$ if $\smash{g_{i\nu}^j=1}$. This is
 *not* the MCA loss function \eqref{eq-loss2}, in which the minimum over the
-$\Delta_j$ is computed by requiring that $\delta_{i\ell}^j=0$ whenever
-$g_{i\ell}^j=1$. Thus we evaluate the MCA solution using the VGA loss function.
+$\Delta_j$ is computed by requiring that $\delta_{i\ell}^j = 0$ whenever
+$g_{i\ell}^j = 1$. Thus we evaluate the MCA solution using the VGA loss
+function.
 
 For any MCA or VGA solution we can compute a Shepard diagram by plotting the
 distances and disparities, pooled over all objects (individuals) and variables.
@@ -1040,7 +1001,7 @@ gmin <- min(c(min(MCAlo$xmat), sapply(MCAlo$ymat, min)))
 The VHA solution has loss equal to
 `r formatC(MCAlo$loss, digits = 10, format = "f")` after `r MCAlo$itel`
 iterations. The voronoi function stopped because the maximum number of
-iterations was reached. The $d-\hat d$ plot in @fig-galo_d_dhat shows a
+iterations was reached. The $d - \hat d$ plot in @fig-galo_d_dhat shows a
 near-perfect fit.
 
 ```{r}

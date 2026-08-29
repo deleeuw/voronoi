@@ -1,10 +1,10 @@
 flavor = "quarto"
-line-width = 80
-line-ending = "auto"
 
 # Formatting style
 [format]
 wrap = "reflow"
+line-width = 80
+line-ending = "auto"
 
 # External code formatters (opt-in)
 [formatters]
